@@ -1,12 +1,19 @@
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+# netlify.toml
 
 [build]
   command = "npm run build"
   publish = "client/dist"
   base = "client"
 
+# Redirect all routes to index.html (for SPA routing)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
 [secrets_scan]
-  omit_keys = ["VITE_API_URL", "VITE_BASE_URL"]
+  # Ignore public environment variables that appear in frontend build
+  omit_keys = ["VITE_API_URL"]
+
+  # Optionally, you can disable scanning entirely if you trust the build
+  # enabled = false
