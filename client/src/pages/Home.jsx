@@ -3,7 +3,7 @@ import UrlShortener from "../components/UrlShortener";
 import Features from "../components/Features";
 import Hero from "../components/Hero";
 
-const API_BASE_URL = import.meta.env.API_BASE_URL || "http://localhost:5000";
+const API_BASE_URL = import.meta.env.VITE_BASE_URL || "http://localhost:5000";
 
 const Home = () => {
   return (

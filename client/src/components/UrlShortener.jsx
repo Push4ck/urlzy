@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+import { getApiUrl, API_ENDPOINTS } from "../config/api";
 
 const UrlShortener = () => {
   const [originalUrl, setOriginalUrl] = useState("");
@@ -19,7 +18,7 @@ const UrlShortener = () => {
     setUrlData(null);
 
     try {
-      const response = await axios.post(`${API_BASE_URL}/api/shorten`, {
+      const response = await axios.post(getApiUrl(API_ENDPOINTS.SHORTEN), {
         originalUrl,
         customCode: customCode || undefined,
       });
