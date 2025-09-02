@@ -3,7 +3,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { useAuth } from "../contexts/useAuth";
 import { useNavigate } from "react-router-dom";
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 const Pricing = () => {
   const { user } = useAuth();
