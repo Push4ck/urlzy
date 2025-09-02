@@ -24,8 +24,6 @@ mongoose
   .connect(
     process.env.MONGODB_URI || "mongodb://localhost:27017/urlshortener",
     {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
       serverSelectionTimeoutMS: 20000,
     }
   )
