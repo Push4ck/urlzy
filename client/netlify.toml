@@ -2,3 +2,11 @@
   from = "/*"
   to = "/index.html"
   status = 200
+
+[build]
+  command = "npm run build"
+  publish = "client/dist"
+  base = "client"
+
+[secrets_scan]
+  omit_keys = ["VITE_API_URL", "VITE_BASE_URL"]
