@@ -1,7 +1,13 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import axios from "axios";
+import toast from "react-hot-toast";
+import { useAuth } from "../contexts/useAuth";
+import { useNavigate } from "react-router-dom";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 const Pricing = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const plans = [
     {
       name: "Free",
@@ -154,6 +160,79 @@ const Pricing = () => {
                     ? "bg-indigo-600 text-white hover:bg-indigo-700"
                     : "bg-gray-100 text-gray-900 hover:bg-gray-200"
                 }`}
+                onClick={async () => {
+                  const token = localStorage.getItem("token");
+                  if (!user && !token) {
+                    toast("Please log in to upgrade", { icon: "🔐" });
+                    navigate("/login");
+                    return;
+                  }
+                  try {
+                    // Create Razorpay order
+                    const planSlug = plan.name.toLowerCase();
+                    const orderRes = await axios.post(
+                      `${API_BASE_URL}/api/billing/razorpay/order`,
+                      { plan: planSlug },
+                      { headers: { Authorization: `Bearer ${token || ""}` } }
+                    );
+                    const order = orderRes.data?.data?.order;
+                    if (!order) {
+                      toast.error("Failed to create order");
+                      return;
+                    }
+
+                    // Load Razorpay script if not present
+                    if (!window.Razorpay) {
+                      await new Promise((resolve, reject) => {
+                        const script = document.createElement("script");
+                        script.src =
+                          "https://checkout.razorpay.com/v1/checkout.js";
+                        script.onload = resolve;
+                        script.onerror = reject;
+                        document.body.appendChild(script);
+                      });
+                    }
+
+                    const options = {
+                      key: import.meta.env.VITE_RAZORPAY_KEY_ID || "",
+                      amount: order.amount,
+                      currency: order.currency,
+                      name: "URLzy",
+                      description: `${plan.name} Subscription`,
+                      order_id: order.id,
+                      handler: async function (response) {
+                        try {
+                          const verifyRes = await axios.post(
+                            `${API_BASE_URL}/api/billing/razorpay/verify`,
+                            response,
+                            {
+                              headers: {
+                                Authorization: `Bearer ${token || ""}`,
+                              },
+                            }
+                          );
+                          if (verifyRes.data?.success) {
+                            toast.success(
+                              "Payment successful! Premium activated"
+                            );
+                          } else {
+                            toast.error("Verification failed");
+                          }
+                        } catch (err) {
+                          toast.error("Verification error");
+                        }
+                      },
+                      theme: { color: "#4f46e5" },
+                    };
+
+                    const rzp = new window.Razorpay(options);
+                    rzp.open();
+                  } catch (err) {
+                    toast.error(
+                      err.response?.data?.message || "Failed to start checkout"
+                    );
+                  }
+                }}
               >
                 {plan.buttonText}
               </button>

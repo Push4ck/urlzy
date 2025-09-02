@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
+import { useAuth } from "../contexts/useAuth";
+import toast from "react-hot-toast";
 
 const Login = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -24,21 +26,19 @@ const Login = () => {
     setError("");
 
     try {
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/auth/login`,
-        formData
-      );
-
-      if (response.data.success) {
-        // Save token to localStorage
-        localStorage.setItem("token", response.data.data.token);
-        // Save user data
-        localStorage.setItem("user", JSON.stringify(response.data.data.user));
-        // Redirect to dashboard
+      const result = await login(formData.email, formData.password);
+      if (result?.success) {
+        toast.success("Logged in successfully");
         navigate("/dashboard");
+        return;
       }
+      setError(result?.message || "An error occurred during login");
+      toast.error(result?.message || "Login failed");
     } catch (err) {
-      setError(err.response?.data?.message || "An error occurred during login");
+      const message =
+        err.response?.data?.message || "An error occurred during login";
+      setError(message);
+      toast.error(message);
     } finally {
       setLoading(false);
     }

@@ -8,7 +8,7 @@ const app = express();
 // Middleware
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:3000",
+    origin: process.env.CLIENT_URL || "http://localhost:5173",
     credentials: true,
   })
 );
@@ -34,10 +34,12 @@ mongoose
 // Routes
 const urlRoutes = require("./routes/urls");
 const authRoutes = require("./routes/auth");
+const billingRoutes = require("./routes/billing");
 
 // API routes
 app.use("/api", urlRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/billing", billingRoutes);
 
 // Redirect routes (these need to be at root level)
 app.use("/", urlRoutes);

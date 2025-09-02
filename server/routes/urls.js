@@ -41,6 +41,27 @@ const rateLimit = (req, res, next) => {
   next();
 };
 
+// GET /api/url/list - List URLs (basic, no auth filtering)
+router.get("/api/url/list", async (req, res) => {
+  try {
+    const urls = await Url.find({})
+      .select("originalUrl shortCode customCode clickCount createdAt")
+      .sort({ createdAt: -1 })
+      .limit(100);
+
+    return res.json({
+      success: true,
+      data: urls,
+    });
+  } catch (error) {
+    console.error("Error listing URLs:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+});
+
 // POST /api/shorten - Create short URL
 router.post("/shorten", rateLimit, async (req, res) => {
   try {
@@ -219,6 +240,37 @@ router.get("/api/url/:shortCode", async (req, res) => {
   } catch (error) {
     console.error("Error in URL info:", error);
     res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+});
+
+// DELETE /api/url/:shortCode - Delete a URL by short code or custom code
+router.delete("/api/url/:shortCode", async (req, res) => {
+  try {
+    const { shortCode } = req.params;
+
+    const url = await Url.findOne({
+      $or: [{ shortCode }, { customCode: shortCode }],
+    });
+
+    if (!url) {
+      return res.status(404).json({
+        success: false,
+        message: "URL not found",
+      });
+    }
+
+    await Url.deleteOne({ _id: url._id });
+
+    return res.json({
+      success: true,
+      message: "URL deleted successfully",
+    });
+  } catch (error) {
+    console.error("Error deleting URL:", error);
+    return res.status(500).json({
       success: false,
       message: "Server error",
     });

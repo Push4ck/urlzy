@@ -11,11 +11,13 @@ import Analytics from "./pages/Analytics";
 import Pricing from "./pages/Pricing";
 import Footer from "./components/Footer";
 import "./index.css";
+import { Toaster } from "react-hot-toast";
 
 function App() {
   return (
     <AuthProvider>
       <div className="min-h-screen bg-gray-50 flex flex-col">
+        <Toaster position="top-right" />
         <Navbar />
         <main className="flex-1">
           <Routes>

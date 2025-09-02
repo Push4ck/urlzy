@@ -34,9 +34,13 @@ router.post("/register", validateRegistration, async (req, res) => {
     await user.save();
 
     // Generate JWT token
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "7d",
-    });
+    const token = jwt.sign(
+      { userId: user._id },
+      process.env.JWT_SECRET || "dev_secret_change_me",
+      {
+        expiresIn: "7d",
+      }
+    );
 
     res.status(201).json({
       success: true,
@@ -85,9 +89,13 @@ router.post("/login", validateLogin, async (req, res) => {
     }
 
     // Generate JWT token
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "7d",
-    });
+    const token = jwt.sign(
+      { userId: user._id },
+      process.env.JWT_SECRET || "dev_secret_change_me",
+      {
+        expiresIn: "7d",
+      }
+    );
 
     res.json({
       success: true,
@@ -122,7 +130,10 @@ router.get("/profile", async (req, res) => {
       });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET || "dev_secret_change_me"
+    );
     const user = await User.findById(decoded.userId).select("-password");
 
     if (!user) {

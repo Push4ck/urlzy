@@ -1,29 +1,40 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import axios from "axios";
+import toast from "react-hot-toast";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 const Dashboard = () => {
-  // Mock data - replace with real data from API
-  const [urls, setUrls] = useState([
-    {
-      id: 1,
-      originalUrl: "https://www.example.com/very-long-url",
-      shortCode: "abc123",
-      clickCount: 42,
-      createdAt: "2024-01-15",
-      status: "active",
-    },
-    {
-      id: 2,
-      originalUrl: "https://www.google.com",
-      shortCode: "ggl456",
-      clickCount: 128,
-      createdAt: "2024-01-14",
-      status: "active",
-    },
-  ]);
+  const [urls, setUrls] = useState([]);
 
-  const handleDelete = (id) => {
-    setUrls((prevUrls) => prevUrls.filter((url) => url.id !== id));
+  useEffect(() => {
+    const fetchUrls = async () => {
+      try {
+        const res = await axios.get(`${API_BASE_URL}/api/url/list`);
+        if (res.data?.success) {
+          setUrls(res.data.data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch URLs", err);
+      }
+    };
+    fetchUrls();
+  }, []);
+
+  const handleDelete = async (shortCode) => {
+    try {
+      const res = await axios.delete(`${API_BASE_URL}/api/url/${shortCode}`);
+      if (res.data?.success) {
+        setUrls((prev) =>
+          prev.filter((u) => (u.shortCode || u.customCode) !== shortCode)
+        );
+        toast.success("URL deleted");
+      } else {
+        toast.error(res.data?.message || "Failed to delete");
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to delete");
+    }
   };
 
   const stats = {
@@ -156,10 +167,10 @@ const Dashboard = () => {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {urls.map((url) => (
-                  <tr key={url.id} className="hover:bg-gray-50">
+                  <tr key={url._id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-indigo-600">
-                        urlzy.com/{url.shortCode}
+                        urlzy.com/{url.shortCode || url.customCode}
                       </div>
                     </td>
                     <td className="px-6 py-4">
@@ -174,18 +185,20 @@ const Dashboard = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">
-                        {url.createdAt}
+                        {new Date(url.createdAt).toLocaleDateString()}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                       <Link
-                        to={`/analytics/${url.shortCode}`}
+                        to={`/analytics/${url.shortCode || url.customCode}`}
                         className="text-indigo-600 hover:text-indigo-900 mr-4"
                       >
                         Analytics
                       </Link>
                       <button
-                        onClick={() => handleDelete(url.id)}
+                        onClick={() =>
+                          handleDelete(url.shortCode || url.customCode)
+                        }
                         className="text-red-600 hover:text-red-900"
                       >
                         Delete
