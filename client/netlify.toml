@@ -4,6 +4,7 @@
 
 [build.environment]
   NODE_VERSION = "18"
+  VITE_API_URL = "https://urlzy-v48i.onrender.com"
 
 [[headers]]
   for = "*.js"
