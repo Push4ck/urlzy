@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Url = require("../models/Url");
+const User = require("../models/User");
 const {
   generateUniqueCode,
   isCustomCodeAvailable,
@@ -124,6 +125,16 @@ router.post(
       });
 
       await url.save();
+
+      // If authenticated, increment user's urlsCreated counter
+      if (userId) {
+        try {
+          await User.updateOne({ _id: userId }, { $inc: { urlsCreated: 1 } });
+        } catch (e) {
+          // Non-blocking: log but don't fail the request
+          console.error("Failed to increment user's urlsCreated:", e);
+        }
+      }
 
       const baseUrl = process.env.BASE_URL || "http://localhost:5000";
       const shortUrl = `${baseUrl}/${customCode || shortCode}`;
