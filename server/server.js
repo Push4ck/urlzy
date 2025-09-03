@@ -11,15 +11,57 @@ const allowedOrigins = (process.env.CLIENT_URL || "http://localhost:3000")
   .split(",")
   .map((s) => s.trim());
 
+// Add known production origins as fallback
+const productionOrigins = [
+  "https://urlzy.netlify.app",
+  "http://localhost:3000",
+  "http://localhost:5173", // Vite dev server
+];
+
+// Merge allowed origins with production fallbacks
+const allAllowedOrigins = [
+  ...new Set([...allowedOrigins, ...productionOrigins]),
+];
+
+// Add debug logging for CORS
+console.log("Allowed CORS origins:", allAllowedOrigins);
+console.log("CLIENT_URL from env:", process.env.CLIENT_URL);
+
 const corsOptions = {
   origin: (origin, callback) => {
+    console.log("CORS request from origin:", origin);
+
+    // Allow requests with no origin (mobile apps, Postman, etc.)
     if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) return callback(null, true);
+
+    // Check if origin is in allowed list
+    if (allAllowedOrigins.includes(origin)) {
+      console.log("Origin allowed:", origin);
+      return callback(null, true);
+    }
+
+    // Temporary fix: Allow all netlify.app subdomains
+    if (origin && origin.includes(".netlify.app")) {
+      console.log("Origin allowed (netlify.app):", origin);
+      return callback(null, true);
+    }
+
+    // Allow localhost for development
+    if (
+      origin &&
+      (origin.includes("localhost") || origin.includes("127.0.0.1"))
+    ) {
+      console.log("Origin allowed (localhost):", origin);
+      return callback(null, true);
+    }
+
+    console.log("Origin blocked:", origin);
     return callback(new Error("Not allowed by CORS"));
   },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+  optionsSuccessStatus: 200, // Some legacy browsers choke on 204
 };
 
 app.use(cors(corsOptions));
