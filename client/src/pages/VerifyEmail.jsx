@@ -113,7 +113,7 @@ const VerifyEmail = () => {
         )}
 
         {step === 2 && (
-          <form className="mt-8 space-y-6" onSubmit={verifyCode}>
+          <form className="mt-8 space-y-6" noValidate onSubmit={verifyCode}>
             <div>
               <label
                 htmlFor="otp"
@@ -124,9 +124,8 @@ const VerifyEmail = () => {
               <input
                 id="otp"
                 name="otp"
-                type="text"
+                type="tel"
                 inputMode="numeric"
-                pattern="[0-9]{6}"
                 maxLength={6}
                 required
                 value={otp}
