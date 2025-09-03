@@ -98,7 +98,7 @@ const Analytics = () => {
             ← Back to Dashboard
           </Link>
           <h1 className="text-3xl font-bold text-gray-900">Analytics</h1>
-          <p className="text-gray-600">urlzy.com/{shortCode}</p>
+          <p className="text-gray-600">urlzy.netlify.app/{shortCode}</p>
           <p className="text-sm text-gray-500 mt-1">{urlData.originalUrl}</p>
           <p className="text-xs text-gray-400 mt-1">
             Created: {new Date(urlData.createdAt).toLocaleDateString()}

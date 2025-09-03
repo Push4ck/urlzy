@@ -112,7 +112,7 @@ const UrlShortener = () => {
               </label>
               <div className="flex">
                 <span className="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-gray-300 bg-gray-100 text-gray-500 text-sm">
-                  urlzy.com/
+                  urlzy.netlify.app/
                 </span>
                 <input
                   type="text"
