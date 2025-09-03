@@ -40,6 +40,12 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    // Email verification OTP fields
+    emailVerifyOtpHash: { type: String, default: null },
+    emailVerifyOtpExpires: { type: Date, default: null },
+    emailVerifyOtpAttempts: { type: Number, default: 0 },
+    emailVerifyOtpLastSentAt: { type: Date, default: null },
+
     // Password reset OTP fields
     resetOtpHash: {
       type: String,
@@ -57,6 +63,14 @@ const userSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
+
+    // Two-factor authentication (email OTP at login)
+    twoFactorEnabled: { type: Boolean, default: false },
+    twoFactorOtpHash: { type: String, default: null },
+    twoFactorOtpExpires: { type: Date, default: null },
+    twoFactorOtpAttempts: { type: Number, default: 0 },
+    twoFactorOtpLastSentAt: { type: Date, default: null },
+
     createdAt: {
       type: Date,
       default: Date.now,

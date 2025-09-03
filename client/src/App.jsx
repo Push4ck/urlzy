@@ -10,6 +10,8 @@ import ForgotPassword from "./pages/ForgotPassword";
 import Register from "./pages/Register";
 import Analytics from "./pages/Analytics";
 import Pricing from "./pages/Pricing";
+import VerifyEmail from "./pages/VerifyEmail";
+import LoginVerify from "./pages/LoginVerify";
 import Footer from "./components/Footer";
 import "./index.css";
 import { Toaster } from "react-hot-toast";
@@ -25,8 +27,10 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/verify-email" element={<VerifyEmail />} />
             <Route path="/register" element={<Register />} />
             <Route path="/pricing" element={<Pricing />} />
+            <Route path="/login-verify" element={<LoginVerify />} />
             <Route
               path="/dashboard"
               element={

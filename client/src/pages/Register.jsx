@@ -41,8 +41,8 @@ const Register = () => {
         formData.password
       );
       if (result?.success) {
-        toast.success("Account created");
-        navigate("/dashboard");
+        toast.success("Account created. Check your email to verify.");
+        navigate("/verify-email");
         return;
       }
       setError(result?.message || "Registration failed");

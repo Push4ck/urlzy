@@ -27,9 +27,24 @@ const Login = () => {
 
     try {
       const result = await login(formData.email, formData.password);
+      if (result?.success && result?.twoFactorRequired && result?.loginToken) {
+        // redirect to 2FA verify step
+        navigate(
+          `/login-verify?token=${encodeURIComponent(
+            result.loginToken
+          )}&email=${encodeURIComponent(formData.email)}`
+        );
+        toast.success("Enter the code sent to your email");
+        return;
+      }
       if (result?.success) {
         toast.success("Logged in successfully");
         navigate("/dashboard");
+        return;
+      }
+      if (result?.requiresVerification) {
+        toast.error("Email not verified. Check your inbox for the code.");
+        navigate("/verify-email");
         return;
       }
       setError(result?.message || "An error occurred during login");

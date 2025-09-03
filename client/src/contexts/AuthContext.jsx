@@ -41,18 +41,37 @@ export const AuthProvider = ({ children }) => {
       );
 
       if (response.data.success) {
-        const { token, user } = response.data.data;
-        localStorage.setItem("token", token);
-        localStorage.setItem("user", JSON.stringify(user));
-        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-        setUser(user);
-        return { success: true };
+        const data = response.data.data;
+        // If 2FA required
+        if (data?.twoFactorRequired && data?.loginToken) {
+          return {
+            success: true,
+            twoFactorRequired: true,
+            loginToken: data.loginToken,
+          };
+        }
+        if (data?.token && data?.user) {
+          const { token, user } = data;
+          localStorage.setItem("token", token);
+          localStorage.setItem("user", JSON.stringify(user));
+          axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+          setUser(user);
+          return { success: true };
+        }
       }
       return { success: false, message: "Login failed" };
     } catch (error) {
+      const message = extractErrorMessage(
+        error,
+        "An error occurred during login"
+      );
+      // Pass through gating flags if present
+      const requiresVerification =
+        error?.response?.data?.requiresVerification || false;
       return {
         success: false,
-        message: extractErrorMessage(error, "An error occurred during login"),
+        message,
+        requiresVerification,
       };
     }
   };
@@ -65,11 +84,7 @@ export const AuthProvider = ({ children }) => {
       );
 
       if (response.data.success) {
-        const { token, user } = response.data.data;
-        localStorage.setItem("token", token);
-        localStorage.setItem("user", JSON.stringify(user));
-        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-        setUser(user);
+        // We no longer auto-login; we gate by email verification
         return { success: true };
       }
       return { success: false, message: "Registration failed" };

@@ -78,6 +78,33 @@ const validateResetPassword = [
   validate,
 ];
 
+// Email verify / request
+const validateEmailOnly = [
+  body("email").trim().isEmail().withMessage("Please provide a valid email"),
+  validate,
+];
+
+const validateEmailOtpVerify = [
+  body("email").trim().isEmail().withMessage("Please provide a valid email"),
+  body("otp")
+    .trim()
+    .isLength({ min: 6, max: 6 })
+    .isNumeric()
+    .withMessage("Invalid OTP"),
+  validate,
+];
+
+// Login 2FA verify
+const validateLoginOtpVerify = [
+  body("loginToken").isString().withMessage("loginToken is required"),
+  body("otp")
+    .trim()
+    .isLength({ min: 6, max: 6 })
+    .isNumeric()
+    .withMessage("Invalid OTP"),
+  validate,
+];
+
 module.exports = {
   urlValidationRules,
   validateRegistration,
@@ -85,5 +112,8 @@ module.exports = {
   validateForgotRequest,
   validateOtpVerify,
   validateResetPassword,
+  validateEmailOnly,
+  validateEmailOtpVerify,
+  validateLoginOtpVerify,
   validate,
 };
