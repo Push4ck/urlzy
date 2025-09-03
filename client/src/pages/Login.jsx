@@ -44,7 +44,11 @@ const Login = () => {
       }
       if (result?.requiresVerification) {
         toast.error("Email not verified. Check your inbox for the code.");
-        navigate("/verify-email");
+        navigate(
+          `/verify-email?email=${encodeURIComponent(
+            formData.email
+          )}&skipRequest=1`
+        );
         return;
       }
       setError(result?.message || "An error occurred during login");

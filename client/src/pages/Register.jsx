@@ -42,7 +42,11 @@ const Register = () => {
       );
       if (result?.success) {
         toast.success("Account created. Check your email to verify.");
-        navigate("/verify-email");
+        navigate(
+          `/verify-email?email=${encodeURIComponent(
+            formData.email
+          )}&skipRequest=1`
+        );
         return;
       }
       setError(result?.message || "Registration failed");

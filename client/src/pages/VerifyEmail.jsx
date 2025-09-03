@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import axios from "axios";
 import { API_ENDPOINTS, getApiUrl } from "../config/api";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 
 const VerifyEmail = () => {
   const [email, setEmail] = useState("");
@@ -10,6 +10,17 @@ const VerifyEmail = () => {
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(1); // 1: request, 2: verify
   const navigate = useNavigate();
+  const [params] = useSearchParams();
+
+  // Pre-fill and skip request if coming from register/login where backend already sent a code
+  useEffect(() => {
+    const emailParam = params.get("email");
+    const skip = params.get("skipRequest");
+    if (emailParam) setEmail(emailParam);
+    if (emailParam && skip === "1") {
+      setStep(2);
+    }
+  }, [params]);
 
   const requestCode = async (e) => {
     e.preventDefault();
