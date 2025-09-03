@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { getApiUrl, API_ENDPOINTS } from "../config/api";
+import { getApiUrl, API_ENDPOINTS, API_BASE_URL } from "../config/api";
 
 const Dashboard = () => {
   const [urls, setUrls] = useState([]);
@@ -176,9 +176,23 @@ const Dashboard = () => {
                 {urls.map((url) => (
                   <tr key={url._id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-indigo-600">
-                        urlzy.netlify.app/{url.shortCode || url.customCode}
-                      </div>
+                      {(() => {
+                        const base = (
+                          import.meta.env.VITE_BASE_URL || API_BASE_URL
+                        ).replace(/\/$/, "");
+                        const code = url.shortCode || url.customCode;
+                        const shortUrl = `${base}/${code}`;
+                        return (
+                          <a
+                            href={shortUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-sm font-medium text-indigo-600 hover:underline"
+                          >
+                            {shortUrl}
+                          </a>
+                        );
+                      })()}
                     </td>
                     <td className="px-6 py-4">
                       <div className="text-sm text-gray-900 truncate max-w-xs">
