@@ -177,7 +177,7 @@ const Dashboard = () => {
                   <tr key={url._id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-indigo-600">
-                        urlzy.com/{url.shortCode || url.customCode}
+                        urlzy.netlify.app/{url.shortCode || url.customCode}
                       </div>
                     </td>
                     <td className="px-6 py-4">
