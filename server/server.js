@@ -7,11 +7,7 @@ const app = express();
 
 // Middleware
 // CORS: allow one or more client origins via env CLIENT_URLS (comma-separated) or CLIENT_URL
-const allowedOrigins = (
-  process.env.CLIENT_URLS ||
-  process.env.CLIENT_URL ||
-  "http://localhost:5173"
-)
+const allowedOrigins = (process.env.CLIENT_URL || "http://localhost:3000")
   .split(",")
   .map((s) => s.trim());
 
@@ -37,12 +33,9 @@ app.set("trust proxy", 1);
 
 // Connect to MongoDB
 mongoose
-  .connect(
-    process.env.MONGODB_URI || "mongodb://localhost:27017/urlshortener",
-    {
-      serverSelectionTimeoutMS: 20000,
-    }
-  )
+  .connect(process.env.MONGODB_URI, {
+    serverSelectionTimeoutMS: 20000,
+  })
   .then(() => {
     console.log("MongoDB connected");
     const PORT = process.env.PORT || 5000;
@@ -65,12 +58,9 @@ const authRoutes = require("./routes/auth");
 const billingRoutes = require("./routes/billing");
 
 // API routes
-app.use("/api", urlRoutes);
+app.use("/", urlRoutes); // This handles both API routes (/api/urls/*) and redirect routes (/:shortCode)
 app.use("/api/auth", authRoutes);
 app.use("/api/billing", billingRoutes);
-
-// Redirect routes (these need to be at root level)
-app.use("/", urlRoutes);
 
 // Health check
 app.get("/health", (req, res) => {

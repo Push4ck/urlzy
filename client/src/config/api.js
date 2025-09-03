@@ -3,9 +3,10 @@ export const API_BASE_URL =
 
 // You can also add other API-related configurations here
 export const API_ENDPOINTS = {
-  SHORTEN: "/api/shorten",
-  ANALYTICS: "/api/analytics",
+  SHORTEN: "/api/urls/shorten",
+  URLS: "/api/urls",
   AUTH: "/api/auth",
+  BILLING: "/api/billing",
 };
 
 // Helper function for making API calls

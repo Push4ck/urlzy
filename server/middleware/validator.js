@@ -19,10 +19,10 @@ const urlValidationRules = () => {
       .withMessage("Please provide a valid URL"),
     body("customCode")
       .optional()
-      .isLength({ min: 4, max: 20 })
-      .matches(/^[a-zA-Z0-9-_]+$/)
+      .isLength({ min: 3, max: 20 })
+      .matches(/^[a-zA-Z0-9]+$/)
       .withMessage(
-        "Custom code must be 4-20 characters long and contain only letters, numbers, hyphens, and underscores"
+        "Custom code must be 3-20 characters long and contain only letters and numbers"
       ),
   ];
 };

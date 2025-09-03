@@ -235,7 +235,9 @@ const UrlShortener = () => {
                     </div>
                     <div>
                       <span className="font-medium">Expires:</span>{" "}
-                      {new Date(urlData.expiresAt).toLocaleDateString()}
+                      {urlData.expiresAt
+                        ? new Date(urlData.expiresAt).toLocaleDateString()
+                        : "Never"}
                     </div>
                   </div>
                   <div className="mt-2">

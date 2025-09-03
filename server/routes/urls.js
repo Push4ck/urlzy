@@ -6,11 +6,18 @@ const {
   isCustomCodeAvailable,
   isValidUrl,
 } = require("../utils/shortCode");
+const { authenticate, optionalAuth } = require("../middleware/auth");
+const { urlValidationRules, validate } = require("../middleware/validator");
 
 // Rate limiting middleware (simple implementation)
 const rateLimitMap = new Map();
 
 const rateLimit = (req, res, next) => {
+  // Skip rate limiting for authenticated users
+  if (req.user) {
+    return next();
+  }
+
   const ip = req.ip;
   const now = Date.now();
   const windowMs = 24 * 60 * 60 * 1000; // 24 hours
@@ -33,7 +40,7 @@ const rateLimit = (req, res, next) => {
     return res.status(429).json({
       success: false,
       message:
-        "Rate limit exceeded. Maximum 5 URLs per day for anonymous users.",
+        "Rate limit exceeded. Maximum 5 URLs per day for anonymous users. Please register for unlimited access.",
     });
   }
 
@@ -41,13 +48,24 @@ const rateLimit = (req, res, next) => {
   next();
 };
 
-// GET /api/url/list - List URLs (basic, no auth filtering)
-router.get("/api/url/list", async (req, res) => {
+// GET /api/urls/list - List URLs (filtered by user if authenticated)
+router.get("/api/urls/list", optionalAuth, async (req, res) => {
   try {
-    const urls = await Url.find({})
-      .select("originalUrl shortCode customCode clickCount createdAt")
+    let query = {};
+
+    if (req.user) {
+      // Authenticated user: show only their URLs
+      query.userId = req.user._id;
+    } else {
+      // Anonymous user: show recent public URLs (limited)
+      query.userId = null;
+      query.expiresAt = { $gt: new Date() }; // Only non-expired
+    }
+
+    const urls = await Url.find(query)
+      .select("originalUrl shortCode customCode clickCount createdAt expiresAt")
       .sort({ createdAt: -1 })
-      .limit(100);
+      .limit(req.user ? 1000 : 20); // More for authenticated users
 
     return res.json({
       success: true,
@@ -62,92 +80,105 @@ router.get("/api/url/list", async (req, res) => {
   }
 });
 
-// POST /api/shorten - Create short URL
-router.post("/shorten", rateLimit, async (req, res) => {
-  try {
-    const { originalUrl, customCode } = req.body;
+// POST /api/urls/shorten - Create short URL
+router.post(
+  "/api/urls/shorten",
+  urlValidationRules(),
+  validate,
+  optionalAuth,
+  rateLimit,
+  async (req, res) => {
+    try {
+      const { originalUrl, customCode } = req.body;
 
-    // Validate original URL
-    if (!originalUrl || !isValidUrl(originalUrl)) {
-      return res.status(400).json({
-        success: false,
-        message: "Please provide a valid URL",
-      });
-    }
-
-    // Check if URL already exists (for anonymous users)
-    const existingUrl = await Url.findOne({
-      originalUrl,
-      userId: null,
-      expiresAt: { $gt: new Date() }, // Not expired
-    });
-
-    if (existingUrl) {
-      const baseUrl = process.env.BASE_URL || "http://localhost:5000";
-      const shortUrl = `${baseUrl}/${existingUrl.shortCode}`;
-
-      return res.json({
-        success: true,
-        data: {
-          originalUrl: existingUrl.originalUrl,
-          shortUrl,
-          shortCode: existingUrl.shortCode,
-          createdAt: existingUrl.createdAt,
-        },
-      });
-    }
-
-    let shortCode;
-
-    // Handle custom code
-    if (customCode) {
-      const isAvailable = await isCustomCodeAvailable(customCode);
-      if (!isAvailable) {
+      // Validate original URL
+      if (!originalUrl || !isValidUrl(originalUrl)) {
         return res.status(400).json({
           success: false,
-          message: "Custom code is not available or invalid",
+          message: "Please provide a valid URL",
         });
       }
-      shortCode = customCode;
-    } else {
-      shortCode = await generateUniqueCode();
-    }
 
-    // Set expiration for anonymous users (30 days)
-    const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
-
-    // Create URL document
-    const url = new Url({
-      originalUrl,
-      shortCode,
-      customCode: customCode || null,
-      userId: null, // Anonymous user
-      expiresAt,
-    });
-
-    await url.save();
-
-    const baseUrl = process.env.BASE_URL || "http://localhost:5000";
-    const shortUrl = `${baseUrl}/${shortCode}`;
-
-    res.status(201).json({
-      success: true,
-      data: {
+      // Check if URL already exists (for the same user or anonymous)
+      const userId = req.user ? req.user._id : null;
+      const existingUrl = await Url.findOne({
         originalUrl,
-        shortUrl,
+        userId,
+        expiresAt: { $gt: new Date() }, // Not expired
+      });
+
+      if (existingUrl) {
+        const baseUrl = process.env.BASE_URL || "http://localhost:5000";
+        const shortUrl = `${baseUrl}/${existingUrl.shortCode}`;
+
+        return res.json({
+          success: true,
+          data: {
+            originalUrl: existingUrl.originalUrl,
+            shortUrl,
+            shortCode: existingUrl.shortCode,
+            createdAt: existingUrl.createdAt,
+          },
+        });
+      }
+
+      let shortCode;
+
+      // Handle custom code
+      if (customCode) {
+        const isAvailable = await isCustomCodeAvailable(customCode);
+        if (!isAvailable) {
+          return res.status(400).json({
+            success: false,
+            message: "Custom code is not available or invalid",
+          });
+        }
+        shortCode = customCode;
+      } else {
+        shortCode = await generateUniqueCode();
+      }
+
+      // Set expiration based on user type
+      let expiresAt = null;
+      if (!req.user) {
+        // Anonymous users: 30 days expiration
+        expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+      }
+      // Authenticated users: no expiration (null)
+
+      // Create URL document
+      const url = new Url({
+        originalUrl,
         shortCode,
-        createdAt: url.createdAt,
+        customCode: customCode || null,
+        userId: userId,
         expiresAt,
-      },
-    });
-  } catch (error) {
-    console.error("Error in /shorten:", error);
-    res.status(500).json({
-      success: false,
-      message: "Server error",
-    });
+      });
+
+      await url.save();
+
+      const baseUrl = process.env.BASE_URL || "http://localhost:5000";
+      const shortUrl = `${baseUrl}/${shortCode}`;
+
+      res.status(201).json({
+        success: true,
+        data: {
+          originalUrl,
+          shortUrl,
+          shortCode,
+          createdAt: url.createdAt,
+          expiresAt,
+        },
+      });
+    } catch (error) {
+      console.error("Error in /shorten:", error);
+      res.status(500).json({
+        success: false,
+        message: "Server error",
+      });
+    }
   }
-});
+);
 
 // GET /:shortCode - Redirect to original URL
 router.get("/:shortCode", async (req, res) => {
@@ -201,8 +232,8 @@ router.get("/:shortCode", async (req, res) => {
   }
 });
 
-// GET /api/url/:shortCode - Get URL info (for preview)
-router.get("/api/url/:shortCode", async (req, res) => {
+// GET /api/urls/:shortCode - Get URL info (for preview)
+router.get("/api/urls/:shortCode", async (req, res) => {
   try {
     const { shortCode } = req.params;
 
@@ -246,8 +277,8 @@ router.get("/api/url/:shortCode", async (req, res) => {
   }
 });
 
-// DELETE /api/url/:shortCode - Delete a URL by short code or custom code
-router.delete("/api/url/:shortCode", async (req, res) => {
+// DELETE /api/urls/:shortCode - Delete a URL by short code or custom code
+router.delete("/api/urls/:shortCode", optionalAuth, async (req, res) => {
   try {
     const { shortCode } = req.params;
 
@@ -260,6 +291,24 @@ router.delete("/api/url/:shortCode", async (req, res) => {
         success: false,
         message: "URL not found",
       });
+    }
+
+    // Check ownership for authenticated users
+    if (req.user) {
+      if (url.userId && !url.userId.equals(req.user._id)) {
+        return res.status(403).json({
+          success: false,
+          message: "You can only delete your own URLs",
+        });
+      }
+    } else {
+      // Anonymous users can only delete anonymous URLs
+      if (url.userId !== null) {
+        return res.status(403).json({
+          success: false,
+          message: "Cannot delete this URL",
+        });
+      }
     }
 
     await Url.deleteOne({ _id: url._id });

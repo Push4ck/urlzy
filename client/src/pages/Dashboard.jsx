@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
-const API_BASE_URL = import.meta.env.VITE_API_URL;
+import { getApiUrl, API_ENDPOINTS } from "../config/api";
 
 const Dashboard = () => {
   const [urls, setUrls] = useState([]);
@@ -10,25 +10,32 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchUrls = async () => {
       try {
-        const res = await axios.get(`${API_BASE_URL}/api/url/list`);
+        const res = await axios.get(getApiUrl(`${API_ENDPOINTS.URLS}/list`));
         if (res.data?.success) {
           setUrls(res.data.data);
         }
       } catch (err) {
         console.error("Failed to fetch URLs", err);
+        toast.error("Failed to load URLs");
       }
     };
     fetchUrls();
   }, []);
 
   const handleDelete = async (shortCode) => {
+    if (!confirm("Are you sure you want to delete this URL?")) {
+      return;
+    }
+
     try {
-      const res = await axios.delete(`${API_BASE_URL}/api/url/${shortCode}`);
+      const res = await axios.delete(
+        getApiUrl(`${API_ENDPOINTS.URLS}/${shortCode}`)
+      );
       if (res.data?.success) {
         setUrls((prev) =>
           prev.filter((u) => (u.shortCode || u.customCode) !== shortCode)
         );
-        toast.success("URL deleted");
+        toast.success("URL deleted successfully");
       } else {
         toast.error(res.data?.message || "Failed to delete");
       }
