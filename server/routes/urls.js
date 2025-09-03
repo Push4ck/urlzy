@@ -14,6 +14,7 @@ const { urlValidationRules, validate } = require("../middleware/validator");
 const { anonShortenRateLimit } = require("../middleware/redisRateLimiter");
 const cache = require("../utils/cache");
 const ClickEvent = require("../models/ClickEvent");
+const bcrypt = require("bcryptjs");
 
 // GET /api/urls/list - List URLs (filtered by user if authenticated)
 router.get("/api/urls/list", optionalAuth, async (req, res) => {
@@ -56,7 +57,7 @@ router.post(
   anonShortenRateLimit,
   async (req, res) => {
     try {
-      const { originalUrl, customCode } = req.body;
+      const { originalUrl, customCode, password } = req.body;
 
       // Validate original URL
       if (!originalUrl || !isValidUrl(originalUrl)) {
@@ -116,12 +117,26 @@ router.post(
       // Authenticated users: no expiration (null)
 
       // Create URL document
+      let passwordHash = null;
+      let isPasswordProtected = false;
+      if (
+        password &&
+        typeof password === "string" &&
+        password.trim().length > 0
+      ) {
+        const salt = await bcrypt.genSalt(10);
+        passwordHash = await bcrypt.hash(password, salt);
+        isPasswordProtected = true;
+      }
+
       const url = new Url({
         originalUrl,
         shortCode,
         customCode: customCode || null,
         userId: userId,
         expiresAt,
+        isPasswordProtected,
+        password: passwordHash,
       });
 
       await url.save();
@@ -147,6 +162,7 @@ router.post(
           shortCode: customCode || shortCode,
           createdAt: url.createdAt,
           expiresAt,
+          isPasswordProtected,
         },
       });
     } catch (error) {
@@ -182,6 +198,7 @@ router.get("/:shortCode", async (req, res) => {
         _id: doc._id,
         originalUrl: doc.originalUrl,
         expiresAt: doc.expiresAt || null,
+        isPasswordProtected: doc.isPasswordProtected || false,
       };
       await cache.set(cacheKey, url, 300);
     }
@@ -191,6 +208,74 @@ router.get("/:shortCode", async (req, res) => {
       return res
         .status(410)
         .json({ success: false, message: "URL has expired" });
+    }
+
+    // 3.5) If password protected, show a lightweight password prompt page
+    if (url.isPasswordProtected) {
+      const { shortCode } = req.params;
+      const error =
+        req.query && req.query.error
+          ? "Invalid password. Please try again."
+          : "";
+      const html = `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Password Required</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; padding: 2rem; background: #f9fafb; color: #111827; }
+    .card { max-width: 420px; margin: 10vh auto; background: #fff; border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 1.5rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); }
+    h1 { font-size: 1.25rem; margin: 0 0 0.75rem 0; }
+    p { margin: 0.25rem 0 1rem 0; color: #4b5563; }
+    .error { color: #b91c1c; margin-bottom: 0.5rem; }
+    input[type=password] { width: 100%; padding: 0.625rem 0.75rem; border: 1px solid #d1d5db; border-radius: 0.5rem; }
+    button { margin-top: 0.75rem; width: 100%; background: #4f46e5; color: #fff; border: 0; padding: 0.625rem 0.75rem; border-radius: 0.5rem; cursor: pointer; }
+    button:hover { background: #4338ca; }
+    .muted { color: #6b7280; margin-top: 0.75rem; font-size: 0.875rem; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Password Required</h1>
+    ${error ? `<div class="error">${error}</div>` : ""}
+    <p>This short link is protected. Enter the password to continue.</p>
+
+    <form method="POST" action="/${shortCode}/verify">
+      <input type="password" name="password" placeholder="Enter password" required />
+      <button type="submit">Unlock & Redirect</button>
+    </form>
+
+    <p class="muted">Tip: Your browser may prompt you for the password automatically.</p>
+  </div>
+
+  <script>
+    // Optional: show a quick prompt() for faster flow
+    (function() {
+      try {
+        if (!${Boolean(
+          "true"
+        )}) return; // no-op, kept for potential feature flagging
+        var pwd = window.prompt('This link is protected. Enter password to continue:');
+        if (pwd !== null) {
+          var f = document.createElement('form');
+          f.method = 'POST';
+          f.action = '/${shortCode}/verify';
+          var i = document.createElement('input');
+          i.type = 'hidden';
+          i.name = 'password';
+          i.value = pwd;
+          f.appendChild(i);
+          document.body.appendChild(f);
+          f.submit();
+        }
+      } catch (e) { /* ignore */ }
+    })();
+  </script>
+</body>
+</html>`;
+      res.setHeader("Content-Type", "text/html; charset=utf-8");
+      return res.status(401).send(html);
     }
 
     // 4) Fire-and-forget analytics + counters
@@ -271,6 +356,100 @@ router.get("/api/urls/:shortCode", async (req, res) => {
       success: false,
       message: "Server error",
     });
+  }
+});
+
+// POST /:shortCode/verify - Verify password and redirect
+router.post("/:shortCode/verify", async (req, res) => {
+  try {
+    const { shortCode } = req.params;
+    const { password } = req.body || {};
+
+    const doc = await Url.findOne({
+      $or: [{ shortCode }, { customCode: shortCode }],
+    });
+
+    if (!doc) {
+      return res.status(404).json({ success: false, message: "URL not found" });
+    }
+
+    // Expired
+    if (doc.expiresAt && doc.expiresAt < new Date()) {
+      return res
+        .status(410)
+        .json({ success: false, message: "URL has expired" });
+    }
+
+    // If no password is set, redirect directly
+    if (!doc.isPasswordProtected || !doc.password) {
+      return res.redirect(doc.originalUrl);
+    }
+
+    const isMatch = await bcrypt.compare(password || "", doc.password);
+    if (!isMatch) {
+      return res.redirect(`/${shortCode}?error=1`);
+    }
+
+    return res.redirect(doc.originalUrl);
+  } catch (error) {
+    console.error("Error verifying password:", error);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+// PUT /api/urls/:shortCode/password - Add/Change/Remove password
+// Note: Requires ownership for URLs created by authenticated users.
+router.put("/api/urls/:shortCode/password", optionalAuth, async (req, res) => {
+  try {
+    const { shortCode } = req.params;
+    const { password } = req.body || {};
+
+    const url = await Url.findOne({
+      $or: [{ shortCode }, { customCode: shortCode }],
+    });
+    if (!url) {
+      return res.status(404).json({ success: false, message: "URL not found" });
+    }
+
+    // Ownership checks similar to delete
+    if (req.user) {
+      if (url.userId && !url.userId.equals(req.user._id)) {
+        return res.status(403).json({
+          success: false,
+          message: "You can only update your own URLs",
+        });
+      }
+    } else {
+      if (url.userId !== null) {
+        return res
+          .status(403)
+          .json({ success: false, message: "Authentication required" });
+      }
+    }
+
+    let nextProtected = false;
+    let nextHash = null;
+
+    if (typeof password === "string" && password.trim().length > 0) {
+      const salt = await bcrypt.genSalt(10);
+      nextHash = await bcrypt.hash(password.trim(), salt);
+      nextProtected = true;
+    }
+
+    url.isPasswordProtected = nextProtected;
+    url.password = nextHash;
+    await url.save();
+
+    // Invalidate redirect cache for both code variants
+    try {
+      await cache.del(`url:${url.shortCode}`);
+      if (url.customCode) await cache.del(`url:${url.customCode}`);
+    } catch (_) {}
+
+    return res.json({ success: true, isPasswordProtected: nextProtected });
+  } catch (error) {
+    console.error("Error updating password:", error);
+    return res.status(500).json({ success: false, message: "Server error" });
   }
 });
 

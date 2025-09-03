@@ -9,6 +9,7 @@ const UrlShortener = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [urlData, setUrlData] = useState(null);
+  const [password, setPassword] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -21,6 +22,7 @@ const UrlShortener = () => {
       const response = await axios.post(getApiUrl(API_ENDPOINTS.SHORTEN), {
         originalUrl,
         customCode: customCode || undefined,
+        password: password || undefined,
       });
 
       if (response.data.success) {
@@ -127,6 +129,27 @@ const UrlShortener = () => {
               </div>
               <p className="text-xs text-gray-500 mt-1">
                 3-20 characters, letters and numbers only
+              </p>
+            </div>
+
+            {/* Optional Password */
+            <div>
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
+                Password (Optional)
+              </label>
+              <input
+                type="password"
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Set a password to protect this short link"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                If set, visitors must enter this password to open the link.
               </p>
             </div>
 

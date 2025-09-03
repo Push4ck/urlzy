@@ -10,6 +10,7 @@ export const API_ENDPOINTS = {
   FORGOT_REQUEST: "/api/auth/forgot-password/request",
   FORGOT_VERIFY: "/api/auth/forgot-password/verify",
   FORGOT_RESET: "/api/auth/forgot-password/reset",
+  URL_PASSWORD: (code) => `/api/urls/${code}/password`,
 };
 
 // Helper function for making API calls
