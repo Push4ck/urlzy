@@ -1,6 +1,8 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const helmet = require("helmet");
+const mongoSanitize = require("express-mongo-sanitize");
 require("dotenv").config();
 
 const app = express();
@@ -66,6 +68,17 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.options("*", cors(corsOptions));
+
+// Security middleware
+app.use(
+  helmet({
+    contentSecurityPolicy: false, // API only; enable CSP later if serving HTML
+    frameguard: { action: "deny" },
+    referrerPolicy: { policy: "no-referrer" },
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+  })
+);
+app.use(mongoSanitize());
 
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));

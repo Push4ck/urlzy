@@ -9,44 +9,10 @@ const {
 const { authenticate, optionalAuth } = require("../middleware/auth");
 const { urlValidationRules, validate } = require("../middleware/validator");
 
-// Rate limiting middleware (simple implementation)
-const rateLimitMap = new Map();
-
-const rateLimit = (req, res, next) => {
-  // Skip rate limiting for authenticated users
-  if (req.user) {
-    return next();
-  }
-
-  const ip = req.ip;
-  const now = Date.now();
-  const windowMs = 24 * 60 * 60 * 1000; // 24 hours
-  const limit = 5; // 5 URLs per day for anonymous users
-
-  if (!rateLimitMap.has(ip)) {
-    rateLimitMap.set(ip, { count: 1, resetTime: now + windowMs });
-    return next();
-  }
-
-  const userLimit = rateLimitMap.get(ip);
-
-  if (now > userLimit.resetTime) {
-    // Reset the limit
-    rateLimitMap.set(ip, { count: 1, resetTime: now + windowMs });
-    return next();
-  }
-
-  if (userLimit.count >= limit) {
-    return res.status(429).json({
-      success: false,
-      message:
-        "Rate limit exceeded. Maximum 5 URLs per day for anonymous users. Please register for unlimited access.",
-    });
-  }
-
-  userLimit.count++;
-  next();
-};
+// Redis-backed rate limiter and cache/analytics
+const { anonShortenRateLimit } = require("../middleware/redisRateLimiter");
+const cache = require("../utils/cache");
+const ClickEvent = require("../models/ClickEvent");
 
 // GET /api/urls/list - List URLs (filtered by user if authenticated)
 router.get("/api/urls/list", optionalAuth, async (req, res) => {
@@ -86,7 +52,7 @@ router.post(
   urlValidationRules(),
   validate,
   optionalAuth,
-  rateLimit,
+  anonShortenRateLimit,
   async (req, res) => {
     try {
       const { originalUrl, customCode } = req.body;
@@ -109,14 +75,16 @@ router.post(
 
       if (existingUrl) {
         const baseUrl = process.env.BASE_URL || "http://localhost:5000";
-        const shortUrl = `${baseUrl}/${existingUrl.shortCode}`;
+        const shortUrl = `${baseUrl}/${
+          existingUrl.customCode || existingUrl.shortCode
+        }`;
 
         return res.json({
           success: true,
           data: {
             originalUrl: existingUrl.originalUrl,
             shortUrl,
-            shortCode: existingUrl.shortCode,
+            shortCode: existingUrl.customCode || existingUrl.shortCode,
             createdAt: existingUrl.createdAt,
           },
         });
@@ -158,14 +126,14 @@ router.post(
       await url.save();
 
       const baseUrl = process.env.BASE_URL || "http://localhost:5000";
-      const shortUrl = `${baseUrl}/${shortCode}`;
+      const shortUrl = `${baseUrl}/${customCode || shortCode}`;
 
       res.status(201).json({
         success: true,
         data: {
           originalUrl,
           shortUrl,
-          shortCode,
+          shortCode: customCode || shortCode,
           createdAt: url.createdAt,
           expiresAt,
         },
@@ -180,52 +148,70 @@ router.post(
   }
 );
 
-// GET /:shortCode - Redirect to original URL
+// GET /:shortCode - Redirect to original URL (cached + async analytics)
 router.get("/:shortCode", async (req, res) => {
   try {
     const { shortCode } = req.params;
+    const cacheKey = `url:${shortCode}`;
 
-    // Find URL by shortCode or customCode
-    const url = await Url.findOne({
-      $or: [{ shortCode }, { customCode: shortCode }],
-    });
+    // 1) Cache lookup
+    let url = await cache.get(cacheKey);
 
+    // 2) DB fallback and cache prime
     if (!url) {
-      return res.status(404).json({
-        success: false,
-        message: "URL not found",
-      });
+      const doc = await Url.findOne({
+        $or: [{ shortCode }, { customCode: shortCode }],
+      }).lean();
+      if (!doc) {
+        return res
+          .status(404)
+          .json({ success: false, message: "URL not found" });
+      }
+      url = {
+        _id: doc._id,
+        originalUrl: doc.originalUrl,
+        expiresAt: doc.expiresAt || null,
+      };
+      await cache.set(cacheKey, url, 300);
     }
 
-    // Check if URL is expired
-    if (url.expiresAt && url.expiresAt < new Date()) {
-      return res.status(410).json({
-        success: false,
-        message: "URL has expired",
-      });
+    // 3) Expiration check
+    if (url.expiresAt && new Date(url.expiresAt) < new Date()) {
+      return res
+        .status(410)
+        .json({ success: false, message: "URL has expired" });
     }
 
-    // Update analytics
-    url.clickCount += 1;
-    url.lastAccessed = new Date();
+    // 4) Fire-and-forget analytics + counters
+    Url.updateOne(
+      { _id: url._id },
+      {
+        $inc: { clickCount: 1 },
+        $set: { lastAccessed: new Date() },
+        $push: {
+          analytics: {
+            timestamp: new Date(),
+            ip: req.ip,
+            userAgent: req.get("User-Agent"),
+            referrer: req.get("Referer") || "Direct",
+          },
+        },
+      }
+    ).catch(() => {});
 
-    // Basic analytics (can be enhanced later)
-    const analyticsData = {
-      timestamp: new Date(),
+    // Also store raw event for future aggregation
+    ClickEvent.create({
+      urlId: url._id,
       ip: req.ip,
       userAgent: req.get("User-Agent"),
       referrer: req.get("Referer") || "Direct",
-    };
+    }).catch(() => {});
 
-    url.analytics.push(analyticsData);
-
-    await url.save();
-
-    // Redirect to original URL
-    res.redirect(url.originalUrl);
+    // 5) Redirect fast
+    return res.redirect(url.originalUrl);
   } catch (error) {
     console.error("Error in redirect:", error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "Server error",
     });

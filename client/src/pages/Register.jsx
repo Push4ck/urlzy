@@ -1,9 +1,14 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/useAuth";
+import toast from "react-hot-toast";
 
 const Register = () => {
+  const navigate = useNavigate();
+  const { register } = useAuth();
+
   const [formData, setFormData] = useState({
-    name: "",
+    username: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -29,13 +34,27 @@ const Register = () => {
       return;
     }
 
-    // TODO: Implement register logic
-    console.log("Register attempt:", formData);
-
-    setTimeout(() => {
+    try {
+      const result = await register(
+        formData.username,
+        formData.email,
+        formData.password
+      );
+      if (result?.success) {
+        toast.success("Account created");
+        navigate("/dashboard");
+        return;
+      }
+      setError(result?.message || "Registration failed");
+      toast.error(result?.message || "Registration failed");
+    } catch (err) {
+      const message =
+        err.response?.data?.message || "An error occurred during registration";
+      setError(message);
+      toast.error(message);
+    } finally {
       setLoading(false);
-      setError("Registration functionality coming soon!");
-    }, 1000);
+    }
   };
 
   return (
@@ -60,20 +79,20 @@ const Register = () => {
           <div className="space-y-4">
             <div>
               <label
-                htmlFor="name"
+                htmlFor="username"
                 className="block text-sm font-medium text-gray-700"
               >
-                Full Name
+                Username
               </label>
               <input
-                id="name"
-                name="name"
+                id="username"
+                name="username"
                 type="text"
                 required
-                value={formData.name}
+                value={formData.username}
                 onChange={handleChange}
                 className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Enter your full name"
+                placeholder="Enter a username"
               />
             </div>
 
@@ -100,7 +119,7 @@ const Register = () => {
             <div>
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-gray-700"
+                className="block text sm font-medium text-gray-700"
               >
                 Password
               </label>
