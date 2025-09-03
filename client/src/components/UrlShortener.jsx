@@ -30,6 +30,7 @@ const UrlShortener = () => {
         setUrlData(response.data.data);
         setOriginalUrl("");
         setCustomCode("");
+        setPassword("");
       }
     } catch (err) {
       setError(
@@ -61,7 +62,8 @@ const UrlShortener = () => {
       }, 2000);
     } catch (err) {
       console.error("Failed to copy:", err);
-      alert("Failed to copy. Please select and copy manually.");
+      // Since there's a password verify page, users can manually copy if clipboard fails
+      // No alert needed - they'll use the password verify page for protected links
     }
   };
 
