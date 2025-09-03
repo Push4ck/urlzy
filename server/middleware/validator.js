@@ -49,9 +49,41 @@ const validateLogin = [
   validate,
 ];
 
+// Forgot password validators
+const validateForgotRequest = [
+  body("email").trim().isEmail().withMessage("Please provide a valid email"),
+  validate,
+];
+
+const validateOtpVerify = [
+  body("email").trim().isEmail().withMessage("Please provide a valid email"),
+  body("otp")
+    .trim()
+    .isLength({ min: 6, max: 6 })
+    .isNumeric()
+    .withMessage("Invalid OTP"),
+  validate,
+];
+
+const validateResetPassword = [
+  body("email").trim().isEmail().withMessage("Please provide a valid email"),
+  body("otp")
+    .trim()
+    .isLength({ min: 6, max: 6 })
+    .isNumeric()
+    .withMessage("Invalid OTP"),
+  body("newPassword")
+    .isLength({ min: 6 })
+    .withMessage("Password must be at least 6 characters"),
+  validate,
+];
+
 module.exports = {
   urlValidationRules,
   validateRegistration,
   validateLogin,
+  validateForgotRequest,
+  validateOtpVerify,
+  validateResetPassword,
   validate,
 };

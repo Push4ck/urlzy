@@ -7,6 +7,9 @@ export const API_ENDPOINTS = {
   URLS: "/api/urls",
   AUTH: "/api/auth",
   BILLING: "/api/billing",
+  FORGOT_REQUEST: "/api/auth/forgot-password/request",
+  FORGOT_VERIFY: "/api/auth/forgot-password/verify",
+  FORGOT_RESET: "/api/auth/forgot-password/reset",
 };
 
 // Helper function for making API calls
