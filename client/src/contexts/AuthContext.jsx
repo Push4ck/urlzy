@@ -22,14 +22,22 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
+  const extractErrorMessage = (error, fallback) => {
+    const data = error?.response?.data;
+    if (!data) return fallback;
+    if (typeof data.message === "string" && data.message) return data.message;
+    if (Array.isArray(data.errors) && data.errors.length) {
+      // express-validator format
+      return data.errors.map((e) => e.msg).join("; ");
+    }
+    return fallback;
+  };
+
   const login = async (email, password) => {
     try {
       const response = await axios.post(
         getApiUrl(`${API_ENDPOINTS.AUTH}/login`),
-        {
-          email,
-          password,
-        }
+        { email, password }
       );
 
       if (response.data.success) {
@@ -40,11 +48,11 @@ export const AuthProvider = ({ children }) => {
         setUser(user);
         return { success: true };
       }
+      return { success: false, message: "Login failed" };
     } catch (error) {
       return {
         success: false,
-        message:
-          error.response?.data?.message || "An error occurred during login",
+        message: extractErrorMessage(error, "An error occurred during login"),
       };
     }
   };
@@ -53,11 +61,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await axios.post(
         getApiUrl(`${API_ENDPOINTS.AUTH}/register`),
-        {
-          username,
-          email,
-          password,
-        }
+        { username, email, password }
       );
 
       if (response.data.success) {
@@ -68,12 +72,14 @@ export const AuthProvider = ({ children }) => {
         setUser(user);
         return { success: true };
       }
+      return { success: false, message: "Registration failed" };
     } catch (error) {
       return {
         success: false,
-        message:
-          error.response?.data?.message ||
-          "An error occurred during registration",
+        message: extractErrorMessage(
+          error,
+          "An error occurred during registration"
+        ),
       };
     }
   };

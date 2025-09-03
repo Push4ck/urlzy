@@ -1,19 +1,30 @@
 // server/middleware/redisRateLimiter.js
-const { RateLimiterRedis } = require("rate-limiter-flexible");
+const { RateLimiterRedis, RateLimiterMemory } = require("rate-limiter-flexible");
 const Redis = require("ioredis");
 
-const redis = new Redis(process.env.REDIS_URL, {
-  maxRetriesPerRequest: 3,
-  enableReadyCheck: true,
-  lazyConnect: true,
-});
+const hasRedis = !!process.env.REDIS_URL;
+let limiter;
 
-const limiter = new RateLimiterRedis({
-  storeClient: redis,
-  keyPrefix: "rl-shortens",
-  points: 5, // 5 creates
-  duration: 24 * 3600, // per 24h
-});
+if (hasRedis) {
+  const redis = new Redis(process.env.REDIS_URL, {
+    maxRetriesPerRequest: 3,
+    enableReadyCheck: true,
+    lazyConnect: true,
+  });
+  limiter = new RateLimiterRedis({
+    storeClient: redis,
+    keyPrefix: "rl-shortens",
+    points: 5, // 5 creates
+    duration: 24 * 3600, // per 24h
+  });
+} else {
+  // Fallback in-memory limiter so production without REDIS_URL still works
+  limiter = new RateLimiterMemory({
+    points: 5,
+    duration: 24 * 3600,
+    keyPrefix: "rl-shortens"
+  });
+}
 
 async function anonShortenRateLimit(req, res, next) {
   if (req.user) return next();
