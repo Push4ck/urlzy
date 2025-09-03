@@ -126,12 +126,13 @@ const VerifyEmail = () => {
                 name="otp"
                 type="text"
                 inputMode="numeric"
-                pattern="\\d{6}"
+                pattern="[0-9]{6}"
+                maxLength={6}
                 required
                 value={otp}
-                onChange={(e) => setOtp(e.target.value)}
+                onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
                 className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Enter code"
+                placeholder="Enter 6-digit code"
               />
             </div>
             <div className="flex items-center justify-between">
