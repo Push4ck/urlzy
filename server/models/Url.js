@@ -5,17 +5,23 @@ const urlSchema = new mongoose.Schema(
     originalUrl: {
       type: String,
       required: true,
+      trim: true,
     },
     shortCode: {
       type: String,
       required: true,
       unique: true,
       index: true,
+      trim: true,
+      lowercase: true, // normalize for uniqueness and routing
     },
     customCode: {
       type: String,
       unique: true,
       sparse: true, // Allows multiple null values
+      trim: true,
+      lowercase: true, // normalize for uniqueness and routing
+      default: null,
     },
     userId: {
       type: mongoose.Schema.Types.ObjectId,

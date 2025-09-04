@@ -4,6 +4,17 @@ const Url = require("../models/Url");
 const BASE62_CHARS =
   "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
+// Reserved codes to prevent conflicts with routes and system paths
+const RESERVED_CODES = new Set([
+  "api",
+  "health",
+  "login",
+  "register",
+  "billing",
+  "profile",
+  "admin",
+]);
+
 /**
  * Generates a random short code
  * @param {number} length - Length of the short code
@@ -36,7 +47,7 @@ async function generateUniqueCode(length = 6) {
       $or: [{ shortCode: code }, { customCode: code }],
     });
 
-    if (!existingUrl) {
+    if (!existingUrl && !RESERVED_CODES.has(code.toLowerCase())) {
       return code;
     }
 
@@ -57,19 +68,16 @@ async function generateUniqueCode(length = 6) {
  * @returns {Promise<boolean>} True if available
  */
 async function isCustomCodeAvailable(customCode) {
-  // Check format (only alphanumeric)
-  if (!/^[a-zA-Z0-9]+$/.test(customCode)) {
-    return false;
-  }
+  // Enforce single path segment and non-empty
+  if (typeof customCode !== "string") return false;
+  const normalized = customCode.trim().toLowerCase();
+  if (!normalized.length) return false;
+  if (normalized.includes("/")) return false;
+  if (RESERVED_CODES.has(normalized)) return false;
 
-  // Check length (3-20 characters)
-  if (customCode.length < 3 || customCode.length > 20) {
-    return false;
-  }
-
-  // Check if already exists
+  // Check if already exists (case-insensitive by comparing lowercased fields)
   const existingUrl = await Url.findOne({
-    $or: [{ shortCode: customCode }, { customCode: customCode }],
+    $or: [{ shortCode: normalized }, { customCode: normalized }],
   });
 
   return !existingUrl;
@@ -93,4 +101,5 @@ module.exports = {
   generateUniqueCode,
   isCustomCodeAvailable,
   isValidUrl,
+  RESERVED_CODES,
 };

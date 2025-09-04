@@ -16,9 +16,42 @@ const cache = require("../utils/cache");
 const ClickEvent = require("../models/ClickEvent");
 const bcrypt = require("bcryptjs");
 
+// Offline mode flag (use only for local development/testing)
+const OFFLINE_MODE = process.env.ENABLE_OFFLINE === "true";
+
+// In-memory store for offline mode (when MongoDB is not connected)
+// Keyed by shortCode or customCode -> { originalUrl, createdAt, expiresAt, isPasswordProtected, passwordHash, _id }
+const OFFLINE_URLS = new Map();
+
 // GET /api/urls/list - List URLs (filtered by user if authenticated)
 router.get("/api/urls/list", optionalAuth, async (req, res) => {
   try {
+    // TEMPORARY: Mock response when database is not connected
+    const mongoose = require("mongoose");
+    if (OFFLINE_MODE && mongoose.connection.readyState !== 1) {
+      console.log("🗄️  Database not connected - returning offline URL list");
+
+      // Build a unique list from in-memory store (OFFLINE_URLS may have both keys)
+      const unique = new Map();
+      for (const rec of OFFLINE_URLS.values()) {
+        unique.set(rec._id, rec);
+      }
+      const list = Array.from(unique.values()).map((u) => ({
+        _id: u._id,
+        originalUrl: u.originalUrl,
+        shortCode: u.customCode || u.shortCode,
+        customCode: u.customCode,
+        clickCount: u.clickCount || 0,
+        createdAt: u.createdAt,
+        expiresAt: u.expiresAt || null,
+      }));
+
+      return res.json({
+        success: true,
+        data: list,
+      });
+    }
+
     let query = {};
 
     if (req.user) {
@@ -67,13 +100,72 @@ router.post(
         });
       }
 
+      // TEMPORARY: Mock response when database is not connected
+      const mongoose = require("mongoose");
+      if (OFFLINE_MODE && mongoose.connection.readyState !== 1) {
+        console.log(
+          "🗄️  Database not connected - using offline in-memory store"
+        );
+
+        // Generate a simple short code for testing
+        const shortCode =
+          customCode || `test${Date.now().toString().slice(-6)}`;
+        const baseUrl = process.env.BASE_URL || "http://localhost:5000";
+        const shortUrl = `${baseUrl}/${shortCode}`;
+
+        // Optional password handling in offline mode
+        let passwordHash = null;
+        let isPasswordProtected = false;
+        if (
+          password &&
+          typeof password === "string" &&
+          password.trim().length > 0
+        ) {
+          const salt = await bcrypt.genSalt(10);
+          passwordHash = await bcrypt.hash(password, salt);
+          isPasswordProtected = true;
+        }
+
+        const record = {
+          _id: `offline_${shortCode}`,
+          originalUrl,
+          shortCode,
+          customCode: customCode || null,
+          createdAt: new Date(),
+          expiresAt: null,
+          isPasswordProtected,
+          passwordHash,
+          clickCount: 0,
+        };
+
+        // Save in-memory (key by both shortCode and customCode if present)
+        OFFLINE_URLS.set(shortCode, record);
+        if (customCode) OFFLINE_URLS.set(customCode, record);
+
+        return res.status(201).json({
+          success: true,
+          data: {
+            originalUrl,
+            shortUrl,
+            shortCode,
+            createdAt: record.createdAt,
+            expiresAt: record.expiresAt,
+            isPasswordProtected,
+          },
+        });
+      }
+
       // Check if URL already exists (for the same user or anonymous)
+      // IMPORTANT: Only reuse an existing URL when no customCode is provided.
       const userId = req.user ? req.user._id : null;
-      const existingUrl = await Url.findOne({
-        originalUrl,
-        userId,
-        expiresAt: { $gt: new Date() }, // Not expired
-      });
+      let existingUrl = null;
+      if (!customCode) {
+        existingUrl = await Url.findOne({
+          originalUrl,
+          userId,
+          expiresAt: { $gt: new Date() }, // Not expired
+        });
+      }
 
       if (existingUrl) {
         const baseUrl = process.env.BASE_URL || "http://localhost:5000";
@@ -94,16 +186,17 @@ router.post(
 
       let shortCode;
 
-      // Handle custom code
-      if (customCode) {
-        const isAvailable = await isCustomCodeAvailable(customCode);
+      // Handle custom code (normalized, reserved words prevented).
+      const normalizedCustomCode = customCode?.trim().toLowerCase();
+      if (normalizedCustomCode) {
+        const isAvailable = await isCustomCodeAvailable(normalizedCustomCode);
         if (!isAvailable) {
           return res.status(400).json({
             success: false,
-            message: "Custom code is not available or invalid",
+            message: "Custom code is not available",
           });
         }
-        shortCode = customCode;
+        shortCode = normalizedCustomCode;
       } else {
         shortCode = await generateUniqueCode();
       }
@@ -179,6 +272,64 @@ router.post(
 router.get("/:shortCode", async (req, res) => {
   try {
     const { shortCode } = req.params;
+
+    // TEMPORARY: Mock response when database is not connected
+    const mongoose = require("mongoose");
+    if (OFFLINE_MODE && mongoose.connection.readyState !== 1) {
+      console.log(`🔗 Offline redirect for: ${shortCode}`);
+
+      const record = OFFLINE_URLS.get(shortCode);
+      if (!record) {
+        return res
+          .status(404)
+          .json({ success: false, message: "URL not found" });
+      }
+
+      if (record.expiresAt && new Date(record.expiresAt) < new Date()) {
+        return res
+          .status(410)
+          .json({ success: false, message: "URL has expired" });
+      }
+
+      if (record.isPasswordProtected) {
+        const error =
+          req.query && req.query.error
+            ? "Invalid password. Please try again."
+            : "";
+        const html = `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Password Required</title>
+  <style>body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;padding:2rem;background:#f9fafb;color:#111827}.card{max-width:420px;margin:10vh auto;background:#fff;border:1px solid #e5e7eb;border-radius:.75rem;padding:1.5rem;box-shadow:0 10px 15px -3px rgba(0,0,0,.1),0 4px 6px -2px rgba(0,0,0,.05)}h1{font-size:1.25rem;margin:0 0 .75rem 0}.error{color:#b91c1c;margin-bottom:.5rem}input[type=password]{width:100%;padding:.625rem .75rem;border:1px solid #d1d5db;border-radius:.5rem}button{margin-top:.75rem;width:100%;background:#4f46e5;color:#fff;border:0;padding:.625rem .75rem;border-radius:.5rem;cursor:pointer}button:hover{background:#4338ca}.muted{color:#6b7280;margin-top:.75rem;font-size:.875rem}</style>
+</head>
+<body>
+  <div class="card">
+    <h1>Password Required</h1>
+    ${error ? `<div class="error">${error}</div>` : ""}
+    <p>This short link is protected. Enter the password to continue.</p>
+
+    <form method="POST" action="/${shortCode}/verify">
+      <input type="password" name="password" placeholder="Enter password" required />
+      <button type="submit">Unlock & Redirect</button>
+    </form>
+  </div>
+</body>
+</html>`;
+        res.setHeader("Content-Type", "text/html; charset=utf-8");
+        return res.status(200).send(html);
+      }
+
+      res.setHeader("Access-Control-Allow-Origin", "*");
+      res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+      res.setHeader(
+        "Access-Control-Allow-Headers",
+        "Content-Type, Authorization"
+      );
+      return res.redirect(record.originalUrl);
+    }
+
     const cacheKey = `url:${shortCode}`;
 
     // 1) Cache lookup
@@ -245,37 +396,11 @@ router.get("/:shortCode", async (req, res) => {
       <input type="password" name="password" placeholder="Enter password" required />
       <button type="submit">Unlock & Redirect</button>
     </form>
-
-    <p class="muted">Tip: Your browser may prompt you for the password automatically.</p>
   </div>
-
-  <script>
-    // Optional: show a quick prompt() for faster flow
-    (function() {
-      try {
-        if (!${Boolean(
-          "true"
-        )}) return; // no-op, kept for potential feature flagging
-        var pwd = window.prompt('This link is protected. Enter password to continue:');
-        if (pwd !== null) {
-          var f = document.createElement('form');
-          f.method = 'POST';
-          f.action = '/${shortCode}/verify';
-          var i = document.createElement('input');
-          i.type = 'hidden';
-          i.name = 'password';
-          i.value = pwd;
-          f.appendChild(i);
-          document.body.appendChild(f);
-          f.submit();
-        }
-      } catch (e) { /* ignore */ }
-    })();
-  </script>
 </body>
 </html>`;
       res.setHeader("Content-Type", "text/html; charset=utf-8");
-      return res.status(401).send(html);
+      return res.status(200).send(html);
     }
 
     // 4) Fire-and-forget analytics + counters
@@ -303,7 +428,13 @@ router.get("/:shortCode", async (req, res) => {
       referrer: req.get("Referer") || "Direct",
     }).catch(() => {});
 
-    // 5) Redirect fast
+    // 5) Redirect fast with proper CORS headers for external URLs
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+    res.setHeader(
+      "Access-Control-Allow-Headers",
+      "Content-Type, Authorization"
+    );
     return res.redirect(url.originalUrl);
   } catch (error) {
     console.error("Error in redirect:", error);
@@ -360,10 +491,39 @@ router.get("/api/urls/:shortCode", async (req, res) => {
 });
 
 // POST /:shortCode/verify - Verify password and redirect
-router.post("/:shortCode/verify", async (req, res) => {
+// Add small rate limit to reduce brute force
+const createRateLimiter = require("../middleware/rateLimiter");
+const shortCodeVerifyLimiter = createRateLimiter(15 * 60 * 1000, 20);
+router.post("/:shortCode/verify", shortCodeVerifyLimiter, async (req, res) => {
   try {
     const { shortCode } = req.params;
     const { password } = req.body || {};
+
+    const mongoose = require("mongoose");
+    if (OFFLINE_MODE && mongoose.connection.readyState !== 1) {
+      const rec = OFFLINE_URLS.get(shortCode);
+      if (!rec)
+        return res
+          .status(404)
+          .json({ success: false, message: "URL not found" });
+      if (rec.expiresAt && rec.expiresAt < new Date()) {
+        return res
+          .status(410)
+          .json({ success: false, message: "URL has expired" });
+      }
+      if (!rec.isPasswordProtected || !rec.passwordHash) {
+        return res.redirect(rec.originalUrl);
+      }
+      const ok = await bcrypt.compare(password || "", rec.passwordHash);
+      if (!ok) return res.redirect(`/${shortCode}?error=1`);
+      res.setHeader("Access-Control-Allow-Origin", "*");
+      res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+      res.setHeader(
+        "Access-Control-Allow-Headers",
+        "Content-Type, Authorization"
+      );
+      return res.redirect(rec.originalUrl);
+    }
 
     const doc = await Url.findOne({
       $or: [{ shortCode }, { customCode: shortCode }],
@@ -390,6 +550,13 @@ router.post("/:shortCode/verify", async (req, res) => {
       return res.redirect(`/${shortCode}?error=1`);
     }
 
+    // Set CORS headers for external URL redirect
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+    res.setHeader(
+      "Access-Control-Allow-Headers",
+      "Content-Type, Authorization"
+    );
     return res.redirect(doc.originalUrl);
   } catch (error) {
     console.error("Error verifying password:", error);

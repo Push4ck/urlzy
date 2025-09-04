@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const helmet = require("helmet");
 const mongoSanitize = require("express-mongo-sanitize");
+const compression = require("compression");
 require("dotenv").config();
 
 const app = express();
@@ -13,21 +14,26 @@ const allowedOrigins = (process.env.CLIENT_URL || "http://localhost:3000")
   .split(",")
   .map((s) => s.trim());
 
-// Add known production origins as fallback
-const productionOrigins = [
-  "https://urlzy.netlify.app",
-  "http://localhost:3000",
-  "http://localhost:5173", // Vite dev server
-];
+// Add known production origins as fallback ONLY in development
+const productionOrigins =
+  process.env.NODE_ENV === "development"
+    ? [
+        "https://urlzy.netlify.app",
+        "http://localhost:3000",
+        "http://localhost:5173", // Vite dev server
+      ]
+    : [];
 
 // Merge allowed origins with production fallbacks
 const allAllowedOrigins = [
   ...new Set([...allowedOrigins, ...productionOrigins]),
 ];
 
-// Add debug logging for CORS
-console.log("Allowed CORS origins:", allAllowedOrigins);
-console.log("CLIENT_URL from env:", process.env.CLIENT_URL);
+// Add debug logging for CORS in development
+if (process.env.NODE_ENV !== "production") {
+  console.log("Allowed CORS origins:", allAllowedOrigins);
+  console.log("CLIENT_URL from env:", process.env.CLIENT_URL);
+}
 
 const corsOptions = {
   origin: (origin, callback) => {
@@ -42,18 +48,13 @@ const corsOptions = {
       return callback(null, true);
     }
 
-    // Temporary fix: Allow all netlify.app subdomains
-    if (origin && origin.includes(".netlify.app")) {
-      console.log("Origin allowed (netlify.app):", origin);
-      return callback(null, true);
-    }
-
-    // Allow localhost for development
+    // Allow localhost only in development
     if (
+      process.env.NODE_ENV !== "production" &&
       origin &&
       (origin.includes("localhost") || origin.includes("127.0.0.1"))
     ) {
-      console.log("Origin allowed (localhost):", origin);
+      console.log("Origin allowed (localhost dev):", origin);
       return callback(null, true);
     }
 
@@ -63,32 +64,53 @@ const corsOptions = {
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
   allowedHeaders: [
-    "Content-Type", 
-    "Authorization", 
+    "Content-Type",
+    "Authorization",
     "X-Requested-With",
     "Accept",
     "Origin",
     "Access-Control-Request-Method",
-    "Access-Control-Request-Headers"
+    "Access-Control-Request-Headers",
   ],
   exposedHeaders: ["Access-Control-Allow-Origin"],
   optionsSuccessStatus: 200, // Some legacy browsers choke on 204
   preflightContinue: false,
 };
 
-app.use(cors(corsOptions));
-app.options("*", cors(corsOptions));
+// Separate CORS options for redirects that allow all origins
+const redirectCorsOptions = {
+  origin: true, // Allow all origins for redirects
+  credentials: false, // Don't send credentials for external redirects
+  methods: ["GET", "POST", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  optionsSuccessStatus: 200,
+};
+
+// Hide framework header
+app.disable("x-powered-by");
+
+// Apply strict CORS only to API routes
+app.use("/api", cors(corsOptions));
+app.options("/api/*", cors(corsOptions));
 
 // Security middleware
 app.use(
   helmet({
-    contentSecurityPolicy: false, // API only; enable CSP later if serving HTML
+    contentSecurityPolicy:
+      process.env.NODE_ENV === "production"
+        ? undefined // enable default CSP in prod unless ENABLE_CSP=false
+        : process.env.ENABLE_CSP === "true"
+        ? undefined
+        : false,
     frameguard: { action: "deny" },
     referrerPolicy: { policy: "no-referrer" },
     crossOriginResourcePolicy: { policy: "cross-origin" },
+    hsts:
+      process.env.NODE_ENV === "production" ? { maxAge: 15552000 } : undefined, // 180 days in prod
   })
 );
 app.use(mongoSanitize());
+app.use(compression());
 
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
@@ -102,25 +124,52 @@ mongoose
     serverSelectionTimeoutMS: 20000,
   })
   .then(() => {
-    console.log("MongoDB connected");
+    console.log("✅ MongoDB connected successfully!");
     const PORT = process.env.PORT || 5000;
     app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
-      console.log(`Environment: ${process.env.NODE_ENV || "development"}`);
+      console.log(`🚀 Server running on port ${PORT}`);
+      console.log(`🌍 Environment: ${process.env.NODE_ENV || "development"}`);
+      console.log(`🔗 API available at: http://localhost:${PORT}`);
     });
   })
   .catch((err) => {
-    console.error("MongoDB connection error:", err);
-    // Fail fast in production to avoid serving while DB is unavailable
+    console.error("❌ MongoDB connection error:", err.message);
+
+    // In production: fail fast
     if (process.env.NODE_ENV === "production") {
       process.exit(1);
     }
+
+    console.log("\n🔧 To fix this:");
+    console.log("1. Go to https://cloud.mongodb.com");
+    console.log("2. Navigate to Network Access");
+    console.log("3. Add your IP address (or use 0.0.0.0/0 for testing)");
+    console.log("4. Wait 1-3 minutes for changes to apply");
+    console.log(
+      "\n⚠️  Starting server in offline mode (limited functionality)\n"
+    );
+
+    // Start server even without DB for development only
+    const PORT = process.env.PORT || 5000;
+    app.listen(PORT, () => {
+      console.log(`🚀 Server running on port ${PORT} (offline mode)`);
+      console.log(`🌍 Environment: ${process.env.NODE_ENV || "development"}`);
+      console.log(`🔗 API available at: http://localhost:${PORT}`);
+      console.log(`⚠️  Database not connected - some features may not work`);
+    });
   });
 
 // Routes
 const urlRoutes = require("./routes/urls");
 const authRoutes = require("./routes/auth");
 const billingRoutes = require("./routes/billing");
+
+// Apply permissive CORS to redirect routes to handle external URL redirects
+app.use("/:shortCode", cors(redirectCorsOptions)); // For GET /:shortCode redirects
+app.use("/:shortCode/verify", cors(redirectCorsOptions)); // For POST /:shortCode/verify redirects
+// Ensure preflight is handled for redirect routes
+app.options("/:shortCode", cors(redirectCorsOptions));
+app.options("/:shortCode/verify", cors(redirectCorsOptions));
 
 // API routes
 app.use("/", urlRoutes); // This handles both API routes (/api/urls/*) and redirect routes (/:shortCode)

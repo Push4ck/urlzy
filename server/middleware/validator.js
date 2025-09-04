@@ -3,9 +3,11 @@ const { body, param, validationResult } = require("express-validator");
 const validate = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
+    const arr = errors.array();
     return res.status(400).json({
       success: false,
-      errors: errors.array(),
+      message: arr[0]?.msg || "Validation error",
+      errors: arr,
     });
   }
   next();
@@ -15,14 +17,26 @@ const urlValidationRules = () => {
   return [
     body("originalUrl")
       .trim()
-      .isURL()
+      // Allow URLs without protocol; we'll default to https:// below
+      .customSanitizer((value) => {
+        if (typeof value !== "string") return value;
+        const v = value.trim();
+        if (!/^https?:\/\//i.test(v) && /\./.test(v)) {
+          return `https://${v}`;
+        }
+        return v;
+      })
+      .isURL({ require_protocol: false, require_host: true })
       .withMessage("Please provide a valid URL"),
+    // Enforce custom code constraints for consistency with UI and routing
     body("customCode")
-      .optional()
+      .optional({ checkFalsy: true })
+      .trim()
       .isLength({ min: 3, max: 20 })
-      .matches(/^[a-zA-Z0-9]+$/)
+      .withMessage("Custom code must be 3–20 characters")
+      .matches(/^[a-zA-Z0-9_-]+$/)
       .withMessage(
-        "Custom code must be 3-20 characters long and contain only letters and numbers"
+        "Only letters, numbers, underscores, and hyphens are allowed"
       ),
   ];
 };

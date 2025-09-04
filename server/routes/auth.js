@@ -15,6 +15,9 @@ const {
 } = require("../middleware/validator");
 const { authenticate } = require("../middleware/auth");
 const { sendEmail } = require("../utils/email");
+// Rate limit auth endpoints
+const createRateLimiter = require("../middleware/rateLimiter");
+const authLimiter = createRateLimiter(15 * 60 * 1000, 20); // 20 requests per 15 min per IP
 
 // Configurable OTP settings via env
 const OTP_DEFAULT_LENGTH = parseInt(process.env.OTP_LENGTH || "6", 10);
@@ -80,40 +83,45 @@ async function setAndSendOtp({
 // =====================
 // Registration
 // =====================
-router.post("/register", validateRegistration, async (req, res) => {
-  try {
-    const { username, email, password } = req.body;
+router.post(
+  "/register",
+  authLimiter,
+  validateRegistration,
+  async (req, res) => {
+    try {
+      const { username, email, password } = req.body;
 
-    const existingUser = await User.findOne({ $or: [{ email }, { username }] });
-    if (existingUser) {
-      return res
-        .status(400)
-        .json({
+      const existingUser = await User.findOne({
+        $or: [{ email }, { username }],
+      });
+      if (existingUser) {
+        return res.status(400).json({
           success: false,
           message: "User with this email or username already exists",
         });
+      }
+
+      const user = new User({ username, email, password });
+      await user.save();
+
+      await setAndSendOtp({
+        user,
+        kind: "verify",
+        subject: "Verify your email",
+        textPrefix: "Your email verification code is",
+        htmlPrefix: "Your email verification code is",
+      });
+
+      return res.status(201).json({
+        success: true,
+        message: "Account created. We sent a verification code to your email.",
+      });
+    } catch (error) {
+      console.error("Registration error:", error);
+      res.status(500).json({ success: false, message: "Error creating user" });
     }
-
-    const user = new User({ username, email, password });
-    await user.save();
-
-    await setAndSendOtp({
-      user,
-      kind: "verify",
-      subject: "Verify your email",
-      textPrefix: "Your email verification code is",
-      htmlPrefix: "Your email verification code is",
-    });
-
-    return res.status(201).json({
-      success: true,
-      message: "Account created. We sent a verification code to your email.",
-    });
-  } catch (error) {
-    console.error("Registration error:", error);
-    res.status(500).json({ success: false, message: "Error creating user" });
   }
-});
+);
 
 // =====================
 // Profile
@@ -125,7 +133,8 @@ router.get("/profile", authenticate, async (req, res) => {
 // =====================
 // Login with optional 2FA and email verification gating
 // =====================
-router.post("/login", validateLogin, async (req, res) => {
+// Basic rate limiting to protect auth endpoints
+router.post("/login", authLimiter, validateLogin, async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -252,12 +261,10 @@ router.post("/login/verify-otp", validateLoginOtpVerify, async (req, res) => {
     }
 
     if (user.twoFactorOtpAttempts >= 5) {
-      return res
-        .status(429)
-        .json({
-          success: false,
-          message: "Too many attempts. Request a new OTP.",
-        });
+      return res.status(429).json({
+        success: false,
+        message: "Too many attempts. Request a new OTP.",
+      });
     }
 
     const match = await bcrypt.compare(otp, user.twoFactorOtpHash);
@@ -350,52 +357,56 @@ router.post("/2fa/disable", authenticate, async (req, res) => {
 // =====================
 // Email verification endpoints
 // =====================
-router.post("/verify-email/request", validateEmailOnly, async (req, res) => {
-  try {
-    const { email } = req.body;
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.json({
-        success: true,
-        message: "If the email exists, we sent a verification code.",
-      });
-    }
-    if (user.verified) {
-      return res.json({ success: true, message: "Email already verified." });
-    }
-    const now = new Date();
-    if (
-      user.emailVerifyOtpLastSentAt &&
-      now - user.emailVerifyOtpLastSentAt < OTP_RESEND_SECONDS * 1000
-    ) {
-      return res
-        .status(429)
-        .json({
+router.post(
+  "/verify-email/request",
+  authLimiter,
+  validateEmailOnly,
+  async (req, res) => {
+    try {
+      const { email } = req.body;
+      const user = await User.findOne({ email });
+      if (!user) {
+        return res.json({
+          success: true,
+          message: "If the email exists, we sent a verification code.",
+        });
+      }
+      if (user.verified) {
+        return res.json({ success: true, message: "Email already verified." });
+      }
+      const now = new Date();
+      if (
+        user.emailVerifyOtpLastSentAt &&
+        now - user.emailVerifyOtpLastSentAt < OTP_RESEND_SECONDS * 1000
+      ) {
+        return res.status(429).json({
           success: false,
           message: "Please wait a minute before requesting another code.",
         });
+      }
+
+      await setAndSendOtp({
+        user,
+        kind: "verify",
+        subject: "Verify your email",
+        textPrefix: "Your email verification code is",
+        htmlPrefix: "Your email verification code is",
+      });
+
+      return res.json({
+        success: true,
+        message: "Verification code sent if the email exists.",
+      });
+    } catch (error) {
+      console.error("Verify-email request error:", error);
+      return res.status(500).json({ success: false, message: "Server error" });
     }
-
-    await setAndSendOtp({
-      user,
-      kind: "verify",
-      subject: "Verify your email",
-      textPrefix: "Your email verification code is",
-      htmlPrefix: "Your email verification code is",
-    });
-
-    return res.json({
-      success: true,
-      message: "Verification code sent if the email exists.",
-    });
-  } catch (error) {
-    console.error("Verify-email request error:", error);
-    return res.status(500).json({ success: false, message: "Server error" });
   }
-});
+);
 
 router.post(
   "/verify-email/verify",
+  authLimiter,
   validateEmailOtpVerify,
   async (req, res) => {
     try {
@@ -412,12 +423,10 @@ router.post(
           .json({ success: false, message: "Invalid or expired OTP" });
       }
       if (user.emailVerifyOtpAttempts >= 5) {
-        return res
-          .status(429)
-          .json({
-            success: false,
-            message: "Too many attempts. Request a new OTP.",
-          });
+        return res.status(429).json({
+          success: false,
+          message: "Too many attempts. Request a new OTP.",
+        });
       }
 
       const match = await bcrypt.compare(otp, user.emailVerifyOtpHash);
@@ -453,6 +462,7 @@ router.post(
 // 1) Request OTP
 router.post(
   "/forgot-password/request",
+  authLimiter,
   validateForgotRequest,
   async (req, res) => {
     try {
@@ -471,12 +481,10 @@ router.post(
         user.resetOtpLastSentAt &&
         now - user.resetOtpLastSentAt < OTP_RESEND_SECONDS * 1000
       ) {
-        return res
-          .status(429)
-          .json({
-            success: false,
-            message: "Please wait a minute before requesting another OTP.",
-          });
+        return res.status(429).json({
+          success: false,
+          message: "Please wait a minute before requesting another OTP.",
+        });
       }
 
       await setAndSendOtp({
@@ -499,58 +507,62 @@ router.post(
 );
 
 // 2) Verify OTP
-router.post("/forgot-password/verify", validateOtpVerify, async (req, res) => {
-  try {
-    const { email, otp } = req.body;
-    const user = await User.findOne({ email });
-    if (!user || !user.resetOtpHash || !user.resetOtpExpires) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Invalid or expired OTP" });
-    }
+router.post(
+  "/forgot-password/verify",
+  authLimiter,
+  validateOtpVerify,
+  async (req, res) => {
+    try {
+      const { email, otp } = req.body;
+      const user = await User.findOne({ email });
+      if (!user || !user.resetOtpHash || !user.resetOtpExpires) {
+        return res
+          .status(400)
+          .json({ success: false, message: "Invalid or expired OTP" });
+      }
 
-    if (user.resetOtpExpires < new Date()) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Invalid or expired OTP" });
-    }
+      if (user.resetOtpExpires < new Date()) {
+        return res
+          .status(400)
+          .json({ success: false, message: "Invalid or expired OTP" });
+      }
 
-    if (user.resetOtpAttempts >= 5) {
-      return res
-        .status(429)
-        .json({
+      if (user.resetOtpAttempts >= 5) {
+        return res.status(429).json({
           success: false,
           message: "Too many attempts. Request a new OTP.",
         });
-    }
+      }
 
-    const match = await bcrypt.compare(otp, user.resetOtpHash);
-    user.resetOtpAttempts += 1;
+      const match = await bcrypt.compare(otp, user.resetOtpHash);
+      user.resetOtpAttempts += 1;
 
-    if (!match) {
+      if (!match) {
+        await user.save();
+        return res
+          .status(400)
+          .json({ success: false, message: "Invalid or expired OTP" });
+      }
+
+      const resetToken = jwt.sign(
+        { email },
+        process.env.JWT_SECRET || "dev_secret_change_me",
+        { expiresIn: "10m" }
+      );
+
       await user.save();
-      return res
-        .status(400)
-        .json({ success: false, message: "Invalid or expired OTP" });
+      return res.json({ success: true, data: { resetToken } });
+    } catch (error) {
+      console.error("Forgot-password verify error:", error);
+      return res.status(500).json({ success: false, message: "Server error" });
     }
-
-    const resetToken = jwt.sign(
-      { email },
-      process.env.JWT_SECRET || "dev_secret_change_me",
-      { expiresIn: "10m" }
-    );
-
-    await user.save();
-    return res.json({ success: true, data: { resetToken } });
-  } catch (error) {
-    console.error("Forgot-password verify error:", error);
-    return res.status(500).json({ success: false, message: "Server error" });
   }
-});
+);
 
 // 3) Reset password using OTP + resetToken
 router.post(
   "/forgot-password/reset",
+  authLimiter,
   validateResetPassword,
   async (req, res) => {
     try {
@@ -568,12 +580,10 @@ router.post(
               .json({ success: false, message: "Invalid reset token" });
           }
         } catch (e) {
-          return res
-            .status(400)
-            .json({
-              success: false,
-              message: "Invalid or expired reset token",
-            });
+          return res.status(400).json({
+            success: false,
+            message: "Invalid or expired reset token",
+          });
         }
       }
 
