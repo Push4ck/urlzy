@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { getApiUrl, API_ENDPOINTS } from "../config/api";
+import { ArrowLeft } from "lucide-react";
 
 const Analytics = () => {
   const { shortCode } = useParams();
@@ -57,7 +58,7 @@ const Analytics = () => {
               to="/dashboard"
               className="text-indigo-600 hover:text-indigo-800 font-medium"
             >
-              ← Back to Dashboard
+              <ArrowLeft className="inline w-4 h-4 mr-1" /> Back to Dashboard
             </Link>
           </div>
         </div>
@@ -95,7 +96,7 @@ const Analytics = () => {
             to="/dashboard"
             className="text-indigo-600 hover:text-indigo-800 text-sm font-medium mb-4 inline-block"
           >
-            ← Back to Dashboard
+            <ArrowLeft className="inline w-4 h-4 mr-1" /> Back to Dashboard
           </Link>
           <h1 className="text-3xl font-bold text-gray-900">Analytics</h1>
           <p className="text-gray-600">urlzy.netlify.app/{shortCode}</p>

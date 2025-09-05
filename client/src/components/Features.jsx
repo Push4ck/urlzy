@@ -1,40 +1,41 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { Zap, BarChart3, Palette, Lock, Smartphone, Rocket, Check, X } from "lucide-react";
 
 const Features = () => {
   const features = [
     {
-      icon: "⚡",
+      icon: <Zap className="w-8 h-8" />,
       title: "Lightning Fast",
       description:
         "Shorten URLs instantly with our optimized algorithm and get redirects in milliseconds.",
     },
     {
-      icon: "📊",
+      icon: <BarChart3 className="w-8 h-8" />,
       title: "Detailed Analytics",
       description:
         "Track clicks, geographic data, referrers, and more with our comprehensive analytics dashboard.",
     },
     {
-      icon: "🎨",
+      icon: <Palette className="w-8 h-8" />,
       title: "Custom Short Codes",
       description:
         "Create memorable, branded short links with custom codes that reflect your brand.",
     },
     {
-      icon: "🔒",
+      icon: <Lock className="w-8 h-8" />,
       title: "Secure & Reliable",
       description:
         "Your links are safe with enterprise-grade security and 99.9% uptime guarantee.",
     },
     {
-      icon: "📱",
+      icon: <Smartphone className="w-8 h-8" />,
       title: "Mobile Optimized",
       description:
         "Perfect experience across all devices - desktop, tablet, and mobile.",
     },
     {
-      icon: "🚀",
+      icon: <Rocket className="w-8 h-8" />,
       title: "API Access",
       description:
         "Integrate URL shortening into your applications with our powerful REST API.",
@@ -103,7 +104,7 @@ const Features = () => {
               key={index}
               className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
             >
-              <div className="text-4xl mb-4">{feature.icon}</div>
+              <div className="text-4xl mb-4 text-indigo-600">{feature.icon}</div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">
                 {feature.title}
               </h3>
@@ -155,17 +156,7 @@ const Features = () => {
               <ul className="space-y-4 mb-8">
                 {tier.features.map((feature, featureIndex) => (
                   <li key={featureIndex} className="flex items-start">
-                    <svg
-                      className="w-5 h-5 text-green-500 mt-0.5 mr-3 flex-shrink-0"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
+                    <Check className="w-5 h-5 text-green-500 mt-0.5 mr-3 flex-shrink-0" />
                     <span className="text-gray-600">{feature}</span>
                   </li>
                 ))}
@@ -175,17 +166,7 @@ const Features = () => {
                       key={`limit-${limitIndex}`}
                       className="flex items-start"
                     >
-                      <svg
-                        className="w-5 h-5 text-gray-400 mt-0.5 mr-3 flex-shrink-0"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 011.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
+                      <X className="w-5 h-5 text-gray-400 mt-0.5 mr-3 flex-shrink-0" />
                       <span className="text-gray-500 line-through">
                         {limitation}
                       </span>

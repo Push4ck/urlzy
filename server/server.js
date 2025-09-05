@@ -8,6 +8,28 @@ require("dotenv").config();
 
 const app = express();
 
+// Initialize email transport early (surfacing production misconfiguration immediately)
+const { initEmail } = require("./utils/email");
+(async () => {
+  try {
+    const ok = await initEmail();
+    if (ok) {
+      console.log("📧 Email service initialized successfully");
+    } else if (process.env.NODE_ENV !== "production") {
+      console.log(
+        "📧 Email service not fully configured - using dev console fallback"
+      );
+    }
+  } catch (e) {
+    console.error("❌ Email service initialization failed:", e?.message || e);
+    if (process.env.NODE_ENV === "production") {
+      // In production, continue starting the server but email endpoints may fail explicitly
+      // Alternatively, uncomment the next line to fail-fast in production
+      // process.exit(1);
+    }
+  }
+})();
+
 // Middleware
 // CORS: allow one or more client origins via env CLIENT_URLS (comma-separated) or CLIENT_URL
 const allowedOrigins = (process.env.CLIENT_URL || "http://localhost:3000")
@@ -126,11 +148,23 @@ mongoose
   .then(() => {
     console.log("✅ MongoDB connected successfully!");
     const PORT = process.env.PORT || 5000;
-    app.listen(PORT, () => {
-      console.log(`🚀 Server running on port ${PORT}`);
-      console.log(`🌍 Environment: ${process.env.NODE_ENV || "development"}`);
-      console.log(`🔗 API available at: http://localhost:${PORT}`);
-    });
+    const start = (port) => {
+      const server = app.listen(port, () => {
+        console.log(`🚀 Server running on port ${port}`);
+        console.log(`🌍 Environment: ${process.env.NODE_ENV || "development"}`);
+        console.log(`🔗 API available at: http://localhost:${port}`);
+      });
+      server.on("error", (err) => {
+        if (err && err.code === "EADDRINUSE") {
+          const next = Number(port) + 1;
+          console.warn(`⚠️  Port ${port} in use. Trying ${next}...`);
+          setTimeout(() => start(next), 500);
+        } else {
+          throw err;
+        }
+      });
+    };
+    start(PORT);
   })
   .catch((err) => {
     console.error("❌ MongoDB connection error:", err.message);
@@ -151,12 +185,24 @@ mongoose
 
     // Start server even without DB for development only
     const PORT = process.env.PORT || 5000;
-    app.listen(PORT, () => {
-      console.log(`🚀 Server running on port ${PORT} (offline mode)`);
-      console.log(`🌍 Environment: ${process.env.NODE_ENV || "development"}`);
-      console.log(`🔗 API available at: http://localhost:${PORT}`);
-      console.log(`⚠️  Database not connected - some features may not work`);
-    });
+    const start = (port) => {
+      const server = app.listen(port, () => {
+        console.log(`🚀 Server running on port ${port} (offline mode)`);
+        console.log(`🌍 Environment: ${process.env.NODE_ENV || "development"}`);
+        console.log(`🔗 API available at: http://localhost:${port}`);
+        console.log(`⚠️  Database not connected - some features may not work`);
+      });
+      server.on("error", (err) => {
+        if (err && err.code === "EADDRINUSE") {
+          const next = Number(port) + 1;
+          console.warn(`⚠️  Port ${port} in use. Trying ${next}...`);
+          setTimeout(() => start(next), 500);
+        } else {
+          throw err;
+        }
+      });
+    };
+    start(PORT);
   });
 
 // Routes
@@ -171,12 +217,7 @@ app.use("/:shortCode/verify", cors(redirectCorsOptions)); // For POST /:shortCod
 app.options("/:shortCode", cors(redirectCorsOptions));
 app.options("/:shortCode/verify", cors(redirectCorsOptions));
 
-// API routes
-app.use("/", urlRoutes); // This handles both API routes (/api/urls/*) and redirect routes (/:shortCode)
-app.use("/api/auth", authRoutes);
-app.use("/api/billing", billingRoutes);
-
-// Health check
+// Health check (define BEFORE catch-all shortCode route to avoid interception)
 app.get("/health", (req, res) => {
   res.json({
     success: true,
@@ -184,6 +225,11 @@ app.get("/health", (req, res) => {
     timestamp: new Date().toISOString(),
   });
 });
+
+// API routes
+app.use("/", urlRoutes); // This handles both API routes (/api/urls/*) and redirect routes (/:shortCode)
+app.use("/api/auth", authRoutes);
+app.use("/api/billing", billingRoutes);
 
 // 404 handler
 app.use("*", (req, res) => {

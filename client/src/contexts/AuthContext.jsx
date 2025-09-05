@@ -9,9 +9,9 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is logged in
-    const token = localStorage.getItem("token");
-    const savedUser = localStorage.getItem("user");
+    // Check if user is logged in (check both localStorage and sessionStorage)
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+    const savedUser = localStorage.getItem("user") || sessionStorage.getItem("user");
 
     if (token && savedUser) {
       setUser(JSON.parse(savedUser));
@@ -33,7 +33,7 @@ export const AuthProvider = ({ children }) => {
     return fallback;
   };
 
-  const login = async (email, password) => {
+  const login = async (email, password, rememberMe = false) => {
     try {
       const response = await axios.post(
         getApiUrl(`${API_ENDPOINTS.AUTH}/login`),
@@ -52,8 +52,9 @@ export const AuthProvider = ({ children }) => {
         }
         if (data?.token && data?.user) {
           const { token, user } = data;
-          localStorage.setItem("token", token);
-          localStorage.setItem("user", JSON.stringify(user));
+          const storage = rememberMe ? localStorage : sessionStorage;
+          storage.setItem("token", token);
+          storage.setItem("user", JSON.stringify(user));
           axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
           setUser(user);
           return { success: true };
@@ -102,6 +103,8 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("user");
     delete axios.defaults.headers.common["Authorization"];
     setUser(null);
   };

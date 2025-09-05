@@ -100,6 +100,14 @@ router.post(
         });
       }
 
+      // Gate custom codes for authenticated users only
+      if (!req.user && customCode) {
+        return res.status(403).json({
+          success: false,
+          message: "Custom short codes require an account. Please log in.",
+        });
+      }
+
       // TEMPORARY: Mock response when database is not connected
       const mongoose = require("mongoose");
       if (OFFLINE_MODE && mongoose.connection.readyState !== 1) {

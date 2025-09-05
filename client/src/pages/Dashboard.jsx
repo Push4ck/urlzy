@@ -3,9 +3,12 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { getApiUrl, API_ENDPOINTS, API_BASE_URL } from "../config/api";
+import { BarChart3, Trash2, Link as LinkIcon, MousePointer, TrendingUp } from "lucide-react";
 
 const Dashboard = () => {
   const [urls, setUrls] = useState([]);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [deleteShortCode, setDeleteShortCode] = useState(null);
 
   useEffect(() => {
     const fetchUrls = async () => {
@@ -22,18 +25,21 @@ const Dashboard = () => {
     fetchUrls();
   }, []);
 
-  const handleDelete = async (shortCode) => {
-    if (!confirm("Are you sure you want to delete this URL?")) {
-      return;
-    }
+  const handleDelete = (shortCode) => {
+    setDeleteShortCode(shortCode);
+    setShowConfirmModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteShortCode) return;
 
     try {
       const res = await axios.delete(
-        getApiUrl(`${API_ENDPOINTS.URLS}/${shortCode}`)
+        getApiUrl(`${API_ENDPOINTS.URLS}/${deleteShortCode}`)
       );
       if (res.data?.success) {
         setUrls((prev) =>
-          prev.filter((u) => (u.shortCode || u.customCode) !== shortCode)
+          prev.filter((u) => (u.shortCode || u.customCode) !== deleteShortCode)
         );
         toast.success("URL deleted successfully");
       } else {
@@ -42,6 +48,13 @@ const Dashboard = () => {
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to delete");
     }
+    setShowConfirmModal(false);
+    setDeleteShortCode(null);
+  };
+
+  const handleCancelDelete = () => {
+    setShowConfirmModal(false);
+    setDeleteShortCode(null);
   };
 
   const buildShortUrl = (url) => {
@@ -95,18 +108,14 @@ const Dashboard = () => {
             to={`/analytics/${url.shortCode || url.customCode || ""}`}
             className="inline-flex items-center px-4 py-2 rounded-lg bg-indigo-50 text-indigo-700 hover:bg-indigo-100 hover:text-indigo-800 transition-all duration-200 mr-3 font-medium"
           >
-            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-            </svg>
+            <BarChart3 className="w-4 h-4 mr-2" />
             Analytics
           </Link>
           <button
             onClick={() => onDelete(url.shortCode || url.customCode)}
             className="inline-flex items-center px-4 py-2 rounded-lg bg-red-50 text-red-700 hover:bg-red-100 hover:text-red-800 transition-all duration-200 font-medium"
           >
-            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-            </svg>
+            <Trash2 className="w-4 h-4 mr-2" />
             Delete
           </button>
         </td>
@@ -132,19 +141,7 @@ const Dashboard = () => {
           <div className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:scale-105">
             <div className="flex items-center">
               <div className="p-4 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl shadow-lg">
-                <svg
-                  className="w-8 h-8 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
-                  />
-                </svg>
+                <LinkIcon className="w-8 h-8 text-white" />
               </div>
               <div className="ml-6">
                 <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Total URLs</p>
@@ -158,19 +155,7 @@ const Dashboard = () => {
           <div className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:scale-105">
             <div className="flex items-center">
               <div className="p-4 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl shadow-lg">
-                <svg
-                  className="w-8 h-8 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"
-                  />
-                </svg>
+                <MousePointer className="w-8 h-8 text-white" />
               </div>
               <div className="ml-6">
                 <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide">
@@ -186,19 +171,7 @@ const Dashboard = () => {
           <div className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:scale-105">
             <div className="flex items-center">
               <div className="p-4 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-2xl shadow-lg">
-                <svg
-                  className="w-8 h-8 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                  />
-                </svg>
+                <TrendingUp className="w-8 h-8 text-white" />
               </div>
               <div className="ml-6">
                 <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide">
@@ -256,6 +229,30 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* Confirmation Modal */}
+      {showConfirmModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Confirm Delete</h3>
+            <p className="text-gray-600 mb-6">Are you sure you want to delete this URL? This action cannot be undone.</p>
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={handleCancelDelete}
+                className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmDelete}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

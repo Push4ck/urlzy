@@ -3,6 +3,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { useAuth } from "../contexts/useAuth";
 import { useNavigate } from "react-router-dom";
+import { Lock, Check, X } from "lucide-react";
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 const Pricing = () => {
@@ -116,17 +117,7 @@ const Pricing = () => {
               <ul className="space-y-4 mb-8">
                 {plan.features.map((feature, featureIndex) => (
                   <li key={featureIndex} className="flex items-start">
-                    <svg
-                      className="w-5 h-5 text-green-500 mt-0.5 mr-3 flex-shrink-0"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
+                    <Check className="w-5 h-5 text-green-500 mt-0.5 mr-3 flex-shrink-0" />
                     <span className="text-gray-600">{feature}</span>
                   </li>
                 ))}
@@ -136,17 +127,7 @@ const Pricing = () => {
                       key={`limit-${limitIndex}`}
                       className="flex items-start"
                     >
-                      <svg
-                        className="w-5 h-5 text-gray-400 mt-0.5 mr-3 flex-shrink-0"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 011.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
+                      <X className="w-5 h-5 text-gray-400 mt-0.5 mr-3 flex-shrink-0" />
                       <span className="text-gray-500 line-through">
                         {limitation}
                       </span>
@@ -161,15 +142,31 @@ const Pricing = () => {
                     : "bg-gray-100 text-gray-900 hover:bg-gray-200"
                 }`}
                 onClick={async () => {
+                  const planName = plan.name;
+
+                  // Free: just take user to registration
+                  if (planName === "Free") {
+                    navigate("/register");
+                    return;
+                  }
+
+                  // Enterprise: open mailto to contact sales
+                  if (planName === "Enterprise") {
+                    window.location.href =
+                      "mailto:sales@urlzy.app?subject=Enterprise%20Plan%20Inquiry";
+                    return;
+                  }
+
+                  // Premium: require login and start checkout
                   const token = localStorage.getItem("token");
                   if (!user && !token) {
-                    toast("Please log in to upgrade", { icon: "🔐" });
+                    toast("Please log in to upgrade", { icon: <Lock className="w-4 h-4" /> });
                     navigate("/login");
                     return;
                   }
                   try {
                     // Create Razorpay order
-                    const planSlug = plan.name.toLowerCase();
+                    const planSlug = planName.toLowerCase();
                     const orderRes = await axios.post(
                       `${API_BASE_URL}/api/billing/razorpay/order`,
                       { plan: planSlug },
@@ -198,7 +195,7 @@ const Pricing = () => {
                       amount: order.amount,
                       currency: order.currency,
                       name: "URLzy",
-                      description: `${plan.name} Subscription`,
+                      description: `${planName} Subscription`,
                       order_id: order.id,
                       handler: async function (response) {
                         try {

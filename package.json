@@ -31,6 +31,7 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
-    "claude": "^0.1.1"
+    "claude": "^0.1.1",
+    "lucide-react": "^0.542.0"
   }
 }

@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
 
 const Hero = () => {
   return (
@@ -34,7 +35,7 @@ const Hero = () => {
               className="group bg-white text-indigo-600 px-10 py-4 rounded-xl text-lg font-bold hover:bg-gray-50 hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
             >
               Get Started Free
-              <span className="inline-block ml-2 group-hover:translate-x-1 transition-transform">→</span>
+              <ArrowRight className="inline-block ml-2 group-hover:translate-x-1 transition-transform" />
             </Link>
             <a
               href="#shortener"
