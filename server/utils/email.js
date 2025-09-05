@@ -77,14 +77,20 @@ function isEmailConfigured() {
 }
 
 async function sendEmail({ to, subject, text, html }) {
-  const from = process.env.EMAIL_FROM || smtpUser || "no-reply@example.com";
+  const from = process.env.EMAIL_FROM || smtpUser || "pushkarscode@gmail.com";
+
+  console.log("[EMAIL DEBUG] Attempting to send email to:", to);
+  console.log("[EMAIL DEBUG] Transporter ready:", transporterReady);
 
   // Lazy-init and verify transporter on first use
   try {
     if (!transporterReady) {
+      console.log("[EMAIL DEBUG] Initializing email service...");
       await initEmail();
+      console.log("[EMAIL DEBUG] Email service initialized successfully");
     }
   } catch (e) {
+    console.error("[EMAIL DEBUG] Email init failed:", e.message);
     // In non-production, log to console to keep local/dev flows unblocked
     if (!isProd) {
       console.log("[DEV EMAIL] To:", to);
@@ -105,6 +111,17 @@ async function sendEmail({ to, subject, text, html }) {
     "ESOCKET",
     "EAI_AGAIN",
   ]);
+
+  // Check if transporter is available
+  if (!transporter) {
+    if (!isProd) {
+      console.log("[DEV EMAIL] To:", to);
+      console.log("[DEV EMAIL] Subject:", subject);
+      console.log("[DEV EMAIL] Text:", text);
+      return { devLogged: true };
+    }
+    throw new Error("Email service not configured");
+  }
 
   try {
     await transporter.sendMail({ from, to, subject, text, html });

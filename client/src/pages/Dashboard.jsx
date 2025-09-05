@@ -3,7 +3,13 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { getApiUrl, API_ENDPOINTS, API_BASE_URL } from "../config/api";
-import { BarChart3, Trash2, Link as LinkIcon, MousePointer, TrendingUp } from "lucide-react";
+import {
+  BarChart3,
+  Trash2,
+  Link as LinkIcon,
+  MousePointer,
+  TrendingUp,
+} from "lucide-react";
 
 const Dashboard = () => {
   const [urls, setUrls] = useState([]);
@@ -58,22 +64,43 @@ const Dashboard = () => {
   };
 
   const buildShortUrl = (url) => {
-    const base = (import.meta.env.VITE_BASE_URL || API_BASE_URL).replace(/\/$/, "");
+    const base = (
+      import.meta.env.VITE_SHORT_BASE_URL ||
+      import.meta.env.VITE_BASE_URL ||
+      API_BASE_URL
+    )
+      .toString()
+      .replace(/\/$/, "");
+
+    // If VITE_SHORT_BASE_URL is just host without protocol, prefix with http(s)
+    const normalizedBase = /^https?:\/\//i.test(base) ? base : `http://${base}`;
+
     const code = url.shortCode || url.customCode;
-    return code ? `${base}/${code}` : "";
+    return code ? `${normalizedBase}/${code}` : "";
   };
 
-  const stats = useMemo(() => ({
-    totalUrls: urls.length,
-    totalClicks: urls.reduce((sum, url) => sum + (url.clickCount || 0), 0),
-    topUrl: urls.length > 0 ? [...urls].sort((a, b) => (b.clickCount || 0) - (a.clickCount || 0))[0] : null,
-  }), [urls]);
+  const stats = useMemo(
+    () => ({
+      totalUrls: urls.length,
+      totalClicks: urls.reduce((sum, url) => sum + (url.clickCount || 0), 0),
+      topUrl:
+        urls.length > 0
+          ? [...urls].sort(
+              (a, b) => (b.clickCount || 0) - (a.clickCount || 0)
+            )[0]
+          : null,
+    }),
+    [urls]
+  );
 
   const UrlTableRow = memo(({ url, onDelete }) => {
     const shortUrl = buildShortUrl(url);
 
     return (
-      <tr key={url._id} className="hover:bg-white/80 transition-all duration-200 hover:shadow-sm">
+      <tr
+        key={url._id}
+        className="hover:bg-white/80 transition-all duration-200 hover:shadow-sm"
+      >
         <td className="px-8 py-6 whitespace-nowrap">
           {shortUrl ? (
             <a
@@ -100,7 +127,16 @@ const Dashboard = () => {
         </td>
         <td className="px-8 py-6 whitespace-nowrap">
           <div className="text-sm text-gray-600">
-            {url.createdAt ? new Date(url.createdAt).toLocaleDateString() : "N/A"}
+            {url.createdAt
+              ? new Date(url.createdAt).toLocaleString(undefined, {
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  timeZoneName: 'short'
+                })
+              : "N/A"}
           </div>
         </td>
         <td className="px-8 py-6 whitespace-nowrap text-sm font-medium">
@@ -144,7 +180,9 @@ const Dashboard = () => {
                 <LinkIcon className="w-8 h-8 text-white" />
               </div>
               <div className="ml-6">
-                <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide">Total URLs</p>
+                <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide">
+                  Total URLs
+                </p>
                 <p className="text-3xl font-extrabold text-gray-900 mt-1">
                   {stats.totalUrls}
                 </p>
@@ -189,7 +227,9 @@ const Dashboard = () => {
         <div className="bg-white/90 backdrop-blur-sm shadow-2xl rounded-2xl overflow-hidden border border-gray-100 animate-fade-in-up animation-delay-400">
           <div className="px-8 py-6 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
             <h2 className="text-2xl font-bold text-gray-900">Your URLs</h2>
-            <p className="text-gray-600 mt-1">Manage and track your shortened links</p>
+            <p className="text-gray-600 mt-1">
+              Manage and track your shortened links
+            </p>
           </div>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-100">
@@ -215,11 +255,18 @@ const Dashboard = () => {
               <tbody className="bg-white/50 divide-y divide-gray-100">
                 {urls && urls.length > 0 ? (
                   urls.map((url) => (
-                    <UrlTableRow key={url._id} url={url} onDelete={handleDelete} />
+                    <UrlTableRow
+                      key={url._id}
+                      url={url}
+                      onDelete={handleDelete}
+                    />
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="5" className="px-8 py-6 text-center text-gray-500">
+                    <td
+                      colSpan="5"
+                      className="px-8 py-6 text-center text-gray-500"
+                    >
                       No URLs found. Create your first shortened URL!
                     </td>
                   </tr>
@@ -234,8 +281,13 @@ const Dashboard = () => {
       {showConfirmModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Confirm Delete</h3>
-            <p className="text-gray-600 mb-6">Are you sure you want to delete this URL? This action cannot be undone.</p>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              Confirm Delete
+            </h3>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to delete this URL? This action cannot be
+              undone.
+            </p>
             <div className="flex justify-end space-x-3">
               <button
                 onClick={handleCancelDelete}

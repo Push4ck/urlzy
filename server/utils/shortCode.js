@@ -40,14 +40,15 @@ async function generateUniqueCode(length = 6) {
   const maxAttempts = 10;
 
   while (attempts < maxAttempts) {
-    const code = generateRandomCode(length);
+    // Normalize to lowercase to match schema (shortCode/customCode are stored lowercase)
+    const code = generateRandomCode(length).toLowerCase();
 
-    // Check if code already exists
+    // Check if code already exists (case-consistent)
     const existingUrl = await Url.findOne({
       $or: [{ shortCode: code }, { customCode: code }],
     });
 
-    if (!existingUrl && !RESERVED_CODES.has(code.toLowerCase())) {
+    if (!existingUrl && !RESERVED_CODES.has(code)) {
       return code;
     }
 

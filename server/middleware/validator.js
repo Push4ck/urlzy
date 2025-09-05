@@ -1,5 +1,8 @@
 const { body, param, validationResult } = require("express-validator");
 
+// Keep OTP validators in sync with generator length
+const OTP_LENGTH = parseInt(process.env.OTP_LENGTH || "6", 10);
+
 const validate = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -30,14 +33,23 @@ const urlValidationRules = () => {
       .withMessage("Please provide a valid URL"),
     // Enforce custom code constraints for consistency with UI and routing
     body("customCode")
-      .optional({ checkFalsy: true })
+      .optional({ nullable: true, checkFalsy: true })
       .trim()
-      .isLength({ min: 3, max: 20 })
-      .withMessage("Custom code must be 3–20 characters")
-      .matches(/^[a-zA-Z0-9_-]+$/)
-      .withMessage(
-        "Only letters, numbers, underscores, and hyphens are allowed"
-      ),
+      .custom((value, { req }) => {
+        // If customCode is not provided or is empty, skip validation
+        if (!value || value.length === 0) {
+          // Remove customCode from the request body to prevent it from being set
+          delete req.body.customCode;
+          return true;
+        }
+        if (value.length < 3 || value.length > 20) {
+          throw new Error("Custom code must be 3–20 characters");
+        }
+        if (!/^[a-zA-Z0-9_-]+$/.test(value)) {
+          throw new Error("Only letters, numbers, underscores, and hyphens are allowed");
+        }
+        return true;
+      }),
   ];
 };
 
@@ -73,7 +85,7 @@ const validateOtpVerify = [
   body("email").trim().isEmail().withMessage("Please provide a valid email"),
   body("otp")
     .trim()
-    .isLength({ min: 6, max: 6 })
+    .isLength({ min: OTP_LENGTH, max: OTP_LENGTH })
     .isNumeric()
     .withMessage("Invalid OTP"),
   validate,
@@ -83,7 +95,7 @@ const validateResetPassword = [
   body("email").trim().isEmail().withMessage("Please provide a valid email"),
   body("otp")
     .trim()
-    .isLength({ min: 6, max: 6 })
+    .isLength({ min: OTP_LENGTH, max: OTP_LENGTH })
     .isNumeric()
     .withMessage("Invalid OTP"),
   body("newPassword")
@@ -102,7 +114,7 @@ const validateEmailOtpVerify = [
   body("email").trim().isEmail().withMessage("Please provide a valid email"),
   body("otp")
     .trim()
-    .isLength({ min: 6, max: 6 })
+    .isLength({ min: OTP_LENGTH, max: OTP_LENGTH })
     .isNumeric()
     .withMessage("Invalid OTP"),
   validate,
@@ -113,7 +125,7 @@ const validateLoginOtpVerify = [
   body("loginToken").isString().withMessage("loginToken is required"),
   body("otp")
     .trim()
-    .isLength({ min: 6, max: 6 })
+    .isLength({ min: OTP_LENGTH, max: OTP_LENGTH })
     .isNumeric()
     .withMessage("Invalid OTP"),
   validate,

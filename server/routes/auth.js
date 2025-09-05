@@ -44,6 +44,7 @@ async function setAndSendOtp({
   ttlMinutes = OTP_DEFAULT_TTL_MINUTES,
 }) {
   const otp = generateOtp();
+  console.log(`[OTP DEBUG] Generated OTP for ${kind}: ${otp} for user ${user.email}`);
   const salt = await bcrypt.genSalt(10);
   const otpHash = await bcrypt.hash(otp, salt);
   const now = new Date();
@@ -65,9 +66,16 @@ async function setAndSendOtp({
     user.twoFactorOtpAttempts = 0;
     user.twoFactorOtpLastSentAt = now;
   }
-  await user.save();
+  try {
+    await user.save();
+    console.log(`[OTP DEBUG] Saved OTP hash for ${kind} to user ${user.email}`);
+  } catch (saveError) {
+    console.error(`[OTP DEBUG] Failed to save user for ${kind}:`, saveError.message);
+    throw saveError;
+  }
 
   const appName = process.env.APP_NAME || "URLzy";
+  console.log(`[OTP DEBUG] Sending email for ${kind} to ${user.email}`);
   await sendEmail({
     to: user.email,
     subject: subject || `${appName} OTP`,
@@ -78,6 +86,7 @@ async function setAndSendOtp({
       htmlPrefix || "Your OTP is"
     } <strong>${otp}</strong>. It expires in ${ttlMinutes} minutes.</p>`,
   });
+  console.log(`[OTP DEBUG] Email sent successfully for ${kind} to ${user.email}`);
 }
 
 // =====================

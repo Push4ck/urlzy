@@ -14,6 +14,7 @@ const UrlShortener = () => {
   const [urlData, setUrlData] = useState(null);
   const [password, setPassword] = useState("");
   const [copied, setCopied] = useState(false);
+  const [expiresAt, setExpiresAt] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -23,11 +24,24 @@ const UrlShortener = () => {
     setUrlData(null);
 
     try {
-      const response = await axios.post(getApiUrl(API_ENDPOINTS.SHORTEN), {
-        originalUrl,
-        customCode: customCode || undefined,
-        password: password || undefined,
-      });
+      const payload = { originalUrl };
+
+      // Only include customCode if user is logged in and has entered something
+      if (user && customCode && customCode.trim()) {
+        payload.customCode = customCode.trim();
+      }
+
+      // Only include password if user is logged in and has entered something
+      if (user && password && password.trim()) {
+        payload.password = password.trim();
+      }
+
+      // Only include expiresAt if user is admin and has selected something
+      if (user && user.role === 'admin' && expiresAt) {
+        payload.expiresAt = expiresAt;
+      }
+
+      const response = await axios.post(getApiUrl(API_ENDPOINTS.SHORTEN), payload);
 
       if (response.data.success) {
         setShortUrl(response.data.data.shortUrl);
@@ -35,6 +49,7 @@ const UrlShortener = () => {
         setOriginalUrl("");
         setCustomCode("");
         setPassword("");
+        setExpiresAt("");
       }
     } catch (err) {
       setError(
@@ -64,21 +79,27 @@ const UrlShortener = () => {
   return (
     <section
       id="shortener"
-      className="py-20 bg-gradient-to-br from-gray-50 via-white to-gray-100"
+      className="py-20 bg-gradient-to-br from-gray-50 via-white to-gray-100 relative overflow-hidden"
     >
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Background decoration */}
+      <div className="absolute inset-0 opacity-5">
+        <div className="absolute top-10 left-10 w-20 h-20 bg-indigo-500 rounded-full blur-xl"></div>
+        <div className="absolute bottom-10 right-10 w-32 h-32 bg-purple-500 rounded-full blur-xl"></div>
+      </div>
+
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <div className="text-center mb-12 animate-fade-in-up">
-          <h2 className="text-4xl font-extrabold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-4">
+          <h2 className="text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
             Shorten Your URL
           </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
             Paste your long URL below and get a shortened version instantly.
             Anonymous users can create up to 5 URLs per day.
           </p>
         </div>
 
         {/* URL Shortener Form */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-8 mb-8 shadow-xl border border-gray-100 animate-fade-in-up animation-delay-200">
+        <div className="bg-white/90 backdrop-blur-lg rounded-3xl p-8 mb-8 shadow-2xl border border-white/20 animate-fade-in-up animation-delay-200 hover:shadow-3xl transition-all duration-300">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label
@@ -134,6 +155,32 @@ const UrlShortener = () => {
             </div>
 
             {/* Optional Password */}
+            {/* Expiry Date Selection for Admin Users */}
+            {user && user.role === 'admin' && (
+              <div>
+                <label
+                  htmlFor="expiresAt"
+                  className="block text-sm font-semibold text-gray-700 mb-3"
+                >
+                  Expiry Date (Optional)
+                </label>
+                <div className="relative">
+                  <input
+                    type="datetime-local"
+                    id="expiresAt"
+                    value={expiresAt}
+                    onChange={(e) => setExpiresAt(e.target.value)}
+                    min={new Date(Date.now() + 1 * 60 * 60 * 1000).toISOString().slice(0, 16)}
+                    max={new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 16)}
+                    className="w-full px-4 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 bg-gray-50/50"
+                  />
+                </div>
+                <p className="text-xs text-gray-500 mt-2">
+                  Set when this link should expire (1 hour to 30 days from now). Leave empty for no expiration.
+                </p>
+              </div>
+            )}
+
             <div>
               <label
                 htmlFor="password"
@@ -193,10 +240,10 @@ const UrlShortener = () => {
 
         {/* Result */}
         {shortUrl && (
-          <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-2xl p-8 animate-fade-in-up shadow-lg">
-            <h3 className="text-2xl font-bold text-green-800 mb-6 flex items-center">
-              <div className="p-2 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg mr-3">
-                <CheckCircle className="w-6 h-6 text-white" />
+          <div className="bg-gradient-to-r from-green-50 via-emerald-50 to-teal-50 border border-green-200 rounded-3xl p-8 animate-fade-in-up shadow-2xl backdrop-blur-sm">
+            <h3 className="text-2xl md:text-3xl font-bold text-green-800 mb-6 flex items-center">
+              <div className="p-3 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl mr-4 shadow-lg animate-pulse">
+                <CheckCircle className="w-8 h-8 text-white" />
               </div>
               Your URL has been shortened!
             </h3>
@@ -251,7 +298,15 @@ const UrlShortener = () => {
                           Created:
                         </span>
                         <div className="text-gray-600">
-                          {new Date(urlData.createdAt).toLocaleString()}
+                          {new Date(urlData.createdAt).toLocaleString(undefined, {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit',
+                            timeZoneName: 'short'
+                          })}
                         </div>
                       </div>
                     </div>
@@ -263,7 +318,15 @@ const UrlShortener = () => {
                         </span>
                         <div className="text-gray-600">
                           {urlData.expiresAt
-                            ? new Date(urlData.expiresAt).toLocaleDateString()
+                            ? new Date(urlData.expiresAt).toLocaleString(undefined, {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                second: '2-digit',
+                                timeZoneName: 'short'
+                              })
                             : "Never"}
                         </div>
                       </div>

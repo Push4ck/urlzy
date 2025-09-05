@@ -92,6 +92,16 @@ router.post(
     try {
       const { originalUrl, customCode, password } = req.body;
 
+      // Clean up empty strings
+      const cleanCustomCode = (customCode && typeof customCode === 'string' && customCode.trim()) ? customCode.trim() : null;
+      const cleanPassword = (password && typeof password === 'string' && password.trim()) ? password.trim() : null;
+
+      console.log('[DEBUG] Received request:', {
+        originalUrl,
+        customCode: cleanCustomCode ? 'present' : 'empty',
+        password: cleanPassword ? 'present' : 'empty'
+      });
+
       // Validate original URL
       if (!originalUrl || !isValidUrl(originalUrl)) {
         return res.status(400).json({
@@ -107,6 +117,7 @@ router.post(
           message: "Custom short codes require an account. Please log in.",
         });
       }
+
 
       // TEMPORARY: Mock response when database is not connected
       const mongoose = require("mongoose");
@@ -140,7 +151,7 @@ router.post(
           shortCode,
           customCode: customCode || null,
           createdAt: new Date(),
-          expiresAt: null,
+          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
           isPasswordProtected,
           passwordHash,
           clickCount: 0,
@@ -212,10 +223,25 @@ router.post(
       // Set expiration based on user type
       let expiresAt = null;
       if (!req.user) {
-        // Anonymous users: 30 days expiration
-        expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+        // Anonymous users: 7 days expiration
+        expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+      } else if (req.user.role === 'admin') {
+        // Admin users: custom expiration or no expiration
+        if (req.body.expiresAt) {
+          expiresAt = new Date(req.body.expiresAt);
+          // Validate expiry is within 1 hour to 30 days
+          const minExpiry = new Date(Date.now() + 1 * 60 * 60 * 1000); // 1 hour
+          const maxExpiry = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
+          if (expiresAt < minExpiry || expiresAt > maxExpiry) {
+            return res.status(400).json({
+              success: false,
+              message: "Expiry must be between 1 hour and 30 days from now",
+            });
+          }
+        }
+        // If no custom expiry provided, admin gets no expiration (null)
       }
-      // Authenticated users: no expiration (null)
+      // Regular authenticated users: no expiration (null)
 
       // Create URL document
       let passwordHash = null;
@@ -230,15 +256,21 @@ router.post(
         isPasswordProtected = true;
       }
 
-      const url = new Url({
+      const urlData = {
         originalUrl,
         shortCode,
-        customCode: customCode || null,
         userId: userId,
         expiresAt,
         isPasswordProtected,
         password: passwordHash,
-      });
+      };
+
+      // Only set customCode if it exists and is not empty
+      if (customCode && customCode.trim()) {
+        urlData.customCode = customCode.trim();
+      }
+
+      const url = new Url(urlData);
 
       await url.save();
 

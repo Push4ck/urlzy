@@ -102,7 +102,14 @@ const Analytics = () => {
           <p className="text-gray-600">urlzy.netlify.app/{shortCode}</p>
           <p className="text-sm text-gray-500 mt-1">{urlData.originalUrl}</p>
           <p className="text-xs text-gray-400 mt-1">
-            Created: {new Date(urlData.createdAt).toLocaleDateString()}
+            Created: {new Date(urlData.createdAt).toLocaleString(undefined, {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+              timeZoneName: 'short'
+            })}
           </p>
         </div>
 
@@ -177,7 +184,14 @@ const Analytics = () => {
                           {entry.referrer || "Direct"}
                         </p>
                         <p className="text-xs text-gray-500">
-                          {new Date(entry.timestamp).toLocaleString()}
+                          {new Date(entry.timestamp).toLocaleString(undefined, {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            timeZoneName: 'short'
+                          })}
                         </p>
                       </div>
                       <div className="text-xs text-gray-400">

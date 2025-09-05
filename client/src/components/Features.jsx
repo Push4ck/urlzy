@@ -49,7 +49,7 @@ const Features = () => {
       features: [
         "5 URLs per day",
         "Basic redirects",
-        "30-day link expiry",
+        "7-day link expiry",
         "No registration required",
       ],
       limitations: ["No analytics", "No custom codes", "Limited support"],
@@ -75,6 +75,7 @@ const Features = () => {
         "Advanced analytics",
         "Custom domains",
         "Password-protected links",
+        "Custom expiry dates (1 hour - 30 days)",
         "QR code generation",
         "API access",
         "Priority support",
@@ -85,14 +86,14 @@ const Features = () => {
   ];
 
   return (
-    <div className="py-20 bg-gray-50">
+    <div className="py-20 bg-gradient-to-br from-gray-50 via-white to-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Features Section */}
-        <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">
+        <div className="text-center mb-16 animate-fade-in-up">
+          <h2 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent mb-4">
             Powerful Features
           </h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">
+          <p className="text-gray-600 max-w-2xl mx-auto text-lg">
             Everything you need to manage, track, and optimize your links in one
             place.
           </p>
@@ -102,9 +103,10 @@ const Features = () => {
           {features.map((feature, index) => (
             <div
               key={index}
-              className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
+              className="bg-white/80 backdrop-blur-sm p-6 rounded-xl shadow-lg border border-white/20 hover:shadow-xl hover:scale-105 transition-all duration-300 animate-fade-in-up"
+              style={{ animationDelay: `${index * 0.1}s` }}
             >
-              <div className="text-4xl mb-4 text-indigo-600">{feature.icon}</div>
+              <div className="text-4xl mb-4 text-indigo-600 animate-pulse">{feature.icon}</div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">
                 {feature.title}
               </h3>
