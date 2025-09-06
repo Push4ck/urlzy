@@ -179,11 +179,14 @@ urlzy/
 ## 🔒 Security Features
 
 - **JWT Authentication**: Secure token-based authentication
+- **Email Verification**: Required email verification for new accounts
+- **Password Reset**: Secure password reset with OTP via email
 - **Password Hashing**: bcrypt for secure password storage
 - **Input Validation**: Comprehensive validation for all inputs
-- **Rate Limiting**: Protection against abuse
+- **Rate Limiting**: Protection against abuse with Redis support
 - **CORS Configuration**: Proper cross-origin request handling
 - **Helmet**: Security headers for production
+- **MongoDB Sanitization**: Protection against NoSQL injection
 - **Environment Variables**: Sensitive data protection
 
 ## 📊 Analytics Features
@@ -192,6 +195,28 @@ urlzy/
 - **Referrer Analysis**: See where traffic is coming from
 - **User Activity**: Monitor recent access patterns
 - **Dashboard Statistics**: Overview of user's URL performance
+
+## 🔍 Production Features
+
+### Monitoring & Logging
+- **Winston Logging**: Structured logging with multiple transports
+- **HTTP Request Logging**: Morgan integration for request tracking
+- **Health Checks**: Comprehensive system health monitoring
+  - `/health` - Basic health check
+  - `/health/detailed` - Detailed system metrics
+- **Error Tracking**: Centralized error handling and logging
+
+### Testing
+- **Jest Framework**: Complete test suite setup
+- **Supertest**: API endpoint testing
+- **MongoDB Memory Server**: Isolated test database
+- **Test Coverage**: Code coverage reporting
+
+### Backup & Recovery
+- **Automated Backups**: Daily database backups with retention
+- **Compression Support**: Optional gzip compression
+- **Cloud Storage Ready**: Compatible with AWS S3, Google Cloud, Azure
+- **Restore Scripts**: Complete recovery procedures documented
 
 ## 🚀 Deployment
 
@@ -217,11 +242,30 @@ VITE_BASE_URL=https://your-api-domain.com
 ### Build Commands
 
 ```bash
-# Build client for production
-npm run build
+# Development
+npm run dev
 
-# Start production server
+# Production build
+npm run build
 npm start
+
+# Testing
+npm test
+npm run test:coverage
+
+# Database backup
+npm run backup
+npm run backup:compress
+```
+
+### Health Check Endpoints
+
+```bash
+# Basic health check
+curl http://localhost:5000/health
+
+# Detailed health check with metrics
+curl http://localhost:5000/health/detailed
 ```
 
 ## 🤝 Contributing
@@ -238,10 +282,17 @@ This project is licensed under the ISC License.
 
 ## 🐛 Known Issues & Future Improvements
 
+### Recently Implemented ✅
+
+- [x] Email verification for user registration
+- [x] Password reset functionality
+- [x] Automated testing framework
+- [x] Production monitoring and logging
+- [x] Comprehensive health checks
+- [x] Database backup strategies
+
 ### Planned Features
 
-- [ ] Email verification for user registration
-- [ ] Password reset functionality
 - [ ] Bulk URL operations
 - [ ] Advanced analytics with charts
 - [ ] QR code generation for URLs
@@ -258,4 +309,4 @@ This project is licensed under the ISC License.
 
 ## 📞 Support
 
-For support, email your-email@example.com or create an issue in the repository.
+For support, email pushkarcodes@gmail.com or create an issue in the repository.

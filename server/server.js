@@ -4,6 +4,8 @@ const cors = require("cors");
 const helmet = require("helmet");
 const mongoSanitize = require("express-mongo-sanitize");
 const compression = require("compression");
+// const morgan = require("morgan"); // Temporarily disabled - install with: npm install morgan
+const logger = require("./utils/logger");
 require("dotenv").config();
 
 const app = express();
@@ -14,14 +16,12 @@ const { initEmail } = require("./utils/email");
   try {
     const ok = await initEmail();
     if (ok) {
-      console.log("📧 Email service initialized successfully");
+      logger.info("Email service initialized successfully");
     } else if (process.env.NODE_ENV !== "production") {
-      console.log(
-        "📧 Email service not fully configured - using dev console fallback"
-      );
+      logger.warn("Email service not fully configured - using dev console fallback");
     }
   } catch (e) {
-    console.error("❌ Email service initialization failed:", e?.message || e);
+    logger.error("Email service initialization failed", { error: e?.message || e });
     if (process.env.NODE_ENV === "production") {
       // In production, continue starting the server but email endpoints may fail explicitly
       // Alternatively, uncomment the next line to fail-fast in production
@@ -53,20 +53,22 @@ const allAllowedOrigins = [
 
 // Add debug logging for CORS in development
 if (process.env.NODE_ENV !== "production") {
-  console.log("Allowed CORS origins:", allAllowedOrigins);
-  console.log("CLIENT_URL from env:", process.env.CLIENT_URL);
+  logger.debug("CORS configuration", {
+    allowedOrigins: allAllowedOrigins,
+    clientUrl: process.env.CLIENT_URL
+  });
 }
 
 const corsOptions = {
   origin: (origin, callback) => {
-    console.log("CORS request from origin:", origin);
+    logger.debug("CORS request", { origin });
 
     // Allow requests with no origin (mobile apps, Postman, etc.)
     if (!origin) return callback(null, true);
 
     // Check if origin is in allowed list
     if (allAllowedOrigins.includes(origin)) {
-      console.log("Origin allowed:", origin);
+      logger.debug("CORS origin allowed", { origin });
       return callback(null, true);
     }
 
@@ -76,11 +78,11 @@ const corsOptions = {
       origin &&
       (origin.includes("localhost") || origin.includes("127.0.0.1"))
     ) {
-      console.log("Origin allowed (localhost dev):", origin);
+      logger.debug("CORS origin allowed (localhost dev)", { origin });
       return callback(null, true);
     }
 
-    console.log("Origin blocked:", origin);
+    logger.warn("CORS origin blocked", { origin });
     return callback(new Error("Not allowed by CORS"));
   },
   credentials: true,
@@ -134,6 +136,9 @@ app.use(
 app.use(mongoSanitize());
 app.use(compression());
 
+// HTTP request logging
+// app.use(morgan('combined', { stream: logger.stream })); // Temporarily disabled
+
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 
@@ -146,20 +151,22 @@ mongoose
     serverSelectionTimeoutMS: 20000,
   })
   .then(() => {
-    console.log("✅ MongoDB connected successfully!");
+    logger.info("MongoDB connected successfully");
     const PORT = process.env.PORT || 5000;
     const start = (port) => {
       const server = app.listen(port, () => {
-        console.log(`🚀 Server running on port ${port}`);
-        console.log(`🌍 Environment: ${process.env.NODE_ENV || "development"}`);
-        console.log(`🔗 API available at: http://localhost:${port}`);
+        logger.info("Server started", {
+          port,
+          environment: process.env.NODE_ENV || "development",
+          apiUrl: `http://localhost:${port}`
+        });
       });
       server.on("error", (err) => {
         if (err && err.code === "EADDRINUSE") {
-          const next = Number(port) + 1;
-          console.warn(`⚠️  Port ${port} in use. Trying ${next}...`);
-          setTimeout(() => start(next), 500);
+          logger.warn(`Port ${port} in use, trying ${Number(port) + 1}`, { error: err.message });
+          setTimeout(() => start(Number(port) + 1), 500);
         } else {
+          logger.error("Server failed to start", { error: err.message });
           throw err;
         }
       });
@@ -167,37 +174,38 @@ mongoose
     start(PORT);
   })
   .catch((err) => {
-    console.error("❌ MongoDB connection error:", err.message);
+    logger.error("MongoDB connection error", { error: err.message });
 
     // In production: fail fast
     if (process.env.NODE_ENV === "production") {
+      logger.error("Exiting due to database connection failure in production");
       process.exit(1);
     }
 
-    console.log("\n🔧 To fix this:");
-    console.log("1. Go to https://cloud.mongodb.com");
-    console.log("2. Navigate to Network Access");
-    console.log("3. Add your IP address (or use 0.0.0.0/0 for testing)");
-    console.log("4. Wait 1-3 minutes for changes to apply");
-    console.log(
-      "\n⚠️  Starting server in offline mode (limited functionality)\n"
-    );
+    logger.info("Starting server in offline mode (limited functionality)");
+    logger.info("To fix database connection:");
+    logger.info("1. Go to https://cloud.mongodb.com");
+    logger.info("2. Navigate to Network Access");
+    logger.info("3. Add your IP address (or use 0.0.0.0/0 for testing)");
+    logger.info("4. Wait 1-3 minutes for changes to apply");
 
     // Start server even without DB for development only
     const PORT = process.env.PORT || 5000;
     const start = (port) => {
       const server = app.listen(port, () => {
-        console.log(`🚀 Server running on port ${port} (offline mode)`);
-        console.log(`🌍 Environment: ${process.env.NODE_ENV || "development"}`);
-        console.log(`🔗 API available at: http://localhost:${port}`);
-        console.log(`⚠️  Database not connected - some features may not work`);
+        logger.warn("Server running in offline mode", {
+          port,
+          environment: process.env.NODE_ENV || "development",
+          apiUrl: `http://localhost:${port}`,
+          note: "Database not connected - some features may not work"
+        });
       });
       server.on("error", (err) => {
         if (err && err.code === "EADDRINUSE") {
-          const next = Number(port) + 1;
-          console.warn(`⚠️  Port ${port} in use. Trying ${next}...`);
-          setTimeout(() => start(next), 500);
+          logger.warn(`Port ${port} in use, trying ${Number(port) + 1}`, { error: err.message });
+          setTimeout(() => start(Number(port) + 1), 500);
         } else {
+          logger.error("Server failed to start", { error: err.message });
           throw err;
         }
       });
@@ -218,13 +226,165 @@ app.use("/:shortCode/verify", cors(redirectCorsOptions)); // For POST /:shortCod
 app.options("/:shortCode", cors(redirectCorsOptions));
 app.options("/:shortCode/verify", cors(redirectCorsOptions));
 
-// Health check (define BEFORE catch-all shortCode route to avoid interception)
-app.get("/health", (req, res) => {
-  res.json({
+// Detailed health check with metrics
+app.get("/health/detailed", async (req, res) => {
+  const detailedHealth = {
+    success: true,
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    environment: process.env.NODE_ENV || "development",
+    version: process.version,
+    memory: {
+      rss: `${Math.round(process.memoryUsage().rss / 1024 / 1024)} MB`,
+      heapTotal: `${Math.round(process.memoryUsage().heapTotal / 1024 / 1024)} MB`,
+      heapUsed: `${Math.round(process.memoryUsage().heapUsed / 1024 / 1024)} MB`,
+      external: `${Math.round(process.memoryUsage().external / 1024 / 1024)} MB`
+    },
+    cpu: process.cpuUsage(),
+    checks: {}
+  };
+
+  try {
+    // Database connectivity and stats
+    if (mongoose.connection.readyState === 1) {
+      const dbStats = await mongoose.connection.db.stats();
+      detailedHealth.checks.database = {
+        status: "healthy",
+        message: "MongoDB connected",
+        stats: {
+          collections: dbStats.collections,
+          objects: dbStats.objects,
+          dataSize: `${Math.round(dbStats.dataSize / 1024 / 1024)} MB`,
+          storageSize: `${Math.round(dbStats.storageSize / 1024 / 1024)} MB`
+        }
+      };
+    } else {
+      detailedHealth.checks.database = {
+        status: "unhealthy",
+        message: `MongoDB connection state: ${mongoose.connection.readyState}`
+      };
+      detailedHealth.success = false;
+    }
+
+    // Email service check
+    const { isEmailConfigured } = require("./utils/email");
+    detailedHealth.checks.email = {
+      status: isEmailConfigured() ? "healthy" : "degraded",
+      message: isEmailConfigured() ? "Email service configured" : "Email service not configured"
+    };
+
+    // User count check
+    try {
+      const User = require("./models/User");
+      const userCount = await User.countDocuments();
+      detailedHealth.checks.users = {
+        status: "healthy",
+        message: "User collection accessible",
+        count: userCount
+      };
+    } catch (error) {
+      detailedHealth.checks.users = {
+        status: "unhealthy",
+        message: "Cannot access user collection",
+        error: error.message
+      };
+      detailedHealth.success = false;
+    }
+
+    // URL count check
+    try {
+      const Url = require("./models/Url");
+      const urlCount = await Url.countDocuments();
+      detailedHealth.checks.urls = {
+        status: "healthy",
+        message: "URL collection accessible",
+        count: urlCount
+      };
+    } catch (error) {
+      detailedHealth.checks.urls = {
+        status: "unhealthy",
+        message: "Cannot access URL collection",
+        error: error.message
+      };
+      detailedHealth.success = false;
+    }
+
+    logger.info("Detailed health check performed", {
+      success: detailedHealth.success,
+      databaseStatus: detailedHealth.checks.database?.status,
+      userCount: detailedHealth.checks.users?.count,
+      urlCount: detailedHealth.checks.urls?.count
+    });
+
+    res.status(detailedHealth.success ? 200 : 503).json(detailedHealth);
+  } catch (error) {
+    logger.error("Detailed health check failed", { error: error.message });
+    res.status(503).json({
+      success: false,
+      message: "Detailed health check failed",
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+// Basic health check
+app.get("/health", async (req, res) => {
+  const healthCheck = {
     success: true,
     message: "Server is running",
     timestamp: new Date().toISOString(),
-  });
+    uptime: process.uptime(),
+    environment: process.env.NODE_ENV || "development",
+    version: process.version,
+    memory: process.memoryUsage(),
+    checks: {}
+  };
+
+  try {
+    // Database connectivity check
+    if (mongoose.connection.readyState === 1) {
+      healthCheck.checks.database = {
+        status: "healthy",
+        message: "MongoDB connected"
+      };
+    } else {
+      healthCheck.checks.database = {
+        status: "unhealthy",
+        message: `MongoDB connection state: ${mongoose.connection.readyState}`
+      };
+      healthCheck.success = false;
+    }
+
+    // Email service check
+    const { isEmailConfigured } = require("./utils/email");
+    healthCheck.checks.email = {
+      status: isEmailConfigured() ? "healthy" : "degraded",
+      message: isEmailConfigured() ? "Email service configured" : "Email service not configured"
+    };
+
+    // Response time check
+    const start = Date.now();
+    setImmediate(() => {
+      healthCheck.responseTime = Date.now() - start;
+    });
+
+    logger.info("Health check performed", {
+      success: healthCheck.success,
+      databaseStatus: healthCheck.checks.database.status,
+      emailStatus: healthCheck.checks.email.status
+    });
+
+    res.status(healthCheck.success ? 200 : 503).json(healthCheck);
+  } catch (error) {
+    logger.error("Health check failed", { error: error.message });
+    res.status(503).json({
+      success: false,
+      message: "Health check failed",
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
 });
 
 // API routes
@@ -260,7 +420,13 @@ app.get("*", (req, res) => {
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error("Unhandled error:", err);
+  logger.error("Unhandled error", {
+    error: err.message,
+    stack: err.stack,
+    url: req.url,
+    method: req.method,
+    ip: req.ip
+  });
   res.status(err.status || 500).json({
     success: false,
     message: err.message || "Something went wrong!",
