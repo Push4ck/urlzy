@@ -32,6 +32,10 @@ const userSchema = new mongoose.Schema(
       enum: ["user", "admin"],
       default: "user",
     },
+    premium: {
+      type: Boolean,
+      default: false,
+    },
     urlsCreated: {
       type: Number,
       default: 0,
@@ -70,6 +74,10 @@ const userSchema = new mongoose.Schema(
     twoFactorOtpExpires: { type: Date, default: null },
     twoFactorOtpAttempts: { type: Number, default: 0 },
     twoFactorOtpLastSentAt: { type: Date, default: null },
+
+    // User preferences/settings
+    emailNotifications: { type: Boolean, default: true },
+    profileVisibility: { type: String, enum: ['public', 'private'], default: 'private' },
 
     createdAt: {
       type: Date,

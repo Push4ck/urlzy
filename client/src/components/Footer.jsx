@@ -4,24 +4,14 @@ import { Twitter, Facebook, Linkedin } from "lucide-react";
 
 const Footer = () => {
   return (
-    <footer className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white relative overflow-hidden">
-      {/* Background Pattern */}
-      <div
-        className="absolute inset-0 opacity-10"
-        style={{
-          backgroundImage: `radial-gradient(circle at 20% 80%, rgba(99,102,241,0.3) 0%, transparent 50%),
-                         radial-gradient(circle at 80% 20%, rgba(168,85,247,0.3) 0%, transparent 50%),
-                         radial-gradient(circle at 40% 40%, rgba(236,72,153,0.2) 0%, transparent 50%)`,
-          backgroundSize: "300px 300px",
-        }}
-      ></div>
+    <footer className="bg-gray-800 text-white">
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center mb-6">
-              <span className="text-3xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+              <span className="text-3xl font-bold text-indigo-400">
                 URLzy
               </span>
             </div>
@@ -33,19 +23,19 @@ const Footer = () => {
             <div className="flex space-x-6">
               <a
                 href="#"
-                className="w-10 h-10 bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center text-gray-300 hover:text-white hover:bg-indigo-500/20 transition-all duration-300 hover:scale-110"
+                className="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center text-gray-300"
               >
                 <Twitter className="w-5 h-5" />
               </a>
               <a
                 href="#"
-                className="w-10 h-10 bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center text-gray-300 hover:text-white hover:bg-blue-500/20 transition-all duration-300 hover:scale-110"
+                className="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center text-gray-300"
               >
                 <Facebook className="w-5 h-5" />
               </a>
               <a
                 href="#"
-                className="w-10 h-10 bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center text-gray-300 hover:text-white hover:bg-blue-600/20 transition-all duration-300 hover:scale-110"
+                className="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center text-gray-300"
               >
                 <Linkedin className="w-5 h-5" />
               </a>
@@ -54,14 +44,14 @@ const Footer = () => {
 
           {/* Product */}
           <div>
-            <h3 className="text-xl font-bold mb-6 bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+            <h3 className="text-xl font-bold mb-6 text-indigo-400">
               Product
             </h3>
             <ul className="space-y-4">
               <li>
                 <Link
                   to="/pricing"
-                  className="text-gray-300 hover:text-white hover:translate-x-1 transition-all duration-300 inline-block"
+                  className="text-gray-300"
                 >
                   Pricing
                 </Link>
@@ -69,7 +59,7 @@ const Footer = () => {
               <li>
                 <a
                   href="#"
-                  className="text-gray-300 hover:text-white hover:translate-x-1 transition-all duration-300 inline-block"
+                  className="text-gray-300"
                 >
                   API Documentation
                 </a>
@@ -77,7 +67,7 @@ const Footer = () => {
               <li>
                 <a
                   href="#"
-                  className="text-gray-300 hover:text-white hover:translate-x-1 transition-all duration-300 inline-block"
+                  className="text-gray-300"
                 >
                   Integrations
                 </a>
@@ -85,7 +75,7 @@ const Footer = () => {
               <li>
                 <a
                   href="#"
-                  className="text-gray-300 hover:text-white hover:translate-x-1 transition-all duration-300 inline-block"
+                  className="text-gray-300"
                 >
                   Browser Extension
                 </a>
@@ -95,14 +85,14 @@ const Footer = () => {
 
           {/* Support */}
           <div>
-            <h3 className="text-xl font-bold mb-6 bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+            <h3 className="text-xl font-bold mb-6 text-indigo-400">
               Support
             </h3>
             <ul className="space-y-4">
               <li>
                 <a
                   href="#"
-                  className="text-gray-300 hover:text-white hover:translate-x-1 transition-all duration-300 inline-block"
+                  className="text-gray-300"
                 >
                   Help Center
                 </a>
@@ -110,7 +100,7 @@ const Footer = () => {
               <li>
                 <a
                   href="#"
-                  className="text-gray-300 hover:text-white hover:translate-x-1 transition-all duration-300 inline-block"
+                  className="text-gray-300"
                 >
                   Contact Us
                 </a>
@@ -118,7 +108,7 @@ const Footer = () => {
               <li>
                 <a
                   href="#"
-                  className="text-gray-300 hover:text-white hover:translate-x-1 transition-all duration-300 inline-block"
+                  className="text-gray-300"
                 >
                   Status Page
                 </a>
@@ -126,7 +116,7 @@ const Footer = () => {
               <li>
                 <a
                   href="#"
-                  className="text-gray-300 hover:text-white hover:translate-x-1 transition-all duration-300 inline-block"
+                  className="text-gray-300"
                 >
                   Feature Request
                 </a>
@@ -142,19 +132,19 @@ const Footer = () => {
           <div className="flex flex-wrap justify-center md:justify-end space-x-6 text-sm">
             <a
               href="#"
-              className="text-gray-400 hover:text-indigo-400 transition-colors duration-300"
+              className="text-gray-400"
             >
               Privacy Policy
             </a>
             <a
               href="#"
-              className="text-gray-400 hover:text-indigo-400 transition-colors duration-300"
+              className="text-gray-400"
             >
               Terms of Service
             </a>
             <a
               href="#"
-              className="text-gray-400 hover:text-indigo-400 transition-colors duration-300"
+              className="text-gray-400"
             >
               Cookie Policy
             </a>

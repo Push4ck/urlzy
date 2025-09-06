@@ -209,6 +209,7 @@ mongoose
 const urlRoutes = require("./routes/urls");
 const authRoutes = require("./routes/auth");
 const billingRoutes = require("./routes/billing");
+const path = require("path");
 
 // Apply permissive CORS to redirect routes to handle external URL redirects
 app.use("/:shortCode", cors(redirectCorsOptions)); // For GET /:shortCode redirects
@@ -231,12 +232,30 @@ app.use("/", urlRoutes); // This handles both API routes (/api/urls/*) and redir
 app.use("/api/auth", authRoutes);
 app.use("/api/billing", billingRoutes);
 
-// 404 handler
-app.use("*", (req, res) => {
-  res.status(404).json({
-    success: false,
-    message: "Route not found",
-  });
+// Serve static files from React app build directory
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "../client/dist")));
+} else {
+  // In development, serve from client directory (Vite dev server handles this)
+  app.use(express.static(path.join(__dirname, "../client")));
+}
+
+// Catch-all handler: serve React app for client-side routing
+app.get("*", (req, res) => {
+  // Only serve React app for non-API routes
+  if (!req.path.startsWith("/api")) {
+    if (process.env.NODE_ENV === "production") {
+      res.sendFile(path.join(__dirname, "../client/dist/index.html"));
+    } else {
+      res.sendFile(path.join(__dirname, "../client/index.html"));
+    }
+  } else {
+    // For API routes that don't exist, return 404 JSON
+    res.status(404).json({
+      success: false,
+      message: "API endpoint not found",
+    });
+  }
 });
 
 // Error handling middleware

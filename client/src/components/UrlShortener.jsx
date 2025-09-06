@@ -26,18 +26,18 @@ const UrlShortener = () => {
     try {
       const payload = { originalUrl };
 
-      // Only include customCode if user is logged in and has entered something
+      // Include customCode for logged in users
       if (user && customCode && customCode.trim()) {
         payload.customCode = customCode.trim();
       }
 
-      // Only include password if user is logged in and has entered something
-      if (user && password && password.trim()) {
+      // Include password for premium users and admins
+      if (user && (user.premium || user.role === 'admin') && password && password.trim()) {
         payload.password = password.trim();
       }
 
-      // Only include expiresAt if user is admin and has selected something
-      if (user && user.role === 'admin' && expiresAt) {
+      // Include custom expiry for premium users and admins
+      if (user && (user.premium || user.role === 'admin') && expiresAt) {
         payload.expiresAt = expiresAt;
       }
 
@@ -79,27 +79,24 @@ const UrlShortener = () => {
   return (
     <section
       id="shortener"
-      className="py-20 bg-gradient-to-br from-gray-50 via-white to-gray-100 relative overflow-hidden"
+      className="py-20 bg-gray-50"
     >
-      {/* Background decoration */}
-      <div className="absolute inset-0 opacity-5">
-        <div className="absolute top-10 left-10 w-20 h-20 bg-indigo-500 rounded-full blur-xl"></div>
-        <div className="absolute bottom-10 right-10 w-32 h-32 bg-purple-500 rounded-full blur-xl"></div>
-      </div>
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-        <div className="text-center mb-12 animate-fade-in-up">
-          <h2 className="text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
+        <div className="text-center mb-12">
+          <h2 className="text-4xl md:text-5xl font-extrabold text-indigo-600 mb-4">
             Shorten Your URL
           </h2>
           <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
             Paste your long URL below and get a shortened version instantly.
-            Anonymous users can create up to 5 URLs per day.
+            {!user ? "Anonymous users get 3 days expiry." :
+             !user.premium && user.role !== 'admin' ? "Free users get 7 days expiry with custom codes." :
+             "Premium users get up to 30 days expiry with all features."}
           </p>
         </div>
 
         {/* URL Shortener Form */}
-        <div className="bg-white/90 backdrop-blur-lg rounded-3xl p-8 mb-8 shadow-2xl border border-white/20 animate-fade-in-up animation-delay-200 hover:shadow-3xl transition-all duration-300">
+        <div className="bg-white rounded-3xl p-8 mb-8 shadow-md border border-gray-200">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label
@@ -122,47 +119,105 @@ const UrlShortener = () => {
               </div>
             </div>
 
-            <div>
-              <label
-                htmlFor="customCode"
-                className="block text-sm font-semibold text-gray-700 mb-3"
-              >
-                Custom Short Code (Optional)
-              </label>
-              <div className="flex">
-                <span className="inline-flex items-center px-4 rounded-l-xl border border-r-0 border-gray-300 bg-gradient-to-r from-gray-100 to-gray-50 text-gray-600 text-sm font-medium">
-                  {import.meta.env.VITE_SHORT_BASE_URL ||
-                    window.location?.host ||
-                    "urlzy.netlify.app"}
-                  /
-                </span>
-                <input
-                  type="text"
-                  id="customCode"
-                  value={customCode}
-                  onChange={(e) => setCustomCode(e.target.value)}
-                  placeholder="custom path segment (e.g., 123, my.link, promo-2025)"
-                  className={`flex-1 px-4 py-4 border border-gray-300 rounded-r-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 bg-gray-50/50 ${
-                    !user ? "opacity-60 cursor-not-allowed" : ""
-                  }`}
-                  disabled={!user}
-                />
+            {/* Custom Code - Available for logged in users */}
+            {user && (
+              <div>
+                <label
+                  htmlFor="customCode"
+                  className="block text-sm font-semibold text-gray-700 mb-3"
+                >
+                  Custom Short Code (Optional)
+                </label>
+                <div className="flex flex-col sm:flex-row">
+                  <span className="inline-flex items-center px-3 sm:px-4 lg:rounded-t-xl sm:rounded-l-xl sm:rounded-t-none border border-b-0 sm:border-b sm:border-r-0 border-gray-300 bg-gray-100 text-gray-600 text-sm font-medium min-w-0 truncate">
+                    {import.meta.env.VITE_SHORT_BASE_URL ||
+                      window.location?.host ||
+                      "urlzy.netlify.app"}
+                    /
+                  </span>
+                  <input
+                    type="text"
+                    id="customCode"
+                    value={customCode}
+                    onChange={(e) => setCustomCode(e.target.value)}
+                    placeholder="custom path segment (e.g., 123, my.link, promo-2025)"
+                    className="flex-1 px-4 py-4 border border-gray-300 rounded-b-xl sm:rounded-r-xl sm:rounded-b-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-gray-50/50"
+                  />
+                </div>
+                <p className="text-xs text-gray-500 mt-2">
+                  3–20 characters. Allowed: letters, numbers, underscores, hyphens
+                </p>
               </div>
-              <p className="text-xs text-gray-500 mt-2">
-                3–20 characters. Allowed: letters, numbers, underscores, hyphens
-                {!user ? " — log in to use custom codes" : ""}
-              </p>
-            </div>
+            )}
 
-            {/* Optional Password */}
-            {/* Expiry Date Selection for Admin Users */}
-            {user && user.role === 'admin' && (
+            {/* Custom Code Notice for Anonymous Users */}
+            {!user && (
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4">
+                <div className="flex items-start">
+                  <div className="w-5 h-5 text-blue-600 mr-3 mt-0.5">ℹ️</div>
+                  <div>
+                    <h4 className="text-sm font-semibold text-blue-800 mb-1">
+                      Custom Short Codes
+                    </h4>
+                    <p className="text-xs text-blue-700">
+                      Log in to create custom short codes for your URLs.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Password Protection - Premium Feature */}
+            {user && (user.premium || user.role === 'admin') && (
+              <div>
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-semibold text-gray-700 mb-3"
+                >
+                  Password Protection (Premium Feature)
+                </label>
+                <div className="relative">
+                  <input
+                    type="password"
+                    id="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Set a password to protect this short link"
+                    className="w-full px-4 py-4 pl-12 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 bg-gray-50/50"
+                  />
+                  <Lock className="absolute left-4 top-4 w-5 h-5 text-gray-400" />
+                </div>
+                <p className="text-xs text-gray-500 mt-2">
+                  If set, visitors must enter this password to open the link.
+                </p>
+              </div>
+            )}
+
+            {/* Password Feature Notice for Free Users */}
+            {user && !user.premium && user.role !== 'admin' && (
+              <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-4">
+                <div className="flex items-start">
+                  <Lock className="w-5 h-5 text-amber-600 mr-3 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <h4 className="text-sm font-semibold text-amber-800 mb-1">
+                      Premium Feature: Password Protection
+                    </h4>
+                    <p className="text-xs text-amber-700">
+                      Upgrade to premium to protect your links with passwords.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Custom Expiry - Premium Feature */}
+            {user && (user.premium || user.role === 'admin') && (
               <div>
                 <label
                   htmlFor="expiresAt"
                   className="block text-sm font-semibold text-gray-700 mb-3"
                 >
-                  Expiry Date (Optional)
+                  Custom Expiry Date (Premium Feature)
                 </label>
                 <div className="relative">
                   <input
@@ -170,48 +225,38 @@ const UrlShortener = () => {
                     id="expiresAt"
                     value={expiresAt}
                     onChange={(e) => setExpiresAt(e.target.value)}
-                    min={new Date(Date.now() + 1 * 60 * 60 * 1000).toISOString().slice(0, 16)}
+                    min={new Date(Date.now() + 1 * 60 * 1000).toISOString().slice(0, 16)}
                     max={new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 16)}
                     className="w-full px-4 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 bg-gray-50/50"
                   />
                 </div>
                 <p className="text-xs text-gray-500 mt-2">
-                  Set when this link should expire (1 hour to 30 days from now). Leave empty for no expiration.
+                  Set custom expiry up to 30 days. Leave empty for default expiry.
                 </p>
               </div>
             )}
 
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-semibold text-gray-700 mb-3"
-              >
-                Password (Optional)
-              </label>
-              <div className="relative">
-                <input
-                  type="password"
-                  id="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Set a password to protect this short link"
-                  className={`w-full px-4 py-4 pl-12 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 bg-gray-50/50 ${
-                    !user ? "opacity-60 cursor-not-allowed" : ""
-                  }`}
-                  disabled={!user}
-                />
-                <Lock className="absolute left-4 top-4 w-5 h-5 text-gray-400" />
+            {/* Custom Expiry Notice for Free Users */}
+            {user && !user.premium && user.role !== 'admin' && (
+              <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-xl p-4">
+                <div className="flex items-start">
+                  <div className="w-5 h-5 text-purple-600 mr-3 mt-0.5">⏰</div>
+                  <div>
+                    <h4 className="text-sm font-semibold text-purple-800 mb-1">
+                      Premium Feature: Custom Expiry
+                    </h4>
+                    <p className="text-xs text-purple-700">
+                      Upgrade to premium to set custom expiry dates up to 30 days.
+                    </p>
+                  </div>
+                </div>
               </div>
-              <p className="text-xs text-gray-500 mt-2">
-                If set, visitors must enter this password to open the link.
-                {!user ? " — log in to use password protection" : ""}
-              </p>
-            </div>
+            )}
 
             <button
               type="submit"
               disabled={loading || !originalUrl}
-              className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-4 px-6 rounded-xl font-bold hover:from-indigo-700 hover:to-purple-700 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 disabled:transform-none"
+              className="w-full bg-indigo-600 text-white py-4 px-6 rounded-xl font-bold disabled:bg-gray-400 disabled:cursor-not-allowed shadow-md"
             >
               {loading ? (
                 <span className="flex items-center justify-center">
@@ -240,9 +285,9 @@ const UrlShortener = () => {
 
         {/* Result */}
         {shortUrl && (
-          <div className="bg-gradient-to-r from-green-50 via-emerald-50 to-teal-50 border border-green-200 rounded-3xl p-8 animate-fade-in-up shadow-2xl backdrop-blur-sm">
+          <div className="bg-green-50 border border-green-200 rounded-3xl p-8 shadow-md">
             <h3 className="text-2xl md:text-3xl font-bold text-green-800 mb-6 flex items-center">
-              <div className="p-3 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl mr-4 shadow-lg animate-pulse">
+              <div className="p-3 bg-green-600 rounded-xl mr-4">
                 <CheckCircle className="w-8 h-8 text-white" />
               </div>
               Your URL has been shortened!
@@ -254,7 +299,7 @@ const UrlShortener = () => {
                   <p className="text-sm font-semibold text-gray-700 mb-2">
                     Short URL:
                   </p>
-                  <div className="bg-white/80 backdrop-blur-sm p-4 rounded-xl border border-gray-200 shadow-sm">
+                  <div className="bg-white p-4 rounded-xl border border-gray-200">
                     <a
                       href={shortUrl}
                       target="_blank"
@@ -269,18 +314,18 @@ const UrlShortener = () => {
                 <div className="flex gap-3">
                   <button
                     onClick={copyToClipboard}
-                    className={`bg-gradient-to-r ${
+                    className={`${
                       copied
-                        ? "from-green-600 to-green-600"
-                        : "from-indigo-600 to-purple-600"
-                    } text-white px-6 py-3 rounded-xl hover:opacity-95 transition-all duration-200 text-sm font-semibold shadow-lg hover:shadow-xl transform hover:scale-105`}
+                        ? "bg-green-600"
+                        : "bg-indigo-600"
+                    } text-white px-6 py-3 rounded-xl text-sm font-semibold shadow-md`}
                   >
                     <Copy className="w-4 h-4 mr-2 inline" />
                     {copied ? "Copied!" : "Copy"}
                   </button>
                   <button
                     onClick={testRedirect}
-                    className="bg-gradient-to-r from-gray-600 to-gray-700 text-white px-6 py-3 rounded-xl hover:from-gray-700 hover:to-gray-800 transition-all duration-200 text-sm font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
+                    className="bg-gray-600 text-white px-6 py-3 rounded-xl text-sm font-semibold shadow-md"
                   >
                     <ExternalLink className="w-4 h-4 mr-2 inline" />
                     Test
@@ -289,7 +334,7 @@ const UrlShortener = () => {
               </div>
 
               {urlData && (
-                <div className="text-sm bg-white/60 backdrop-blur-sm p-6 rounded-xl border border-gray-200 shadow-sm">
+                <div className="text-sm bg-white p-6 rounded-xl border border-gray-200">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div className="flex items-center">
                       <Clock className="w-4 h-4 mr-2 text-gray-500" />
@@ -356,3 +401,4 @@ const UrlShortener = () => {
 };
 
 export default UrlShortener;
+

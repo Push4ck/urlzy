@@ -86,11 +86,11 @@ const Features = () => {
   ];
 
   return (
-    <div className="py-20 bg-gradient-to-br from-gray-50 via-white to-gray-100">
+    <div className="py-20 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Features Section */}
-        <div className="text-center mb-16 animate-fade-in-up">
-          <h2 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent mb-4">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">
             Powerful Features
           </h2>
           <p className="text-gray-600 max-w-2xl mx-auto text-lg">
@@ -103,10 +103,9 @@ const Features = () => {
           {features.map((feature, index) => (
             <div
               key={index}
-              className="bg-white/80 backdrop-blur-sm p-6 rounded-xl shadow-lg border border-white/20 hover:shadow-xl hover:scale-105 transition-all duration-300 animate-fade-in-up"
-              style={{ animationDelay: `${index * 0.1}s` }}
+              className="bg-white p-6 rounded-xl shadow-md border border-gray-200"
             >
-              <div className="text-4xl mb-4 text-indigo-600 animate-pulse">{feature.icon}</div>
+              <div className="text-4xl mb-4 text-indigo-600">{feature.icon}</div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">
                 {feature.title}
               </h3>
@@ -129,9 +128,9 @@ const Features = () => {
           {tiers.map((tier, index) => (
             <div
               key={index}
-              className={`bg-white rounded-xl shadow-sm border-2 p-8 relative ${
+              className={`bg-white rounded-xl shadow-md border-2 p-8 relative ${
                 tier.popular
-                  ? "border-indigo-500 transform scale-105"
+                  ? "border-indigo-500"
                   : "border-gray-100"
               }`}
             >
@@ -215,13 +214,13 @@ const Features = () => {
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <Link
               to="/register"
-              className="bg-white text-indigo-600 px-8 py-3 rounded-lg text-lg font-semibold hover:bg-gray-100 transition-colors"
+              className="bg-white text-indigo-600 px-8 py-3 rounded-lg text-lg font-semibold"
             >
               Sign Up Free
             </Link>
             <Link
               to="/pricing"
-              className="border-2 border-white text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-white hover:text-indigo-600 transition-colors"
+              className="border-2 border-white text-white px-8 py-3 rounded-lg text-lg font-semibold"
             >
               View Pricing
             </Link>

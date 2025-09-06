@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const ClickEventSchema = new mongoose.Schema(
   {
     urlId: { type: mongoose.Schema.Types.ObjectId, ref: "Url", index: true },
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", index: true },
     ts: { type: Date, default: Date.now, index: true },
     ip: String,
     userAgent: String,
