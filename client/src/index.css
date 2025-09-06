@@ -1,14 +1,49 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 @import "tailwindcss/base";
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 
 @layer base {
+  :root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8fafc;
+    --bg-tertiary: #e2e8f0;
+    --text-primary: #0f172a;
+    --text-secondary: #1e40af;
+    --text-accent: #7c3aed;
+    --border-color: #e2e8f0;
+    --card-bg: rgba(255, 255, 255, 0.95);
+    --navbar-bg: #ffffff;
+    --navbar-text: #374151;
+  }
+
+  .dark {
+    --bg-primary: #0f172a;
+    --bg-secondary: #1e293b;
+    --bg-tertiary: #334155;
+    --text-primary: #f1f5f9;
+    --text-secondary: #3b82f6;
+    --text-accent: #a78bfa;
+    --border-color: #334155;
+    --card-bg: rgba(30, 41, 59, 0.95);
+    --navbar-bg: #1e293b;
+    --navbar-text: #f1f5f9;
+  }
+
   body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
-      "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
-      "Helvetica Neue", sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    min-height: 100vh;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-weight: 700;
+    color: var(--text-primary);
   }
 }
 
@@ -72,6 +107,30 @@ select:focus {
   text-decoration: line-through;
 }
 
+/* Professional button styles */
+.retro-btn {
+  background: var(--text-secondary);
+  border: 2px solid var(--text-secondary);
+  color: white;
+  transition: all 0.3s ease;
+  font-weight: 600;
+}
+
+.retro-btn:hover {
+  background: var(--text-accent);
+  border-color: var(--text-accent);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.retro-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Professional effects */
+
 /* Responsive utilities */
 @media (max-width: 640px) {
   .text-4xl {
@@ -82,6 +141,28 @@ select:focus {
   .text-6xl {
     font-size: 3rem;
     line-height: 1;
+  }
+}
+
+/* Extra small screens (280px and up) */
+@media (min-width: 280px) {
+  body {
+    font-size: 14px;
+  }
+
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+@media (max-width: 320px) {
+  .text-5xl {
+    font-size: 2rem;
+  }
+
+  .text-7xl {
+    font-size: 2.5rem;
   }
 }
 

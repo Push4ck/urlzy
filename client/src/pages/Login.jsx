@@ -67,33 +67,33 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-[var(--bg-secondary)] py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8 animate-fade-in-up">
         <div className="text-center">
-          <h2 className="text-4xl font-extrabold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-4">
+          <h2 className="text-4xl font-extrabold text-[var(--text-secondary)] mb-4">
             Welcome Back
           </h2>
-          <p className="text-lg text-gray-600">
+          <p className="text-lg text-[var(--text-primary)] opacity-80">
             Sign in to your account to continue
           </p>
-          <p className="mt-2 text-sm text-gray-500">
+          <p className="mt-2 text-sm text-[var(--text-primary)] opacity-60">
             Or{" "}
             <Link
               to="/register"
-              className="font-semibold text-indigo-600 hover:text-indigo-700 transition-colors duration-200"
+              className="font-semibold text-[var(--text-secondary)] hover:text-[var(--text-accent)] transition-colors duration-200"
             >
               create a new account
             </Link>
           </p>
         </div>
 
-        <div className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-xl border border-gray-100">
+        <div className="bg-[var(--card-bg)] p-8 rounded-2xl shadow-xl border border-[var(--border-color)]">
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div className="space-y-6">
               <div>
                 <label
                   htmlFor="email"
-                  className="block text-sm font-semibold text-gray-700 mb-2"
+                  className="block text-sm font-semibold text-[var(--text-primary)] mb-2"
                 >
                   Email address
                 </label>
@@ -106,17 +106,17 @@ const Login = () => {
                     required
                     value={formData.email}
                     onChange={handleChange}
-                    className="appearance-none relative block w-full px-4 py-3 pl-12 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 bg-gray-50/50"
+                    className="appearance-none relative block w-full px-4 py-3 pl-12 border border-[var(--border-color)] placeholder-[var(--text-primary)] opacity-60 text-[var(--text-primary)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--text-secondary)] focus:border-[var(--text-secondary)] transition-all duration-200 bg-[var(--bg-secondary)]"
                     placeholder="Enter your email"
                   />
-                  <Mail className="absolute left-4 top-3.5 w-5 h-5 text-gray-400" />
+                  <Mail className="absolute left-4 top-3.5 w-5 h-5 text-[var(--text-primary)] opacity-50" />
                 </div>
               </div>
 
               <div>
                 <label
                   htmlFor="password"
-                  className="block text-sm font-semibold text-gray-700 mb-2"
+                  className="block text-sm font-semibold text-[var(--text-primary)] mb-2"
                 >
                   Password
                 </label>
@@ -129,14 +129,14 @@ const Login = () => {
                     required
                     value={formData.password}
                     onChange={handleChange}
-                    className="appearance-none relative block w-full px-4 py-3 pl-12 pr-12 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 bg-gray-50/50"
+                    className="appearance-none relative block w-full px-4 py-3 pl-12 pr-12 border border-[var(--border-color)] placeholder-[var(--text-primary)] opacity-60 text-[var(--text-primary)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--text-secondary)] focus:border-[var(--text-secondary)] transition-all duration-200 bg-[var(--bg-secondary)]"
                     placeholder="Enter your password"
                   />
-                  <Lock className="absolute left-4 top-3.5 w-5 h-5 text-gray-400" />
+                  <Lock className="absolute left-4 top-3.5 w-5 h-5 text-[var(--text-primary)] opacity-50" />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-5 top-3.5 w-5 h-5 text-gray-400 hover:text-gray-600 focus:outline-none transition-colors"
+                    className="absolute right-5 top-3.5 w-5 h-5 text-[var(--text-primary)] opacity-50 hover:opacity-70 focus:outline-none transition-colors"
                   >
                     {showPassword ? <Eye /> : <EyeOff />}
                   </button>
@@ -152,11 +152,11 @@ const Login = () => {
                   type="checkbox"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
-                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded focus-ring"
+                  className="h-4 w-4 text-[var(--text-secondary)] focus:ring-[var(--text-secondary)] border-[var(--border-color)] rounded"
                 />
                 <label
                   htmlFor="remember-me"
-                  className="ml-3 block text-sm text-gray-700 font-medium"
+                  className="ml-3 block text-sm text-[var(--text-primary)] font-medium"
                 >
                   Remember me
                 </label>
@@ -165,7 +165,7 @@ const Login = () => {
               <div className="text-sm">
                 <Link
                   to="/forgot-password"
-                  className="font-semibold text-indigo-600 hover:text-indigo-700 transition-colors duration-200"
+                  className="font-semibold text-[var(--text-secondary)] hover:text-[var(--text-accent)] transition-colors duration-200"
                 >
                   Forgot password?
                 </Link>
@@ -183,7 +183,7 @@ const Login = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="group relative w-full flex justify-center py-3 px-6 border border-transparent text-sm font-bold rounded-xl text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+                className="group relative w-full flex justify-center py-3 px-6 border border-transparent text-sm font-bold rounded-xl text-white bg-[var(--text-secondary)] hover:bg-[var(--text-accent)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--text-secondary)] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl"
               >
                 {loading ? (
                   <div className="flex items-center">

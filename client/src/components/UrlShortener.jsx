@@ -79,15 +79,15 @@ const UrlShortener = () => {
   return (
     <section
       id="shortener"
-      className="py-20 bg-gray-50"
+      className="py-20 bg-[var(--bg-primary)]"
     >
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <div className="text-center mb-12">
-          <h2 className="text-4xl md:text-5xl font-extrabold text-indigo-600 mb-4">
+          <h2 className="text-3xl md:text-4xl font-extrabold text-[var(--text-secondary)] mb-4">
             Shorten Your URL
           </h2>
-          <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-base md:text-lg text-[var(--text-primary)] opacity-80 max-w-2xl mx-auto leading-relaxed">
             Paste your long URL below and get a shortened version instantly.
             {!user ? "Anonymous users get 3 days expiry." :
              !user.premium && user.role !== 'admin' ? "Free users get 7 days expiry with custom codes." :
@@ -96,12 +96,12 @@ const UrlShortener = () => {
         </div>
 
         {/* URL Shortener Form */}
-        <div className="bg-white rounded-3xl p-8 mb-8 shadow-md border border-gray-200">
+        <div className="bg-[var(--card-bg)] rounded-3xl p-8 mb-8 shadow-md border border-[var(--border-color)]">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label
                 htmlFor="originalUrl"
-                className="block text-sm font-semibold text-gray-700 mb-3"
+                className="block text-sm font-semibold text-[var(--text-primary)] mb-3"
               >
                 Long URL *
               </label>
@@ -113,9 +113,9 @@ const UrlShortener = () => {
                   onChange={(e) => setOriginalUrl(e.target.value)}
                   placeholder="https://example.com/very/long/url/that/needs/shortening"
                   required
-                  className="w-full px-4 py-4 pl-12 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 bg-gray-50/50 text-gray-900 placeholder-gray-400"
+                  className="w-full px-4 py-4 pl-12 border border-[var(--border-color)] rounded-xl focus:ring-2 focus:ring-[var(--text-secondary)] focus:border-[var(--text-secondary)] transition-all duration-200 bg-[var(--bg-secondary)] text-[var(--text-primary)] placeholder-[var(--text-primary)] opacity-60"
                 />
-                <Link className="absolute left-4 top-4 w-5 h-5 text-gray-400" />
+                <Link className="absolute left-4 top-4 w-5 h-5 text-[var(--text-primary)] opacity-50" />
               </div>
             </div>
 
@@ -215,7 +215,7 @@ const UrlShortener = () => {
               <div>
                 <label
                   htmlFor="expiresAt"
-                  className="block text-sm font-semibold text-gray-700 mb-3"
+                  className="block text-sm font-semibold text-gray-300 mb-3"
                 >
                   Custom Expiry Date (Premium Feature)
                 </label>
@@ -256,7 +256,7 @@ const UrlShortener = () => {
             <button
               type="submit"
               disabled={loading || !originalUrl}
-              className="w-full bg-indigo-600 text-white py-4 px-6 rounded-xl font-bold disabled:bg-gray-400 disabled:cursor-not-allowed shadow-md"
+              className="w-full bg-[var(--text-secondary)] text-white py-4 px-6 rounded-xl font-bold disabled:bg-[var(--text-primary)] disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:bg-[var(--text-accent)] transition-all duration-300"
             >
               {loading ? (
                 <span className="flex items-center justify-center">
@@ -285,9 +285,9 @@ const UrlShortener = () => {
 
         {/* Result */}
         {shortUrl && (
-          <div className="bg-green-50 border border-green-200 rounded-3xl p-8 shadow-md">
-            <h3 className="text-2xl md:text-3xl font-bold text-green-800 mb-6 flex items-center">
-              <div className="p-3 bg-green-600 rounded-xl mr-4">
+          <div className="bg-[var(--card-bg)] border border-[var(--text-secondary)] rounded-3xl p-8 shadow-md">
+            <h3 className="text-2xl md:text-3xl font-bold text-[var(--text-secondary)] mb-6 flex items-center">
+              <div className="p-3 bg-[var(--text-secondary)] rounded-xl mr-4">
                 <CheckCircle className="w-8 h-8 text-white" />
               </div>
               Your URL has been shortened!
@@ -316,16 +316,16 @@ const UrlShortener = () => {
                     onClick={copyToClipboard}
                     className={`${
                       copied
-                        ? "bg-green-600"
-                        : "bg-indigo-600"
-                    } text-white px-6 py-3 rounded-xl text-sm font-semibold shadow-md`}
+                        ? "bg-[var(--text-accent)]"
+                        : "bg-[var(--text-secondary)]"
+                    } text-white px-6 py-3 rounded-xl text-sm font-semibold shadow-md hover:bg-[var(--text-accent)] transition-all duration-300`}
                   >
                     <Copy className="w-4 h-4 mr-2 inline" />
                     {copied ? "Copied!" : "Copy"}
                   </button>
                   <button
                     onClick={testRedirect}
-                    className="bg-gray-600 text-white px-6 py-3 rounded-xl text-sm font-semibold shadow-md"
+                    className="bg-[var(--text-primary)] opacity-70 text-white px-6 py-3 rounded-xl text-sm font-semibold shadow-md hover:opacity-80 transition-all duration-300"
                   >
                     <ExternalLink className="w-4 h-4 mr-2 inline" />
                     Test

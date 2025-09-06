@@ -200,23 +200,23 @@ const Dashboard = () => {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-[var(--bg-secondary)] py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-12">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-4xl font-extrabold text-indigo-600 mb-4">
+              <h1 className="text-4xl font-extrabold text-[var(--text-secondary)] mb-4">
                 Dashboard
               </h1>
-              <p className="text-xl text-gray-600 leading-relaxed">
+              <p className="text-xl text-[var(--text-primary)] opacity-80 leading-relaxed">
                 Manage your shortened URLs and view analytics
               </p>
             </div>
             <button
               onClick={handleRefresh}
               disabled={refreshing}
-              className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="inline-flex items-center px-4 py-2 bg-[var(--text-secondary)] text-white rounded-lg hover:bg-[var(--text-accent)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
               {refreshing ? 'Refreshing...' : 'Refresh'}
@@ -226,19 +226,19 @@ const Dashboard = () => {
 
         {/* Quick Actions */}
         <div className="mb-8">
-          <div className="bg-white p-6 rounded-2xl shadow-md border border-gray-100">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Quick Actions</h2>
+          <div className="bg-[var(--card-bg)] p-6 rounded-2xl shadow-md border border-[var(--border-color)]">
+            <h2 className="text-xl font-semibold text-[var(--text-primary)] mb-4">Quick Actions</h2>
             <div className="flex flex-wrap gap-4">
               <Link
                 to="/"
-                className="inline-flex items-center px-6 py-3 bg-indigo-600 text-white font-semibold rounded-xl shadow-md"
+                className="inline-flex items-center px-6 py-3 bg-[var(--text-secondary)] text-white font-semibold rounded-xl shadow-md hover:bg-[var(--text-accent)] transition-colors"
               >
                 <LinkIcon className="w-4 h-4 mr-2" />
                 Create New URL
               </Link>
               <Link
                 to="/settings"
-                className="inline-flex items-center px-6 py-3 bg-white text-gray-700 font-semibold rounded-xl border border-gray-300 shadow-md"
+                className="inline-flex items-center px-6 py-3 bg-[var(--bg-secondary)] text-[var(--text-primary)] font-semibold rounded-xl border border-[var(--border-color)] shadow-md hover:bg-[var(--card-bg)] transition-colors"
               >
                 <BarChart3 className="w-4 h-4 mr-2" />
                 Settings

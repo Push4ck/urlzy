@@ -86,14 +86,14 @@ const Features = () => {
   ];
 
   return (
-    <div className="py-20 bg-gray-50">
+    <div className="py-20 bg-[var(--bg-secondary)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Features Section */}
         <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">
+          <h2 className="text-3xl font-bold text-[var(--text-primary)] mb-4">
             Powerful Features
           </h2>
-          <p className="text-gray-600 max-w-2xl mx-auto text-lg">
+          <p className="text-[var(--text-primary)] opacity-80 max-w-2xl mx-auto text-lg">
             Everything you need to manage, track, and optimize your links in one
             place.
           </p>
@@ -103,23 +103,23 @@ const Features = () => {
           {features.map((feature, index) => (
             <div
               key={index}
-              className="bg-white p-6 rounded-xl shadow-md border border-gray-200"
+              className="bg-[var(--card-bg)] p-6 rounded-xl shadow-md border border-[var(--border-color)] hover-scale transition-transform duration-300"
             >
-              <div className="text-4xl mb-4 text-indigo-600">{feature.icon}</div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+              <div className="text-4xl mb-4 text-[var(--text-secondary)]">{feature.icon}</div>
+              <h3 className="text-xl font-semibold text-[var(--text-primary)] mb-2">
                 {feature.title}
               </h3>
-              <p className="text-gray-600">{feature.description}</p>
+              <p className="text-[var(--text-primary)] opacity-80">{feature.description}</p>
             </div>
           ))}
         </div>
 
         {/* Pricing Tiers */}
         <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">
+          <h2 className="text-3xl font-bold text-[var(--text-primary)] mb-4">
             Choose Your Plan
           </h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">
+          <p className="text-[var(--text-primary)] opacity-80 max-w-2xl mx-auto">
             Start free and upgrade as you grow. No hidden fees, cancel anytime.
           </p>
         </div>
@@ -128,37 +128,37 @@ const Features = () => {
           {tiers.map((tier, index) => (
             <div
               key={index}
-              className={`bg-white rounded-xl shadow-md border-2 p-8 relative ${
+              className={`bg-[var(--card-bg)] rounded-xl shadow-md border-2 p-8 relative ${
                 tier.popular
-                  ? "border-indigo-500"
-                  : "border-gray-100"
+                  ? "border-[var(--text-secondary)]"
+                  : "border-[var(--border-color)]"
               }`}
             >
               {tier.popular && (
                 <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                  <span className="bg-indigo-500 text-white px-4 py-1 rounded-full text-sm font-medium">
+                  <span className="bg-[var(--text-secondary)] text-white px-4 py-1 rounded-full text-sm font-medium">
                     Most Popular
                   </span>
                 </div>
               )}
 
               <div className="text-center mb-8">
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                <h3 className="text-2xl font-bold text-[var(--text-primary)] mb-2">
                   {tier.name}
                 </h3>
-                <div className="text-4xl font-bold text-indigo-600 mb-2">
+                <div className="text-4xl font-bold text-[var(--text-secondary)] mb-2">
                   {tier.price}
                 </div>
                 {tier.price !== "Free" && (
-                  <p className="text-gray-500">billed monthly</p>
+                  <p className="text-[var(--text-primary)] opacity-60">billed monthly</p>
                 )}
               </div>
 
               <ul className="space-y-4 mb-8">
                 {tier.features.map((feature, featureIndex) => (
                   <li key={featureIndex} className="flex items-start">
-                    <Check className="w-5 h-5 text-green-500 mt-0.5 mr-3 flex-shrink-0" />
-                    <span className="text-gray-600">{feature}</span>
+                    <Check className="w-5 h-5 text-[var(--text-secondary)] mt-0.5 mr-3 flex-shrink-0" />
+                    <span className="text-[var(--text-primary)] opacity-80">{feature}</span>
                   </li>
                 ))}
                 {tier.limitations &&
@@ -167,8 +167,8 @@ const Features = () => {
                       key={`limit-${limitIndex}`}
                       className="flex items-start"
                     >
-                      <X className="w-5 h-5 text-gray-400 mt-0.5 mr-3 flex-shrink-0" />
-                      <span className="text-gray-500 line-through">
+                      <X className="w-5 h-5 text-[var(--text-primary)] opacity-40 mt-0.5 mr-3 flex-shrink-0" />
+                      <span className="text-[var(--text-primary)] opacity-50 line-through">
                         {limitation}
                       </span>
                     </li>
@@ -177,13 +177,13 @@ const Features = () => {
 
               <div className="text-center">
                 {tier.name === "Anonymous" ? (
-                  <div className="text-sm text-gray-500">
+                  <div className="text-sm text-[var(--text-primary)] opacity-60">
                     No registration required
                   </div>
                 ) : tier.price === "Free" ? (
                   <Link
                     to="/register"
-                    className="w-full bg-gray-900 text-white py-3 px-6 rounded-lg font-semibold hover:bg-gray-800 transition-colors block"
+                    className="w-full bg-[var(--text-secondary)] text-white py-3 px-6 rounded-lg font-semibold hover:bg-[var(--text-accent)] transition-colors block"
                   >
                     Get Started Free
                   </Link>
@@ -192,8 +192,8 @@ const Features = () => {
                     to="/register"
                     className={`w-full py-3 px-6 rounded-lg font-semibold transition-colors block ${
                       tier.popular
-                        ? "bg-indigo-600 text-white hover:bg-indigo-700"
-                        : "bg-indigo-100 text-indigo-600 hover:bg-indigo-200"
+                        ? "bg-[var(--text-secondary)] text-white hover:bg-[var(--text-accent)]"
+                        : "bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:bg-[var(--text-secondary)] hover:text-white"
                     }`}
                   >
                     Upgrade to Premium
@@ -205,22 +205,22 @@ const Features = () => {
         </div>
 
         {/* CTA Section */}
-        <div className="text-center mt-16 bg-indigo-600 rounded-2xl p-12 text-white">
+        <div className="text-center mt-16 bg-[var(--text-secondary)] rounded-2xl p-12 text-white">
           <h2 className="text-3xl font-bold mb-4">Ready to Get Started?</h2>
-          <p className="text-xl text-indigo-100 mb-8 max-w-2xl mx-auto">
+          <p className="text-xl opacity-90 mb-8 max-w-2xl mx-auto">
             Join thousands of users who trust URLzy for their link management
             needs.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <Link
               to="/register"
-              className="bg-white text-indigo-600 px-8 py-3 rounded-lg text-lg font-semibold"
+              className="bg-white text-[var(--text-secondary)] px-8 py-3 rounded-lg text-lg font-semibold hover:bg-[var(--bg-secondary)] transition-colors"
             >
               Sign Up Free
             </Link>
             <Link
               to="/pricing"
-              className="border-2 border-white text-white px-8 py-3 rounded-lg text-lg font-semibold"
+              className="border-2 border-white text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-white hover:text-[var(--text-secondary)] transition-colors"
             >
               View Pricing
             </Link>

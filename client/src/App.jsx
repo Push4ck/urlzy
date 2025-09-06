@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
+import { ThemeProvider } from "./contexts/ThemeContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
@@ -18,6 +19,7 @@ import VerifyEmail from "./pages/VerifyEmail";
 import LoginVerify from "./pages/LoginVerify";
 import NotFound from "./pages/NotFound";
 import Footer from "./components/Footer";
+import ScrollToTop from "./components/ScrollToTop";
 import "./index.css";
 import { Toaster } from "react-hot-toast";
 
@@ -29,8 +31,9 @@ function App() {
   }, [location.pathname]);
 
   return (
-    <AuthProvider>
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 flex flex-col">
+    <ThemeProvider>
+      <AuthProvider>
+        <div className="min-h-screen bg-[var(--bg-primary)] flex flex-col transition-colors duration-300">
         <Toaster
           position="top-right"
           toastOptions={{
@@ -43,6 +46,7 @@ function App() {
         />
         <Navbar />
         <main className="flex-1">
+          <ScrollToTop />
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
@@ -103,8 +107,9 @@ function App() {
           </Routes>
         </main>
         <Footer />
-      </div>
-    </AuthProvider>
+        </div>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 
