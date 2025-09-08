@@ -206,7 +206,7 @@ const AdminDashboard = () => {
             <button
               onClick={handleRefresh}
               disabled={refreshing}
-              className="w-fit px-6 py-3 bg-[var(--clr-primary-a0)] hover:bg-[var(--clr-primary-dark)] text-[var(--clr-light-a0)] font-semibold rounded-lg inline-flex items-center gap-2 disabled:opacity-50 transition-colors duration-200 cursor-pointer"
+              className="w-fit self-end px-6 py-3 bg-[var(--clr-primary-a0)] hover:bg-[var(--clr-primary-dark)] text-[var(--clr-light-a0)] font-semibold rounded-lg inline-flex items-center gap-2 disabled:opacity-50 transition-colors duration-200 cursor-pointer"
             >
               <RefreshCw
                 className={`w-5 h-5 ${refreshing ? "animate-spin" : ""}`}
