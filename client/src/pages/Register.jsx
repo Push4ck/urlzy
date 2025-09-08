@@ -2,7 +2,16 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/useAuth";
 import toast from "react-hot-toast";
-import { Eye, EyeOff } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  User,
+  Mail,
+  Lock,
+  AlertCircle,
+  Loader,
+  ArrowRight,
+} from "lucide-react";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -65,68 +74,82 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+    <div className="min-h-screen flex items-center justify-center bg-[var(--clr-surface-a10)] dark:bg-[var(--clr-surface-a0)] transition-colors duration-300">
+      <div className="w-full max-w-md mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="text-center mb-8 space-y-4">
+          <h2 className="text-5xl font-bold text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)]">
             Create your account
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Or{" "}
+          <p className="text-xl text-[var(--clr-surface-a50)] dark:text-[var(--clr-surface-a50)]">
+            Join us and start shortening URLs
+          </p>
+          <p className="text-[var(--clr-surface-a50)] dark:text-[var(--clr-surface-a50)]">
+            Already have an account?{" "}
             <Link
               to="/login"
-              className="font-medium text-indigo-600 hover:text-indigo-500"
+              className="text-[var(--clr-primary-a0)] hover:text-[var(--clr-primary-dark)] dark:text-[var(--clr-primary-a10)] dark:hover:text-[var(--clr-primary-a0)] font-semibold transition-colors duration-300"
             >
-              sign in to your existing account
+              Sign in
             </Link>
           </p>
         </div>
 
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="space-y-4">
+        {/* Card */}
+        <div className="bg-[var(--clr-surface-a0)]/80 dark:bg-[var(--clr-surface-a10)]/80 backdrop-blur-xl p-8 border border-[var(--clr-primary-a0)] dark:border-[var(--clr-primary-a10)] rounded-xl shadow-2xl">
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            {/* Username */}
             <div>
               <label
                 htmlFor="username"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-lg font-semibold text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)] mb-3"
               >
                 Username
               </label>
-              <input
-                id="username"
-                name="username"
-                type="text"
-                required
-                value={formData.username}
-                onChange={handleChange}
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Enter a username"
-              />
+              <div className="relative">
+                <input
+                  id="username"
+                  name="username"
+                  type="text"
+                  required
+                  value={formData.username}
+                  onChange={handleChange}
+                  className="w-full pl-14 pr-4 py-4 text-lg bg-[var(--clr-surface-a0)] dark:bg-[var(--clr-surface-a10)] border-2 border-[var(--clr-surface-a30)] dark:border-[var(--clr-surface-a20)] rounded-xl text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)] placeholder-[var(--clr-surface-a50)] dark:placeholder-[var(--clr-surface-a40)] focus:border-[var(--clr-primary-a0)] focus:outline-none transition-colors duration-300"
+                  placeholder="Choose a username"
+                />
+                <User className="absolute left-4 top-4 w-6 h-6 text-[var(--clr-primary-a0)] dark:text-[var(--clr-primary-a10)]" />
+              </div>
             </div>
 
+            {/* Email */}
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-lg font-semibold text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)] mb-3"
               >
                 Email address
               </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                value={formData.email}
-                onChange={handleChange}
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Enter your email"
-              />
+              <div className="relative">
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="w-full pl-14 pr-4 py-4 text-lg bg-[var(--clr-surface-a0)] dark:bg-[var(--clr-surface-a10)] border-2 border-[var(--clr-surface-a30)] dark:border-[var(--clr-surface-a20)] rounded-xl text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)] placeholder-[var(--clr-surface-a50)] dark:placeholder-[var(--clr-surface-a40)] focus:border-[var(--clr-primary-a0)] focus:outline-none transition-colors duration-300"
+                  placeholder="you@example.com"
+                />
+                <Mail className="absolute left-4 top-4 w-6 h-6 text-[var(--clr-primary-a0)] dark:text-[var(--clr-primary-a10)]" />
+              </div>
             </div>
 
+            {/* Password */}
             <div>
               <label
                 htmlFor="password"
-                className="block text sm font-medium text-gray-700"
+                className="block text-lg font-semibold text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)] mb-3"
               >
                 Password
               </label>
@@ -138,23 +161,26 @@ const Register = () => {
                   required
                   value={formData.password}
                   onChange={handleChange}
-                  className="mt-1 appearance-none relative block w-full px-3 py-2 pr-10 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                  className="w-full pl-14 pr-14 py-4 text-lg bg-[var(--clr-surface-a0)] dark:bg-[var(--clr-surface-a10)] border-2 border-[var(--clr-surface-a30)] dark:border-[var(--clr-surface-a20)] rounded-xl text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)] placeholder-[var(--clr-surface-a50)] dark:placeholder-[var(--clr-surface-a40)] focus:border-[var(--clr-primary-a0)] focus:outline-none transition-colors duration-300"
                   placeholder="Choose a strong password"
                 />
+                <Lock className="absolute left-4 top-4 w-6 h-6 text-[var(--clr-primary-a0)] dark:text-[var(--clr-primary-a10)]" />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none"
+                  className="absolute right-4 top-4 w-6 h-6 text-[var(--clr-primary-a0)] dark:text-[var(--clr-primary-a10)] hover:text-[var(--clr-primary-dark)] dark:hover:text-[var(--clr-primary-a0)] cursor-pointer transition-colors duration-300"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? <Eye /> : <EyeOff />}
                 </button>
               </div>
             </div>
 
+            {/* Confirm Password */}
             <div>
               <label
                 htmlFor="confirmPassword"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-lg font-semibold text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)] mb-3"
               >
                 Confirm Password
               </label>
@@ -166,59 +192,89 @@ const Register = () => {
                   required
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  className="mt-1 appearance-none relative block w-full px-3 py-2 pr-10 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                  className="w-full pl-14 pr-14 py-4 text-lg bg-[var(--clr-surface-a0)] dark:bg-[var(--clr-surface-a10)] border-2 border-[var(--clr-surface-a30)] dark:border-[var(--clr-surface-a20)] rounded-xl text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)] placeholder-[var(--clr-surface-a50)] dark:placeholder-[var(--clr-surface-a40)] focus:border-[var(--clr-primary-a0)] focus:outline-none transition-colors duration-300"
                   placeholder="Confirm your password"
                 />
+                <Lock className="absolute left-4 top-4 w-6 h-6 text-[var(--clr-primary-a0)] dark:text-[var(--clr-primary-a10)]" />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none"
+                  className="absolute right-4 top-4 w-6 h-6 text-[var(--clr-primary-a0)] dark:text-[var(--clr-primary-a10)] hover:text-[var(--clr-primary-dark)] dark:hover:text-[var(--clr-primary-a0)] cursor-pointer transition-colors duration-300"
+                  aria-label={
+                    showConfirmPassword
+                      ? "Hide confirm password"
+                      : "Show confirm password"
+                  }
                 >
                   {showConfirmPassword ? <Eye /> : <EyeOff />}
                 </button>
               </div>
             </div>
-          </div>
 
-          <div className="flex items-center">
-            <input
-              id="agree-terms"
-              name="agree-terms"
-              type="checkbox"
-              required
-              className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-            />
+            {/* Terms */}
             <label
               htmlFor="agree-terms"
-              className="ml-2 block text-sm text-gray-900"
+              className="flex items-start gap-3 text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)] cursor-pointer"
             >
-              I agree to the{" "}
-              <a href="#" className="text-indigo-600 hover:text-indigo-500">
-                Terms of Service
-              </a>{" "}
-              and{" "}
-              <a href="#" className="text-indigo-600 hover:text-indigo-500">
-                Privacy Policy
-              </a>
+              <input
+                id="agree-terms"
+                name="agree-terms"
+                type="checkbox"
+                required
+                className="w-5 h-5 mt-1 rounded border-2 border-[var(--clr-primary-a0)] text-[var(--clr-primary-a0)] focus:ring-[var(--clr-primary-a0)] focus:ring-2"
+              />
+              <span>
+                I agree to the{" "}
+                <Link
+                  to="/terms"
+                  className="text-[var(--clr-primary-a0)] hover:text-[var(--clr-primary-dark)] dark:text-[var(--clr-primary-a10)] dark:hover:text-[var(--clr-primary-a0)] font-semibold transition-colors duration-300"
+                >
+                  Terms of Service
+                </Link>{" "}
+                and{" "}
+                <Link
+                  to="/privacy"
+                  className="text-[var(--clr-primary-a0)] hover:text-[var(--clr-primary-dark)] dark:text-[var(--clr-primary-a10)] dark:hover:text-[var(--clr-primary-a0)] font-semibold transition-colors duration-300"
+                >
+                  Privacy Policy
+                </Link>
+              </span>
             </label>
-          </div>
 
-          {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-              {error}
-            </div>
-          )}
+            {/* Error */}
+            {error && (
+              <div className="bg-red-50 dark:bg-red-900/20 p-4 border border-red-200 dark:border-red-800 rounded-xl">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-xl bg-red-100 dark:bg-red-900/50">
+                    <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
+                  </div>
+                  <span className="text-red-700 dark:text-red-300 font-medium">
+                    {error}
+                  </span>
+                </div>
+              </div>
+            )}
 
-          <div>
+            {/* Submit */}
             <button
               type="submit"
               disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-[var(--clr-primary-a0)] hover:bg-[var(--clr-primary-dark)] dark:bg-[var(--clr-primary-a10)] dark:hover:bg-[var(--clr-primary-a0)] text-[var(--clr-light-a0)] w-full py-4 text-lg font-semibold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
             >
-              {loading ? "Creating account..." : "Create account"}
+              {loading ? (
+                <span className="inline-flex items-center gap-3">
+                  <Loader className="animate-spin w-6 h-6" />
+                  Creating account...
+                </span>
+              ) : (
+                <span className="inline-flex items-center justify-center gap-3">
+                  Create account
+                  <ArrowRight className="w-5 h-5" />
+                </span>
+              )}
             </button>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
     </div>
   );

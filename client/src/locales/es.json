@@ -1,0 +1,253 @@
+{
+  "nav": {
+    "home": "Inicio",
+    "about": "Acerca de",
+    "pricing": "Precios",
+    "contact": "Contacto",
+    "login": "Iniciar Sesión",
+    "register": "Registrarse",
+    "dashboard": "Panel",
+    "logout": "Cerrar Sesión",
+    "settings": "Configuración"
+  },
+  "hero": {
+    "title": "Acorta tus URLs con Estilo",
+    "subtitle": "Crea enlaces cortos personalizados, rastrea analíticas y gestiona tus URLs con nuestro potente acortador de URLs.",
+    "getStarted": "Comenzar",
+    "learnMore": "Saber Más"
+  },
+  "features": {
+    "title": "Características Potentes",
+    "subtitle": "Todo lo que necesitas para gestionar tus URLs de manera efectiva",
+    "customUrls": {
+      "title": "URLs Personalizadas",
+      "description": "Crea enlaces cortos memorables que reflejen tu marca"
+    },
+    "analytics": {
+      "title": "Analíticas Detalladas",
+      "description": "Rastrea clics, datos geográficos y comportamiento de usuarios en tiempo real"
+    },
+    "api": {
+      "title": "Acceso API",
+      "description": "Integra nuestro acortador de URLs en tus aplicaciones con nuestra API REST"
+    },
+    "security": {
+      "title": "Seguro y Confiable",
+      "description": "Seguridad de nivel empresarial con garantía de tiempo de actividad del 99.9%"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Bienvenido de Vuelta",
+      "email": "Dirección de Correo",
+      "password": "Contraseña",
+      "rememberMe": "Recordarme",
+      "forgotPassword": "¿Olvidaste tu contraseña?",
+      "loginButton": "Iniciar Sesión",
+      "noAccount": "¿No tienes una cuenta?",
+      "signUp": "Regístrate",
+      "invalidCredentials": "Correo o contraseña inválidos",
+      "loginSuccess": "Inicio de sesión exitoso"
+    },
+    "register": {
+      "title": "Crear Cuenta",
+      "username": "Nombre de Usuario",
+      "email": "Dirección de Correo",
+      "password": "Contraseña",
+      "confirmPassword": "Confirmar Contraseña",
+      "registerButton": "Crear Cuenta",
+      "haveAccount": "¿Ya tienes una cuenta?",
+      "signIn": "Iniciar sesión",
+      "registrationSuccess": "Cuenta creada exitosamente",
+      "passwordMismatch": "Las contraseñas no coinciden"
+    },
+    "forgotPassword": {
+      "title": "Restablecer Contraseña",
+      "email": "Dirección de Correo",
+      "sendReset": "Enviar Código de Restablecimiento",
+      "backToLogin": "Volver al Inicio de Sesión",
+      "resetSent": "Código de restablecimiento enviado a tu correo"
+    },
+    "verifyEmail": {
+      "title": "Verificar Correo",
+      "code": "Código de Verificación",
+      "verify": "Verificar Correo",
+      "resend": "Reenviar Código",
+      "verified": "Correo verificado exitosamente"
+    }
+  },
+  "dashboard": {
+    "title": "Panel de Control",
+    "welcome": "Bienvenido de vuelta",
+    "totalUrls": "URLs Totales",
+    "totalClicks": "Clics Totales",
+    "recentActivity": "Actividad Reciente",
+    "createUrl": "Crear URL",
+    "manageUrls": "Gestionar URLs",
+    "viewAnalytics": "Ver Analíticas",
+    "settings": "Configuración"
+  },
+  "settings": {
+    "title": "Configuración de Cuenta",
+    "subtitle": "Gestiona las preferencias y configuraciones de seguridad de tu cuenta",
+    "security": {
+      "title": "Seguridad y Privacidad",
+      "emailNotifications": {
+        "title": "Notificaciones por Correo",
+        "description": "Recibe notificaciones por correo para actualizaciones importantes"
+      },
+      "twoFactor": {
+        "title": "Autenticación de Dos Factores",
+        "description": "Agrega una capa extra de seguridad a tu cuenta",
+        "enable": "Habilitar 2FA",
+        "disable": "Deshabilitar 2FA"
+      },
+      "theme": {
+        "title": "Preferencia de Tema",
+        "description": "Elige tu tema preferido",
+        "light": "Claro",
+        "dark": "Oscuro",
+        "system": "Sistema"
+      },
+      "language": {
+        "title": "Idioma",
+        "description": "Selecciona tu idioma preferido",
+        "english": "English",
+        "spanish": "Español",
+        "french": "Français",
+        "german": "Deutsch"
+      }
+    },
+    "account": {
+      "title": "Gestión de Cuenta",
+      "profile": {
+        "title": "Información de Perfil",
+        "description": "Actualiza tu información personal y preferencias",
+        "edit": "Editar Perfil"
+      },
+      "notifications": {
+        "title": "Preferencias de Notificación",
+        "description": "Gestiona cómo y cuándo recibes notificaciones",
+        "manage": "Gestionar"
+      }
+    },
+    "password": {
+      "title": "Contraseña y Seguridad",
+      "change": {
+        "title": "Cambiar Contraseña",
+        "description": "Actualiza la contraseña de tu cuenta para mayor seguridad",
+        "button": "Cambiar Contraseña"
+      }
+    },
+    "api": {
+      "title": "Claves API",
+      "description": "Gestiona tus claves API para acceso programático",
+      "create": "Crear Nueva Clave API",
+      "name": "Nombre de la Clave API",
+      "placeholder": "Ingresa un nombre para tu clave API"
+    },
+    "data": {
+      "title": "Gestión de Datos",
+      "export": {
+        "title": "Exportar Tus Datos",
+        "description": "Descarga una copia de todos tus datos en tu formato preferido",
+        "json": "Exportar como JSON",
+        "csv": "Exportar como CSV",
+        "pdf": "Exportar como PDF"
+      }
+    },
+    "danger": {
+      "title": "Zona de Peligro",
+      "delete": {
+        "title": "Eliminar Cuenta",
+        "description": "Elimina permanentemente tu cuenta y todos los datos. Esto no se puede deshacer.",
+        "button": "Eliminar Cuenta",
+        "confirm": "Escribe 'DELETE' para confirmar"
+      }
+    },
+    "info": {
+      "title": "Información de Cuenta",
+      "created": "Cuenta Creada",
+      "lastLogin": "Último Inicio de Sesión",
+      "status": "Estado de Cuenta",
+      "active": "Activa",
+      "subscription": "Suscripción",
+      "free": "Plan Gratuito"
+    }
+  },
+  "common": {
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "close": "Cerrar",
+    "loading": "Cargando...",
+    "error": "Error",
+    "success": "Éxito",
+    "warning": "Advertencia",
+    "info": "Información",
+    "confirm": "Confirmar",
+    "yes": "Sí",
+    "no": "No",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "previous": "Anterior",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "sort": "Ordenar",
+    "export": "Exportar",
+    "import": "Importar",
+    "upload": "Subir",
+    "download": "Descargar",
+    "copy": "Copiar",
+    "paste": "Pegar",
+    "share": "Compartir",
+    "link": "Enlace",
+    "url": "URL",
+    "shortUrl": "URL Corta",
+    "originalUrl": "URL Original",
+    "clicks": "Clics",
+    "analytics": "Analíticas",
+    "statistics": "Estadísticas",
+    "date": "Fecha",
+    "time": "Hora",
+    "status": "Estado",
+    "actions": "Acciones",
+    "name": "Nombre",
+    "description": "Descripción",
+    "type": "Tipo",
+    "category": "Categoría",
+    "tags": "Etiquetas",
+    "notes": "Notas",
+    "comments": "Comentarios",
+    "feedback": "Comentarios",
+    "help": "Ayuda",
+    "support": "Soporte",
+    "contact": "Contacto",
+    "about": "Acerca de",
+    "privacy": "Privacidad",
+    "terms": "Términos",
+    "cookies": "Cookies",
+    "required": "Requerido",
+    "optional": "Opcional"
+  },
+  "messages": {
+    "settingsUpdated": "Configuración actualizada exitosamente",
+    "passwordChanged": "Contraseña cambiada exitosamente",
+    "profileUpdated": "Perfil actualizado exitosamente",
+    "apiKeyCreated": "Clave API creada exitosamente",
+    "apiKeyDeleted": "Clave API eliminada exitosamente",
+    "accountDeleted": "Cuenta eliminada exitosamente",
+    "dataExported": "Datos exportados exitosamente",
+    "invalidPassword": "La contraseña actual es incorrecta",
+    "passwordMismatch": "Las nuevas contraseñas no coinciden",
+    "invalidEmail": "Por favor ingresa una dirección de correo válida",
+    "usernameTaken": "El nombre de usuario ya está en uso",
+    "emailTaken": "El correo ya está registrado",
+    "networkError": "Error de red. Por favor intenta de nuevo.",
+    "serverError": "Error del servidor. Por favor intenta más tarde.",
+    "unauthorized": "No estás autorizado para realizar esta acción",
+    "notFound": "El recurso solicitado no fue encontrado",
+    "validationError": "Por favor verifica tu entrada e intenta de nuevo"
+  }
+}

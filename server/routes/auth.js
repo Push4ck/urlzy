@@ -3,6 +3,7 @@ const router = express.Router();
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const User = require("../models/User");
+const Device = require("../models/Device");
 const {
   validateRegistration,
   validateLogin,
@@ -148,7 +149,285 @@ router.post(
 // Profile
 // =====================
 router.get("/profile", authenticate, async (req, res) => {
-  return res.json({ success: true, data: req.user });
+  try {
+    // Fetch fresh user data including profileImage
+    const user = await User.findById(req.user._id).select('-password');
+    return res.json({ success: true, data: user });
+  } catch (error) {
+    console.error("Profile fetch error:", error);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+// Update user profile
+router.put("/profile", authenticate, async (req, res) => {
+  try {
+    const { username, email, currentPassword } = req.body;
+
+    // Validate input
+    if (!username || !email) {
+      return res.status(400).json({
+        success: false,
+        message: "Username and email are required"
+      });
+    }
+
+    // Get current user
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+
+    // Check if username is already taken by another user
+    const existingUser = await User.findOne({
+      username,
+      _id: { $ne: req.user._id }
+    });
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        message: "Username is already taken"
+      });
+    }
+
+    // Check if email is being changed
+    const isEmailChanged = email !== user.email;
+    let emailVerificationRequired = false;
+
+    if (isEmailChanged) {
+      // Require password verification for email changes
+      if (!currentPassword) {
+        return res.status(400).json({
+          success: false,
+          message: "Current password is required to change email"
+        });
+      }
+
+      // Verify current password
+      const isPasswordValid = await user.comparePassword(currentPassword);
+      if (!isPasswordValid) {
+        return res.status(400).json({
+          success: false,
+          message: "Current password is incorrect"
+        });
+      }
+
+      // Check if new email is already taken by another user
+      const existingEmail = await User.findOne({
+        email,
+        _id: { $ne: req.user._id }
+      });
+      if (existingEmail) {
+        return res.status(400).json({
+          success: false,
+          message: "Email is already registered"
+        });
+      }
+
+      // Check if email verification is required
+      if (adminSettings.requireEmailVerification) {
+        emailVerificationRequired = true;
+      }
+    }
+
+    // Prepare update data
+    const updateData = { username };
+    if (!emailVerificationRequired) {
+      updateData.email = email;
+    }
+
+    // Update user profile
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user._id,
+      updateData,
+      { new: true }
+    ).select('-password');
+
+    if (!updatedUser) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+
+    // Handle email verification if required
+    if (emailVerificationRequired) {
+      // Store pending email
+      updatedUser.pendingEmail = email;
+
+      // Send verification email to new email address
+      await setAndSendOtp({
+        user: updatedUser,
+        kind: "verify",
+        subject: "Verify your new email address",
+        textPrefix: "Please verify your new email address. Your verification code is",
+        htmlPrefix: "Please verify your new email address. Your verification code is",
+      });
+
+      await updatedUser.save();
+
+      return res.json({
+        success: true,
+        message: "Profile updated. Please check your new email for verification code.",
+        emailVerificationRequired: true,
+        pendingEmail: email,
+        data: updatedUser
+      });
+    }
+
+    return res.json({
+      success: true,
+      message: "Profile updated successfully",
+      data: updatedUser
+    });
+  } catch (error) {
+    console.error("Profile update error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error"
+    });
+  }
+});
+
+// Verify new email address
+router.post("/verify-new-email", authenticate, async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+
+    if (!email || !otp) {
+      return res.status(400).json({
+        success: false,
+        message: "Email and OTP are required"
+      });
+    }
+
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+
+    // Check if the email matches what we're trying to verify
+    if (user.email !== email) {
+      // Check if there's a pending email change
+      if (!user.pendingEmail || user.pendingEmail !== email) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid email verification request"
+        });
+      }
+    }
+
+    // Verify OTP
+    if (!user.emailVerifyOtpHash || !user.emailVerifyOtpExpires) {
+      return res.status(400).json({
+        success: false,
+        message: "No verification code found"
+      });
+    }
+
+    if (user.emailVerifyOtpExpires < new Date()) {
+      return res.status(400).json({
+        success: false,
+        message: "Verification code has expired"
+      });
+    }
+
+    if (user.emailVerifyOtpAttempts >= 5) {
+      return res.status(429).json({
+        success: false,
+        message: "Too many attempts. Request a new verification code."
+      });
+    }
+
+    const match = await bcrypt.compare(otp, user.emailVerifyOtpHash);
+    user.emailVerifyOtpAttempts += 1;
+
+    if (!match) {
+      await user.save();
+      return res.status(400).json({
+        success: false,
+        message: "Invalid verification code"
+      });
+    }
+
+    // Update email and clear verification fields
+    user.email = email;
+    user.pendingEmail = undefined;
+    user.emailVerifyOtpHash = undefined;
+    user.emailVerifyOtpExpires = undefined;
+    user.emailVerifyOtpAttempts = 0;
+    user.emailVerifyOtpLastSentAt = undefined;
+    user.verified = true; // Mark as verified since they just verified the email
+
+    await user.save();
+
+    return res.json({
+      success: true,
+      message: "Email verified and updated successfully"
+    });
+  } catch (error) {
+    console.error("New email verification error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error"
+    });
+  }
+});
+
+// Update notification preferences
+router.put("/notifications", authenticate, async (req, res) => {
+  try {
+    const { notifications } = req.body;
+
+    // Validate notification preferences
+    const allowedKeys = ['urlClicks', 'weeklyReports', 'securityAlerts', 'marketingEmails', 'systemUpdates'];
+    const updates = {};
+
+    for (const key of allowedKeys) {
+      if (notifications[key] !== undefined) {
+        updates[`notifications.${key}`] = notifications[key];
+      }
+    }
+
+    if (Object.keys(updates).length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "No valid notification preferences provided"
+      });
+    }
+
+    // Update user notification preferences
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      updates,
+      { new: true }
+    ).select('-password');
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+
+    return res.json({
+      success: true,
+      message: "Notification preferences updated successfully",
+      data: user.notifications
+    });
+  } catch (error) {
+    console.error("Notification preferences update error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error"
+    });
+  }
 });
 
 // =====================
@@ -185,7 +464,7 @@ router.put("/settings", authenticate, async (req, res) => {
       return res.status(404).json({ success: false, message: "User not found" });
     }
 
-    const allowedFields = ['emailNotifications', 'profileVisibility'];
+    const allowedFields = ['emailNotifications', 'profileVisibility', 'theme', 'language'];
     const updates = {};
 
     for (const field of allowedFields) {
@@ -553,18 +832,36 @@ router.get("/admin/analytics", authenticate, async (req, res) => {
 });
 
 // =====================
-// Login with optional 2FA and email verification gating
+// Special Admin Login for Maintenance Mode
 // =====================
-// Basic rate limiting to protect auth endpoints
-router.post("/login", authLimiter, validateLogin, async (req, res) => {
+router.post("/admin-login", authLimiter, validateLogin, async (req, res) => {
   try {
     const { email, password } = req.body;
+
+    // Check if maintenance mode is enabled
+    const Settings = require("../models/Settings");
+    const settings = await Settings.getSettings();
+
+    if (!settings.enableMaintenanceMode) {
+      return res.status(403).json({
+        success: false,
+        message: "This endpoint is only available during maintenance mode."
+      });
+    }
 
     const user = await User.findOne({ email });
     if (!user) {
       return res
         .status(401)
         .json({ success: false, message: "Invalid credentials" });
+    }
+
+    // Only allow admin users
+    if (user.role !== "admin") {
+      return res.status(403).json({
+        success: false,
+        message: "Access denied. Admin privileges required."
+      });
     }
 
     const isMatch = await user.comparePassword(password);
@@ -624,7 +921,172 @@ router.post("/login", authLimiter, validateLogin, async (req, res) => {
       });
     }
 
-    // Normal login
+    // Normal login - Track device
+    const userAgent = req.headers['user-agent'] || 'Unknown';
+    const ip = req.ip || req.connection.remoteAddress;
+    const deviceId = Device.generateDeviceId(userAgent, ip);
+
+    // Create or update device record
+    const device = await Device.findOneAndUpdate(
+      { userId: user._id, deviceId },
+      {
+        userId: user._id,
+        deviceId,
+        name: Device.getDeviceName(userAgent),
+        type: Device.detectDeviceType(userAgent),
+        userAgent,
+        ip,
+        location: 'New Delhi, India', // In production, use IP geolocation
+        isCurrent: true,
+        isActive: true,
+        lastActive: new Date()
+      },
+      { upsert: true, new: true }
+    );
+
+    // Mark other devices as not current
+    await Device.updateMany(
+      { userId: user._id, deviceId: { $ne: deviceId } },
+      { isCurrent: false }
+    );
+
+    const token = jwt.sign(
+      { userId: user._id },
+      process.env.JWT_SECRET || "dev_secret_change_me",
+      { expiresIn: "7d" }
+    );
+
+    return res.json({
+      success: true,
+      data: {
+        token,
+        user: {
+          id: user._id,
+          username: user.username,
+          email: user.email,
+          role: user.role,
+          premium: user.premium,
+        },
+      },
+    });
+  } catch (error) {
+    console.error("Admin login error:", error);
+    res.status(500).json({ success: false, message: "Error during admin login" });
+  }
+});
+
+// =====================
+// Login with optional 2FA and email verification gating
+// =====================
+// Basic rate limiting to protect auth endpoints
+router.post("/login", authLimiter, validateLogin, async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res
+        .status(401)
+        .json({ success: false, message: "Invalid credentials" });
+    }
+
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) {
+      return res
+        .status(401)
+        .json({ success: false, message: "Invalid credentials" });
+    }
+
+    // Check maintenance mode - only allow admin users to log in during maintenance
+    const Settings = require("../models/Settings");
+    const settings = await Settings.getSettings();
+    if (settings.enableMaintenanceMode && user.role !== "admin") {
+      return res.status(503).json({
+        success: false,
+        message: "System is under maintenance. Only administrators can log in at this time.",
+        maintenance: true
+      });
+    }
+
+    // Block login until email verified (only if email verification is required)
+    if (!user.verified && adminSettings.requireEmailVerification) {
+      const now = new Date();
+      if (
+        !user.emailVerifyOtpLastSentAt ||
+        now - user.emailVerifyOtpLastSentAt >= OTP_RESEND_SECONDS * 1000
+      ) {
+        await setAndSendOtp({
+          user,
+          kind: "verify",
+          subject: "Verify your email",
+          textPrefix: "Your email verification code is",
+          htmlPrefix: "Your email verification code is",
+        });
+      }
+      return res.status(403).json({
+        success: false,
+        message: "Email not verified. We have sent you a verification code.",
+        requiresVerification: true,
+      });
+    }
+
+    // If 2FA enabled, send OTP and return a short-lived login token (not full JWT)
+    if (user.twoFactorEnabled) {
+      const now = new Date();
+      if (
+        !user.twoFactorOtpLastSentAt ||
+        now - user.twoFactorOtpLastSentAt >= OTP_RESEND_SECONDS * 1000
+      ) {
+        await setAndSendOtp({
+          user,
+          kind: "2fa",
+          subject: "Your login verification code",
+          textPrefix: "Your login verification code is",
+          htmlPrefix: "Your login verification code is",
+        });
+      }
+
+      const loginToken = jwt.sign(
+        { userId: user._id, purpose: "2fa" },
+        process.env.JWT_SECRET || "dev_secret_change_me",
+        { expiresIn: "10m" }
+      );
+
+      return res.json({
+        success: true,
+        data: { twoFactorRequired: true, loginToken },
+      });
+    }
+
+    // Normal login - Track device
+    const userAgent = req.headers['user-agent'] || 'Unknown';
+    const ip = req.ip || req.connection.remoteAddress;
+    const deviceId = Device.generateDeviceId(userAgent, ip);
+
+    // Create or update device record
+    const device = await Device.findOneAndUpdate(
+      { userId: user._id, deviceId },
+      {
+        userId: user._id,
+        deviceId,
+        name: Device.getDeviceName(userAgent),
+        type: Device.detectDeviceType(userAgent),
+        userAgent,
+        ip,
+        location: 'New Delhi, India', // In production, use IP geolocation
+        isCurrent: true,
+        isActive: true,
+        lastActive: new Date()
+      },
+      { upsert: true, new: true }
+    );
+
+    // Mark other devices as not current
+    await Device.updateMany(
+      { userId: user._id, deviceId: { $ne: deviceId } },
+      { isCurrent: false }
+    );
+
     const token = jwt.sign(
       { userId: user._id },
       process.env.JWT_SECRET || "dev_secret_change_me",
@@ -705,6 +1167,35 @@ router.post("/login/verify-otp", validateLoginOtpVerify, async (req, res) => {
     user.twoFactorOtpAttempts = 0;
     user.twoFactorOtpLastSentAt = null;
     await user.save();
+
+    // Track device for 2FA login as well
+    const userAgent = req.headers['user-agent'] || 'Unknown';
+    const ip = req.ip || req.connection.remoteAddress;
+    const deviceId = Device.generateDeviceId(userAgent, ip);
+
+    // Create or update device record
+    const device = await Device.findOneAndUpdate(
+      { userId: user._id, deviceId },
+      {
+        userId: user._id,
+        deviceId,
+        name: Device.getDeviceName(userAgent),
+        type: Device.detectDeviceType(userAgent),
+        userAgent,
+        ip,
+        location: 'New Delhi, India', // In production, use IP geolocation
+        isCurrent: true,
+        isActive: true,
+        lastActive: new Date()
+      },
+      { upsert: true, new: true }
+    );
+
+    // Mark other devices as not current
+    await Device.updateMany(
+      { userId: user._id, deviceId: { $ne: deviceId } },
+      { isCurrent: false }
+    );
 
     // Issue full JWT
     const token = jwt.sign(
@@ -1046,5 +1537,440 @@ router.post(
     }
   }
 );
+
+// PUT /api/auth/change-password - Change user password
+router.put("/change-password", authenticate, async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "Current password and new password are required"
+      });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: "New password must be at least 6 characters long"
+      });
+    }
+
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+
+    const isMatch = await user.comparePassword(currentPassword);
+    if (!isMatch) {
+      return res.status(400).json({
+        success: false,
+        message: "Current password is incorrect"
+      });
+    }
+
+    user.password = newPassword;
+    await user.save();
+
+    return res.json({
+      success: true,
+      message: "Password changed successfully"
+    });
+  } catch (error) {
+    console.error("Change password error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error"
+    });
+  }
+});
+
+
+
+// GET /api/auth/devices - Get user's devices/sessions
+router.get("/devices", authenticate, async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const userAgent = req.headers['user-agent'] || 'Unknown';
+    const ip = req.ip || req.connection.remoteAddress;
+
+    // Generate device ID for current session
+    const currentDeviceId = Device.generateDeviceId(userAgent, ip);
+
+    // Check if current device exists in database
+    let currentDevice = await Device.findOne({
+      userId,
+      deviceId: currentDeviceId,
+      isActive: true
+    });
+
+    // If current device doesn't exist, create it
+    if (!currentDevice) {
+      currentDevice = new Device({
+        userId,
+        deviceId: currentDeviceId,
+        name: Device.getDeviceName(userAgent),
+        type: Device.detectDeviceType(userAgent),
+        userAgent,
+        ip,
+        location: 'New Delhi, India', // In production, use IP geolocation service
+        isCurrent: true,
+        isActive: true,
+        lastActive: new Date()
+      });
+      await currentDevice.save();
+    } else {
+      // Update last active time for current device
+      currentDevice.lastActive = new Date();
+      await currentDevice.save();
+    }
+
+    // Get all active devices for this user
+    const devices = await Device.find({
+      userId,
+      isActive: true
+    }).sort({ lastActive: -1 });
+
+    // Format devices for frontend
+    const formattedDevices = devices.map(device => ({
+      id: device.deviceId,
+      name: device.name,
+      type: device.type,
+      location: device.location,
+      lastActive: device.lastActive,
+      current: device.isCurrent,
+      ip: device.ip,
+      userAgent: device.userAgent
+    }));
+
+    return res.json({
+      success: true,
+      data: formattedDevices
+    });
+  } catch (error) {
+    console.error("Get devices error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error"
+    });
+  }
+});
+
+// DELETE /api/auth/devices/:deviceId - Revoke device access
+router.delete("/devices/:deviceId", authenticate, async (req, res) => {
+  try {
+    const { deviceId } = req.params;
+    const userId = req.user._id;
+
+    // Find the device
+    const device = await Device.findOne({
+      userId,
+      deviceId,
+      isActive: true
+    });
+
+    if (!device) {
+      return res.status(404).json({
+        success: false,
+        message: "Device not found"
+      });
+    }
+
+    // Prevent revoking current device
+    if (device.isCurrent) {
+      return res.status(400).json({
+        success: false,
+        message: "Cannot revoke access to your current device"
+      });
+    }
+
+    // Mark device as inactive (soft delete)
+    device.isActive = false;
+    await device.save();
+
+    // In a production system, you might also:
+    // 1. Invalidate any active sessions/tokens for this device
+    // 2. Send a notification to the user
+    // 3. Log the security event
+
+    return res.json({
+      success: true,
+      message: "Device access revoked successfully"
+    });
+  } catch (error) {
+    console.error("Revoke device error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error"
+    });
+  }
+});
+
+// GET /api/auth/export-data - Export user data
+router.get("/export-data", authenticate, async (req, res) => {
+  try {
+    const { format = 'json' } = req.query;
+    const user = await User.findById(req.user._id).select('-password');
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+
+    // Get user's URLs
+    const Url = require("../models/Url");
+    const urls = await Url.find({ userId: req.user._id })
+      .select('originalUrl shortCode customCode clickCount createdAt expiresAt')
+      .sort({ createdAt: -1 });
+
+    // Get user's click events
+    const ClickEvent = require("../models/ClickEvent");
+    const clickEvents = await ClickEvent.find({ userId: req.user._id })
+      .populate('urlId', 'shortCode originalUrl')
+      .select('urlId ts ip userAgent referrer')
+      .sort({ ts: -1 })
+      .limit(100); // Limit to last 100 events
+
+    const exportData = {
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+        premium: user.premium,
+        verified: user.verified,
+        urlsCreated: user.urlsCreated,
+        createdAt: user.createdAt,
+        lastLogin: user.updatedAt
+      },
+      urls: urls.map(url => ({
+        id: url._id,
+        originalUrl: url.originalUrl,
+        shortCode: url.shortCode,
+        customCode: url.customCode,
+        clickCount: url.clickCount,
+        createdAt: url.createdAt,
+        expiresAt: url.expiresAt
+      })),
+      clickEvents: clickEvents.map(event => ({
+        url: event.urlId ? {
+          shortCode: event.urlId.shortCode,
+          originalUrl: event.urlId.originalUrl
+        } : null,
+        timestamp: event.ts,
+        ip: event.ip,
+        userAgent: event.userAgent,
+        referrer: event.referrer
+      })),
+      exportDate: new Date(),
+      version: "1.0"
+    };
+
+    // Handle different export formats
+    if (format === 'csv') {
+      return exportAsCSV(res, exportData, user.username);
+    } else if (format === 'pdf') {
+      return exportAsPDF(res, exportData, user.username);
+    } else {
+      // Default JSON format
+      return res.json({
+        success: true,
+        data: exportData
+      });
+    }
+  } catch (error) {
+    console.error("Export data error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error"
+    });
+  }
+});
+
+// Helper function to export as CSV
+function exportAsCSV(res, data, username) {
+  const csvData = [];
+
+  // User data
+  csvData.push(['User Information']);
+  csvData.push(['Field', 'Value']);
+  csvData.push(['Username', data.user.username]);
+  csvData.push(['Email', data.user.email]);
+  csvData.push(['Role', data.user.role]);
+  csvData.push(['Premium', data.user.premium ? 'Yes' : 'No']);
+  csvData.push(['Verified', data.user.verified ? 'Yes' : 'No']);
+  csvData.push(['URLs Created', data.user.urlsCreated]);
+  csvData.push(['Account Created', data.user.createdAt]);
+  csvData.push(['Last Login', data.user.lastLogin]);
+  csvData.push(['']); // Empty row
+
+  // URLs data
+  csvData.push(['URLs']);
+  csvData.push(['Original URL', 'Short Code', 'Custom Code', 'Clicks', 'Created', 'Expires']);
+  data.urls.forEach(url => {
+    csvData.push([
+      url.originalUrl,
+      url.shortCode || '',
+      url.customCode || '',
+      url.clickCount,
+      url.createdAt,
+      url.expiresAt || ''
+    ]);
+  });
+  csvData.push(['']); // Empty row
+
+  // Click events data
+  csvData.push(['Recent Click Events']);
+  csvData.push(['URL', 'Timestamp', 'IP', 'User Agent', 'Referrer']);
+  data.clickEvents.forEach(event => {
+    csvData.push([
+      event.url ? `${event.url.shortCode} (${event.url.originalUrl})` : 'Unknown',
+      event.timestamp,
+      event.ip,
+      event.userAgent,
+      event.referrer
+    ]);
+  });
+
+  // Convert to CSV string
+  const csvContent = csvData.map(row => row.map(field => `"${field}"`).join(',')).join('\n');
+
+  res.setHeader('Content-Type', 'text/csv');
+  res.setHeader('Content-Disposition', `attachment; filename="${username}-data-export.csv"`);
+  res.send(csvContent);
+}
+
+// Helper function to export as PDF
+function exportAsPDF(res, data, username) {
+  try {
+    const PDFDocument = require('pdfkit');
+    const doc = new PDFDocument();
+
+    // Set response headers for PDF download
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${username}-data-export.pdf"`);
+
+    // Pipe the PDF document to the response
+    doc.pipe(res);
+
+    // Add title
+    doc.fontSize(20).text('User Data Export', { align: 'center' });
+    doc.moveDown();
+    doc.fontSize(12).text(`Export Date: ${new Date().toLocaleDateString()}`, { align: 'center' });
+    doc.moveDown(2);
+
+    // User Information Section
+    doc.fontSize(16).text('User Information', { underline: true });
+    doc.moveDown();
+    doc.fontSize(10);
+    doc.text(`Username: ${data.user.username}`);
+    doc.text(`Email: ${data.user.email}`);
+    doc.text(`Role: ${data.user.role}`);
+    doc.text(`Premium: ${data.user.premium ? 'Yes' : 'No'}`);
+    doc.text(`Verified: ${data.user.verified ? 'Yes' : 'No'}`);
+    doc.text(`URLs Created: ${data.user.urlsCreated || 0}`);
+    doc.text(`Account Created: ${new Date(data.user.createdAt).toLocaleDateString()}`);
+    doc.text(`Last Login: ${new Date(data.user.lastLogin).toLocaleDateString()}`);
+    doc.moveDown(2);
+
+    // URLs Section
+    doc.fontSize(16).text('URLs', { underline: true });
+    doc.moveDown();
+    if (data.urls && data.urls.length > 0) {
+      doc.fontSize(10);
+      data.urls.forEach((url, index) => {
+        doc.text(`${index + 1}. ${url.originalUrl}`);
+        doc.text(`   Short Code: ${url.shortCode || 'N/A'}`);
+        doc.text(`   Custom Code: ${url.customCode || 'N/A'}`);
+        doc.text(`   Clicks: ${url.clickCount}`);
+        doc.text(`   Created: ${new Date(url.createdAt).toLocaleDateString()}`);
+        if (url.expiresAt) {
+          doc.text(`   Expires: ${new Date(url.expiresAt).toLocaleDateString()}`);
+        }
+        doc.moveDown();
+      });
+    } else {
+      doc.fontSize(10).text('No URLs found.');
+    }
+    doc.moveDown(2);
+
+    // Click Events Section
+    doc.fontSize(16).text('Recent Click Events', { underline: true });
+    doc.moveDown();
+    if (data.clickEvents && data.clickEvents.length > 0) {
+      doc.fontSize(8);
+      data.clickEvents.forEach((event, index) => {
+        const urlInfo = event.url ? `${event.url.shortCode} (${event.url.originalUrl})` : 'Unknown URL';
+        doc.text(`${index + 1}. URL: ${urlInfo}`);
+        doc.text(`   Timestamp: ${new Date(event.timestamp).toLocaleString()}`);
+        doc.text(`   IP: ${event.ip || 'N/A'}`);
+        doc.text(`   User Agent: ${event.userAgent || 'N/A'}`);
+        doc.text(`   Referrer: ${event.referrer || 'N/A'}`);
+        doc.moveDown();
+      });
+    } else {
+      doc.fontSize(10).text('No click events found.');
+    }
+
+    // Footer
+    doc.moveDown(2);
+    doc.fontSize(8).text('Generated by URLzy - User Data Export', { align: 'center' });
+    doc.text(`Version: ${data.version || '1.0'}`, { align: 'center' });
+
+    // Finalize the PDF
+    doc.end();
+
+  } catch (error) {
+    console.error('PDF generation error:', error);
+    // Fallback to JSON if PDF generation fails
+    const pdfData = {
+      ...data,
+      format: 'pdf',
+      error: 'PDF generation failed, falling back to JSON',
+      errorDetails: error.message
+    };
+
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Disposition', `attachment; filename="${username}-data-export.json"`);
+    res.json(pdfData);
+  }
+}
+
+// DELETE /api/auth/delete-account - Delete user account
+router.delete("/delete-account", authenticate, async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    // Delete all user's URLs first
+    const Url = require("../models/Url");
+    await Url.deleteMany({ userId });
+
+    // Delete all user's click events
+    const ClickEvent = require("../models/ClickEvent");
+    await ClickEvent.deleteMany({ userId });
+
+    // Delete all user's device records
+    await Device.deleteMany({ userId });
+
+    // Delete the user
+    await User.findByIdAndDelete(userId);
+
+    return res.json({
+      success: true,
+      message: "Account deleted successfully"
+    });
+  } catch (error) {
+    console.error("Delete account error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error"
+    });
+  }
+});
 
 module.exports = router;

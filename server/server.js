@@ -6,6 +6,7 @@ const mongoSanitize = require("express-mongo-sanitize");
 const compression = require("compression");
 // const morgan = require("morgan"); // Temporarily disabled - install with: npm install morgan
 const logger = require("./utils/logger");
+const { checkMaintenanceMode } = require("./middleware/maintenance");
 require("dotenv").config();
 
 const app = express();
@@ -145,6 +146,9 @@ app.use(express.urlencoded({ extended: true }));
 // Trust proxy for rate limiting
 app.set("trust proxy", 1);
 
+// Maintenance mode check middleware
+app.use(checkMaintenanceMode);
+
 // Connect to MongoDB
 mongoose
   .connect(process.env.MONGODB_URI, {
@@ -217,6 +221,7 @@ mongoose
 const urlRoutes = require("./routes/urls");
 const authRoutes = require("./routes/auth");
 const billingRoutes = require("./routes/billing");
+const adminRoutes = require("./routes/admin");
 const path = require("path");
 
 // Apply permissive CORS to redirect routes to handle external URL redirects
@@ -328,6 +333,27 @@ app.get("/health/detailed", async (req, res) => {
   }
 });
 
+// Maintenance status check (public endpoint, bypasses maintenance middleware)
+app.get("/api/maintenance/status", async (req, res) => {
+  try {
+    const Settings = require("./models/Settings");
+    const settings = await Settings.getSettings();
+
+    res.json({
+      success: true,
+      maintenance: settings.enableMaintenanceMode,
+      message: settings.maintenanceMessage || "System is under maintenance. Please try again later."
+    });
+  } catch (error) {
+    logger.error("Maintenance status check failed", { error: error.message });
+    res.status(500).json({
+      success: false,
+      message: "Failed to check maintenance status",
+      error: error.message
+    });
+  }
+});
+
 // Basic health check
 app.get("/health", async (req, res) => {
   const healthCheck = {
@@ -391,6 +417,7 @@ app.get("/health", async (req, res) => {
 app.use("/", urlRoutes); // This handles both API routes (/api/urls/*) and redirect routes (/:shortCode)
 app.use("/api/auth", authRoutes);
 app.use("/api/billing", billingRoutes);
+app.use("/api/admin", adminRoutes);
 
 // Serve static files from React app build directory
 if (process.env.NODE_ENV === "production") {

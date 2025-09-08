@@ -59,13 +59,13 @@ const VerifyEmail = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-[var(--clr-surface-a0)] py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)]">
             Verify your email
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
+          <p className="mt-2 text-center text-sm text-[var(--clr-surface-a50)]">
             {step === 1
               ? "Enter your email to receive a verification code."
               : "Enter the 6-digit code sent to your email."}
@@ -77,7 +77,7 @@ const VerifyEmail = () => {
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)]"
               >
                 Email address
               </label>
@@ -88,7 +88,7 @@ const VerifyEmail = () => {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-[var(--clr-surface-a30)] placeholder-[var(--clr-surface-a50)] text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)] bg-[var(--clr-surface-a10)] rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--clr-primary-a0)] focus:border-transparent sm:text-sm transition-colors"
                 placeholder="Enter your email"
               />
             </div>
@@ -96,7 +96,7 @@ const VerifyEmail = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="group relative w-full flex justify-center py-2 px-4 text-sm font-medium rounded-md text-[var(--clr-light-a0)] bg-[var(--clr-primary-a0)] hover:bg-[var(--clr-primary-dark)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--clr-primary-a0)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
               >
                 {loading ? "Sending..." : "Send Code"}
               </button>
@@ -104,7 +104,7 @@ const VerifyEmail = () => {
             <div className="text-center text-sm">
               <Link
                 to="/login"
-                className="text-indigo-600 hover:text-indigo-500"
+                className="text-[var(--clr-surface-a50)] hover:text-[var(--clr-primary-a0)] transition-colors"
               >
                 Back to sign in
               </Link>
@@ -117,7 +117,7 @@ const VerifyEmail = () => {
             <div>
               <label
                 htmlFor="otp"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)]"
               >
                 6-digit Code
               </label>
@@ -130,7 +130,7 @@ const VerifyEmail = () => {
                 required
                 value={otp}
                 onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-[var(--clr-surface-a30)] placeholder-[var(--clr-surface-a50)] text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)] bg-[var(--clr-surface-a10)] rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--clr-primary-a0)] focus:border-transparent sm:text-sm transition-colors"
                 placeholder="Enter 6-digit code"
               />
             </div>
@@ -138,7 +138,7 @@ const VerifyEmail = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="group inline-flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="group inline-flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-[var(--clr-light-a0)] bg-[var(--clr-primary-a0)] hover:bg-[var(--clr-primary-dark)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--clr-primary-a0)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
               >
                 {loading ? "Verifying..." : "Verify"}
               </button>
@@ -146,7 +146,7 @@ const VerifyEmail = () => {
                 type="button"
                 onClick={requestCode}
                 disabled={loading}
-                className="text-sm text-indigo-600 hover:text-indigo-700"
+                className="text-sm text-[var(--clr-primary-a0)] hover:text-[var(--clr-primary-dark)] disabled:opacity-50 transition-colors cursor-pointer"
               >
                 Resend Code
               </button>
@@ -155,7 +155,7 @@ const VerifyEmail = () => {
               <button
                 type="button"
                 onClick={() => setStep(1)}
-                className="text-gray-600 hover:text-gray-800"
+                className="text-[var(--clr-surface-a50)] hover:text-[var(--clr-primary-a0)] transition-colors cursor-pointer"
               >
                 Change email
               </button>

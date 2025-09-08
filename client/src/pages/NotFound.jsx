@@ -4,73 +4,79 @@ import { Home, ArrowLeft, Search, AlertTriangle } from "lucide-react";
 
 const NotFound = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 flex items-center justify-center px-4">
-      <div className="max-w-2xl mx-auto text-center">
+    <div className="min-h-screen flex items-center justify-center bg-[var(--clr-surface-a10)] dark:bg-[var(--clr-surface-a0)] px-4 transition-colors duration-300">
+      <div className="text-center max-w-2xl mx-auto">
         {/* 404 Illustration */}
         <div className="mb-8">
-          <div className="relative">
-            <div className="w-48 h-48 mx-auto mb-8 relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full opacity-10 animate-pulse"></div>
-              <div className="absolute inset-4 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full opacity-20 animate-pulse animation-delay-1000"></div>
-              <div className="absolute inset-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full opacity-30 animate-pulse animation-delay-2000"></div>
-              <div className="relative flex items-center justify-center w-full h-full">
-                <AlertTriangle className="w-24 h-24 text-indigo-600" />
-              </div>
-            </div>
+          <div className="w-32 h-32 bg-[var(--clr-primary-a0)]/10 dark:bg-[var(--clr-primary-a10)]/20 rounded-full flex items-center justify-center mx-auto mb-6">
+            <AlertTriangle className="w-16 h-16 text-[var(--clr-primary-a0)] dark:text-[var(--clr-primary-a10)]" />
           </div>
         </div>
 
-        {/* Error Message */}
-        <div className="mb-8">
-          <h1 className="text-8xl md:text-9xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
-            404
-          </h1>
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
-            Page Not Found
-          </h2>
-          <p className="text-lg text-gray-600 max-w-md mx-auto leading-relaxed">
-            Oops! The page you're looking for doesn't exist. It might have been moved, deleted, or you entered the wrong URL.
-          </p>
-        </div>
+        {/* 404 Text */}
+        <h1 className="text-8xl lg:text-9xl font-bold text-[var(--clr-primary-a0)] dark:text-[var(--clr-primary-a10)] mb-4">
+          404
+        </h1>
+
+        <h2 className="text-3xl lg:text-4xl font-bold text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)] mb-4">
+          Page Not Found
+        </h2>
+
+        <p className="text-lg text-[var(--clr-surface-a50)] dark:text-[var(--clr-surface-a50)] mb-8 max-w-md mx-auto leading-relaxed">
+          The page you're looking for doesn't exist or has been moved. Let's get
+          you back on track.
+        </p>
 
         {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link
             to="/"
-            className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-xl hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+            className="inline-flex items-center px-6 py-3 bg-[var(--clr-primary-a0)] hover:bg-[var(--clr-primary-dark)] text-[var(--clr-light-a0)] font-semibold rounded-lg shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
           >
             <Home className="w-5 h-5 mr-2" />
             Go Home
           </Link>
+
           <button
             onClick={() => window.history.back()}
-            className="inline-flex items-center px-8 py-4 bg-white text-gray-700 font-semibold rounded-xl border border-gray-300 hover:bg-gray-50 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+            className="inline-flex items-center px-6 py-3 bg-[var(--clr-surface-a0)] dark:bg-[var(--clr-surface-a10)] text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)] font-semibold rounded-lg border border-[var(--clr-surface-a30)] dark:border-[var(--clr-surface-a20)] hover:bg-[var(--clr-surface-tonal-a0)] dark:hover:bg-[var(--clr-surface-a20)] shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 cursor-pointer"
           >
             <ArrowLeft className="w-5 h-5 mr-2" />
             Go Back
           </button>
         </div>
 
-        {/* Search Suggestion */}
-        <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-white/20 shadow-lg">
-          <div className="flex items-center justify-center mb-4">
-            <Search className="w-6 h-6 text-gray-500 mr-2" />
-            <span className="text-gray-700 font-medium">Looking for something specific?</span>
+        {/* Helpful Links */}
+        <div className="mt-12 pt-8 border-t border-[var(--clr-surface-a30)] dark:border-[var(--clr-surface-a20)]">
+          <p className="text-sm text-[var(--clr-surface-a50)] dark:text-[var(--clr-surface-a40)] mb-4">
+            Looking for something specific?
+          </p>
+          <div className="flex flex-wrap gap-4 justify-center text-sm">
+            <Link
+              to="/about"
+              className="text-[var(--clr-primary-a0)] hover:text-[var(--clr-primary-dark)] dark:text-[var(--clr-primary-a10)] dark:hover:text-[var(--clr-primary-a0)] font-medium transition-colors duration-300"
+            >
+              About Us
+            </Link>
+            <Link
+              to="/contact"
+              className="text-[var(--clr-primary-a0)] hover:text-[var(--clr-primary-dark)] dark:text-[var(--clr-primary-a10)] dark:hover:text-[var(--clr-primary-a0)] font-medium transition-colors duration-300"
+            >
+              Contact
+            </Link>
+            <Link
+              to="/pricing"
+              className="text-[var(--clr-primary-a0)] hover:text-[var(--clr-primary-dark)] dark:text-[var(--clr-primary-a10)] dark:hover:text-[var(--clr-primary-a0)] font-medium transition-colors duration-300"
+            >
+              Pricing
+            </Link>
+            <Link
+              to="/help"
+              className="text-[var(--clr-primary-a0)] hover:text-[var(--clr-primary-dark)] dark:text-[var(--clr-primary-a10)] dark:hover:text-[var(--clr-primary-a0)] font-medium transition-colors duration-300"
+            >
+              Help Center
+            </Link>
           </div>
-          <p className="text-gray-600 text-sm">
-            Try checking our{" "}
-            <Link to="/" className="text-indigo-600 hover:text-indigo-800 font-medium">
-              homepage
-            </Link>{" "}
-            or use the navigation menu above.
-          </p>
-        </div>
-
-        {/* Fun Element */}
-        <div className="mt-12 text-center">
-          <p className="text-sm text-gray-500">
-            Lost in the digital wilderness? Don't worry, we've got you covered! 🗺️
-          </p>
         </div>
       </div>
     </div>

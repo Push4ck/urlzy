@@ -78,6 +78,21 @@ const userSchema = new mongoose.Schema(
     // User preferences/settings
     emailNotifications: { type: Boolean, default: true },
     profileVisibility: { type: String, enum: ['public', 'private'], default: 'private' },
+    theme: { type: String, enum: ['light', 'dark', 'system'], default: 'system' },
+    language: { type: String, enum: ['en', 'es', 'fr', 'de'], default: 'en' },
+    profileImage: { type: String, default: null },
+
+    // Pending email change (for email verification)
+    pendingEmail: { type: String, default: null },
+
+    // Notification preferences
+    notifications: {
+      urlClicks: { type: Boolean, default: true },
+      weeklyReports: { type: Boolean, default: true },
+      securityAlerts: { type: Boolean, default: true },
+      marketingEmails: { type: Boolean, default: false },
+      systemUpdates: { type: Boolean, default: true }
+    },
 
     createdAt: {
       type: Date,

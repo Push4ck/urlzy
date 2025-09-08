@@ -1,8 +1,18 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { getApiUrl, API_ENDPOINTS } from "../config/api";
-import { Users, Shield, UserCheck, UserX, Search, Trash2, RefreshCw } from "lucide-react";
+import {
+  Users,
+  Shield,
+  UserCheck,
+  UserX,
+  Search,
+  Trash2,
+  RefreshCw,
+  ArrowLeft,
+} from "lucide-react";
 
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
@@ -162,50 +172,60 @@ const UserManagement = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+      <div className="min-h-screen bg-[var(--clr-surface-a10)] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[var(--clr-primary-a0)]"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[var(--clr-surface-a0)] dark:bg-[var(--clr-dark-a0)]">
+      <div className="max-w-7xl mx-auto px-2 xs:px-4 sm:px-6 py-4 xs:py-6 sm:py-8">
         {/* Header */}
-        <div className="mb-12">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-4xl font-extrabold text-indigo-600 mb-4">
-                User Management
-              </h1>
-              <p className="text-xl text-gray-600 leading-relaxed">
-                Manage users, roles, and account statuses
-              </p>
+        <div className="mb-6 xs:mb-8">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 xs:gap-6">
+            <div className="flex items-center gap-2 xs:gap-4">
+              <Link
+                to="/dashboard"
+                className="p-2 rounded-lg bg-[var(--clr-surface-a10)] hover:bg-[var(--clr-surface-a20)] transition-colors duration-200"
+              >
+                <ArrowLeft className="w-4 h-4 xs:w-5 xs:h-5 text-[var(--clr-surface-a50)]" />
+              </Link>
+              <div>
+                <h1 className="text-3xl xs:text-4xl font-bold text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)] mb-2">
+                  User Management
+                </h1>
+                <p className="text-base xs:text-lg text-[var(--clr-surface-a50)]">
+                  Manage users, roles, and account statuses
+                </p>
+              </div>
             </div>
             <button
               onClick={handleRefresh}
               disabled={refreshing}
-              className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="px-6 py-3 bg-[var(--clr-primary-a0)] hover:bg-[var(--clr-primary-dark)] text-[var(--clr-light-a0)] font-semibold rounded-lg inline-flex items-center gap-2 disabled:opacity-50 transition-colors duration-200 cursor-pointer"
             >
-              <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
-              {refreshing ? 'Refreshing...' : 'Refresh'}
+              <RefreshCw
+                className={`w-5 h-5 ${refreshing ? "animate-spin" : ""}`}
+              />
+              {refreshing ? "Refreshing..." : "Refresh"}
             </button>
           </div>
         </div>
 
         {/* Filters */}
-        <div className="mb-8 animate-fade-in-up animation-delay-200">
-          <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-xl border border-gray-100">
+        <div className="mb-8">
+          <div className="bg-[var(--clr-surface-a10)] dark:bg-[var(--clr-surface-a10)] border border-[var(--clr-surface-a30)] rounded-xl p-6">
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex-1">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[var(--clr-surface-a40)] w-5 h-5" />
                   <input
                     type="text"
                     placeholder="Search users..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
+                    className="w-full pl-10 pr-4 py-2 border border-[var(--clr-surface-a30)] rounded-lg bg-[var(--clr-surface-a0)] dark:bg-[var(--clr-surface-a10)] text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)] focus:ring-2 focus:ring-[var(--clr-primary-a0)] focus:border-transparent transition-colors"
                   />
                 </div>
               </div>
@@ -213,7 +233,7 @@ const UserManagement = () => {
                 <select
                   value={filterRole}
                   onChange={(e) => setFilterRole(e.target.value)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
+                  className="px-4 py-2 border border-[var(--clr-surface-a30)] rounded-lg bg-[var(--clr-surface-a0)] dark:bg-[var(--clr-surface-a10)] text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)] focus:ring-2 focus:ring-[var(--clr-primary-a0)] focus:border-transparent transition-colors"
                 >
                   <option value="all">All Roles</option>
                   <option value="user">Users</option>
@@ -225,66 +245,66 @@ const UserManagement = () => {
         </div>
 
         {/* Users Table */}
-        <div className="bg-white/90 backdrop-blur-sm shadow-2xl rounded-2xl overflow-hidden border border-gray-100 animate-fade-in-up animation-delay-400">
-          <div className="px-8 py-6 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
-            <h2 className="text-2xl font-bold text-gray-900">
+        <div className="bg-[var(--clr-surface-a10)] dark:bg-[var(--clr-surface-a10)] border border-[var(--clr-surface-a30)] rounded-xl overflow-hidden">
+          <div className="px-6 py-4 border-b border-[var(--clr-surface-a30)]">
+            <h2 className="text-xl font-semibold text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)]">
               Users ({filteredUsers.length})
             </h2>
-            <p className="text-gray-600 mt-1">
+            <p className="text-[var(--clr-surface-a50)] text-sm mt-1">
               Manage user accounts and permissions
             </p>
           </div>
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-100">
-              <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
+            <table className="min-w-full divide-y divide-[var(--clr-surface-a30)]">
+              <thead className="bg-[var(--clr-surface-a10)]">
                 <tr>
-                  <th className="px-8 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-[var(--clr-surface-a50)] uppercase tracking-wider">
                     User
                   </th>
-                  <th className="px-8 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-[var(--clr-surface-a50)] uppercase tracking-wider">
                     Role
                   </th>
-                  <th className="px-8 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-[var(--clr-surface-a50)] uppercase tracking-wider">
                     Status
                   </th>
-                  <th className="px-8 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-[var(--clr-surface-a50)] uppercase tracking-wider">
                     Joined
                   </th>
-                  <th className="px-8 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-medium text-[var(--clr-surface-a50)] uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white/50 divide-y divide-gray-100">
+              <tbody className="bg-[var(--clr-surface-a0)] dark:bg-[var(--clr-surface-a10)] divide-y divide-[var(--clr-surface-a30)]">
                 {filteredUsers.length > 0 ? (
                   filteredUsers.map((user) => (
                     <tr
                       key={user._id}
-                      className="hover:bg-white/80 transition-all duration-200"
+                      className="hover:bg-[var(--clr-surface-a10)] transition-all duration-200"
                     >
-                      <td className="px-8 py-6 whitespace-nowrap">
+                      <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
-                          <div className="p-2 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg">
-                            <Users className="w-5 h-5 text-white" />
+                          <div className="p-2 rounded-lg bg-[var(--clr-primary-a0)]">
+                            <Users className="w-5 h-5 text-[var(--clr-light-a0)]" />
                           </div>
                           <div className="ml-4">
-                            <div className="text-sm font-semibold text-gray-900">
+                            <div className="text-sm font-semibold text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)]">
                               {user.username}
                             </div>
-                            <div className="text-sm text-gray-500">
+                            <div className="text-sm text-[var(--clr-surface-a50)]">
                               {user.email}
                             </div>
                           </div>
                         </div>
                       </td>
-                      <td className="px-8 py-6 whitespace-nowrap">
+                      <td className="px-6 py-4 whitespace-nowrap">
                         <div className="space-y-2">
                           <select
                             value={user.role}
                             onChange={(e) =>
                               handleRoleChange(user._id, e.target.value)
                             }
-                            className="px-3 py-1 border border-gray-300 rounded-lg text-sm focus:ring-indigo-500 focus:border-indigo-500"
+                            className="px-3 py-1 border border-[var(--clr-surface-a30)] rounded-lg text-sm bg-[var(--clr-surface-a0)] text-[var(--clr-surface-a50)] focus:border-[var(--clr-primary-a0)] focus:outline-none transition-colors"
                             disabled={user.role === "admin"} // Prevent modifying other admins
                           >
                             <option value="user">User</option>
@@ -298,23 +318,23 @@ const UserManagement = () => {
                               onChange={(e) =>
                                 handlePremiumChange(user._id, e.target.checked)
                               }
-                              className="mr-2"
+                              className="mr-2 accent-[var(--clr-primary-a0)] cursor-pointer"
                             />
                             <label
                               htmlFor={`premium-${user._id}`}
-                              className="text-xs text-gray-600"
+                              className="text-xs text-[var(--clr-surface-a50)]"
                             >
                               Premium
                             </label>
                           </div>
                         </div>
                       </td>
-                      <td className="px-8 py-6 whitespace-nowrap">
+                      <td className="px-6 py-4 whitespace-nowrap">
                         <span
                           className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold ${
                             user.verified
-                              ? "bg-green-100 text-green-800"
-                              : "bg-red-100 text-red-800"
+                              ? "bg-[var(--clr-surface-tonal-a10)] text-[var(--clr-primary-dark)]"
+                              : "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400"
                           }`}
                         >
                           {user.verified ? (
@@ -330,7 +350,7 @@ const UserManagement = () => {
                           )}
                         </span>
                       </td>
-                      <td className="px-8 py-6 whitespace-nowrap text-sm text-gray-600">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-[var(--clr-surface-a50)]">
                         {new Date(user.createdAt).toLocaleDateString(
                           undefined,
                           {
@@ -340,16 +360,16 @@ const UserManagement = () => {
                           }
                         )}
                       </td>
-                      <td className="px-8 py-6 whitespace-nowrap text-sm font-medium">
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex space-x-2">
                           <button
                             onClick={() =>
                               handleStatusChange(user._id, !user.verified)
                             }
-                            className={`inline-flex items-center px-3 py-1 rounded-lg font-medium transition-colors ${
+                            className={`inline-flex items-center px-3 py-1 rounded-lg font-medium transition-colors duration-200 cursor-pointer ${
                               user.verified
-                                ? "bg-red-50 text-red-700 hover:bg-red-100"
-                                : "bg-green-50 text-green-700 hover:bg-green-100"
+                                ? "bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/30"
+                                : "bg-[var(--clr-surface-tonal-a10)] text-[var(--clr-primary-dark)] hover:bg-[var(--clr-surface-tonal-a20)]"
                             }`}
                           >
                             {user.verified ? "Suspend" : "Verify"}
@@ -359,7 +379,7 @@ const UserManagement = () => {
                               handleDeleteUser(user._id, user.username)
                             }
                             disabled={user.role === "admin"}
-                            className="inline-flex items-center px-3 py-1 rounded-lg font-medium transition-colors bg-red-50 text-red-700 hover:bg-red-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="inline-flex items-center px-3 py-1 rounded-lg font-medium transition-colors duration-200 bg-red-100 text-red-700 hover:bg-red-200 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/30 cursor-pointer"
                           >
                             <Trash2 className="w-4 h-4 mr-1" />
                             Delete
@@ -372,7 +392,7 @@ const UserManagement = () => {
                   <tr>
                     <td
                       colSpan="5"
-                      className="px-8 py-6 text-center text-gray-500"
+                      className="px-8 py-6 text-center text-[var(--clr-surface-a40)]"
                     >
                       No users found matching your criteria.
                     </td>
@@ -385,9 +405,9 @@ const UserManagement = () => {
 
         {/* Confirmation Modal */}
         {showConfirmModal && confirmData && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+          <div className="fixed inset-0 bg-[var(--clr-dark-a0)]/50 flex items-center justify-center z-50">
+            <div className="bg-[var(--clr-surface-a0)] rounded-lg p-6 max-w-md w-full mx-4 shadow-xl border border-[var(--clr-surface-a30)]">
+              <h3 className="text-lg font-semibold text-[var(--clr-surface-a50)] dark:text-[var(--clr-light-a0)] mb-4">
                 Confirm{" "}
                 {confirmData.action === "delete"
                   ? "Delete"
@@ -395,7 +415,7 @@ const UserManagement = () => {
                   ? "Verify"
                   : "Suspend"}
               </h3>
-              <p className="text-gray-600 mb-6">
+              <p className="text-[var(--clr-surface-a50)] mb-6">
                 {confirmData.action === "delete"
                   ? `Are you sure you want to delete user "${confirmData.username}"? This action cannot be undone.`
                   : `Are you sure you want to ${confirmData.action} this user?`}
@@ -403,18 +423,18 @@ const UserManagement = () => {
               <div className="flex justify-end space-x-3">
                 <button
                   onClick={handleCancelAction}
-                  className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors"
+                  className="px-4 py-2 bg-[var(--clr-surface-a20)] text-[var(--clr-surface-a50)] rounded-lg hover:bg-[var(--clr-surface-a30)] transition-colors duration-200 cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleConfirmAction}
-                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors duration-200 cursor-pointer ${
                     confirmData.action === "delete"
-                      ? "bg-red-600 text-white hover:bg-red-700"
+                      ? "bg-red-600 text-[var(--clr-light-a0)] hover:bg-red-700"
                       : confirmData.verified
-                      ? "bg-green-600 text-white hover:bg-green-700"
-                      : "bg-yellow-600 text-white hover:bg-yellow-700"
+                      ? "bg-[var(--clr-primary-a0)] text-[var(--clr-light-a0)] hover:bg-[var(--clr-primary-dark)]"
+                      : "bg-yellow-600 text-[var(--clr-light-a0)] hover:bg-yellow-700"
                   }`}
                 >
                   {confirmData.action === "delete"

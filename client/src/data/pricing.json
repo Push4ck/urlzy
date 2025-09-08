@@ -1,0 +1,80 @@
+{
+  "plans": [
+    {
+      "name": "Free",
+      "price": "$0",
+      "period": "forever",
+      "description": "Perfect for personal use",
+      "features": [
+        "100 URLs per month",
+        "Basic analytics",
+        "Custom short codes",
+        "URL management",
+        "Email support"
+      ],
+      "limitations": [
+        "No custom domains",
+        "Basic analytics only",
+        "Limited API calls"
+      ],
+      "buttonText": "Get Started Free",
+      "buttonVariant": "outline"
+    },
+    {
+      "name": "Premium",
+      "price": "$9.99",
+      "period": "per month",
+      "description": "Best for professionals and small teams",
+      "features": [
+        "Unlimited URLs",
+        "Advanced analytics",
+        "Custom domains",
+        "Password-protected links",
+        "QR code generation",
+        "API access",
+        "Priority support",
+        "Bulk upload",
+        "Team collaboration"
+      ],
+      "buttonText": "Start Premium Trial",
+      "buttonVariant": "primary",
+      "popular": true
+    },
+    {
+      "name": "Enterprise",
+      "price": "Custom",
+      "period": "contact us",
+      "description": "For large organizations with custom needs",
+      "features": [
+        "Everything in Premium",
+        "White-label solution",
+        "Custom integrations",
+        "Dedicated support",
+        "SLA guarantee",
+        "Advanced security",
+        "Custom analytics",
+        "Multi-region hosting"
+      ],
+      "buttonText": "Contact Sales",
+      "buttonVariant": "outline"
+    }
+  ],
+  "faq": [
+    {
+      "question": "Can I change plans anytime?",
+      "answer": "Yes, you can upgrade or downgrade your plan at any time. Changes take effect immediately with prorated billing."
+    },
+    {
+      "question": "Do you offer refunds?",
+      "answer": "We offer a 30-day money-back guarantee for all paid plans, no questions asked."
+    },
+    {
+      "question": "What happens to my URLs if I downgrade?",
+      "answer": "Your existing URLs continue to work. You'll just have reduced features and limits going forward."
+    },
+    {
+      "question": "Is there an API available?",
+      "answer": "Yes, Premium and Enterprise plans include full API access with comprehensive documentation."
+    }
+  ]
+}

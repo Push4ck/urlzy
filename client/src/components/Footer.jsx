@@ -1,153 +1,110 @@
-import React from "react";
 import { Link } from "react-router-dom";
-import { Twitter, Facebook, Linkedin } from "lucide-react";
+import { Twitter, Facebook, Linkedin, Zap } from "lucide-react";
 
 const Footer = () => {
   return (
-    <footer className="bg-[var(--bg-secondary)] text-[var(--text-primary)]">
-
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+    <footer className="bg-[var(--clr-surface-a0)] text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)] shadow-sm transition-colors border-t border-[var(--clr-surface-a20)]">
+      <div className="container mx-auto px-2 xs:px-4 sm:px-6 xs:py-16 sm:py-20">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 xs:gap-12 sm:gap-16">
           {/* Brand */}
           <div className="col-span-1 md:col-span-2">
-            <div className="flex items-center mb-6">
-              <span className="text-3xl font-bold text-[var(--text-secondary)]">
+            <div className="flex items-center gap-3 mb-8">
+              <div className="p-3 rounded-xl bg-[var(--clr-primary-a0)]">
+                <Zap className="w-7 h-7 text-[var(--clr-light-a0)]" />
+              </div>
+              <span className="text-3xl font-bold tracking-tight text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)]">
                 URLzy
               </span>
             </div>
-            <p className="text-[var(--text-primary)] opacity-80 mb-8 max-w-md leading-relaxed">
-              The most powerful URL shortener with advanced analytics, custom
-              domains, and enterprise-grade reliability. Join thousands of users
-              who trust us.
+            <p className="text-md text-[var(--clr-surface-a50)] mb-10 max-w-md leading-relaxed font-medium">
+              Simplify your links with our powerful URL shortener. Fast,
+              reliable, secure, and trusted by thousands worldwide.
             </p>
-            <div className="flex space-x-6">
-              <a
-                href="#"
-                className="w-10 h-10 bg-[var(--bg-tertiary)] rounded-full flex items-center justify-center text-[var(--text-primary)] opacity-70 hover:opacity-100 transition-opacity"
-              >
-                <Twitter className="w-5 h-5" />
-              </a>
-              <a
-                href="#"
-                className="w-10 h-10 bg-[var(--bg-tertiary)] rounded-full flex items-center justify-center text-[var(--text-primary)] opacity-70 hover:opacity-100 transition-opacity"
-              >
-                <Facebook className="w-5 h-5" />
-              </a>
-              <a
-                href="#"
-                className="w-10 h-10 bg-[var(--bg-tertiary)] rounded-full flex items-center justify-center text-[var(--text-primary)] opacity-70 hover:opacity-100 transition-opacity"
-              >
-                <Linkedin className="w-5 h-5" />
-              </a>
+            <div className="flex gap-3">
+              {[
+                { icon: Twitter, label: "Twitter" },
+                { icon: Facebook, label: "Facebook" },
+                { icon: Linkedin, label: "LinkedIn" },
+              ].map((item) => {
+                const { icon: Icon, label } = item;
+                return (
+                  <a
+                    key={label}
+                    href="#"
+                    className="group p-4 rounded-xl bg-[var(--clr-primary-lighter)] hover:bg-[var(--clr-primary-light)] dark:bg-[var(--clr-primary-darker)] dark:hover:bg-[var(--clr-primary-dark)]"
+                    aria-label={label}
+                  >
+                    <Icon className="w-5 h-5 text-[var(--clr-dark-a0)] dark:text-[var(--clr-primary-dark0)] group-hover:text-[var(--clr-primary-a0)]" />
+                  </a>
+                );
+              })}
             </div>
           </div>
 
           {/* Product */}
           <div>
-            <h3 className="text-xl font-bold mb-6 text-[var(--text-secondary)]">
+            <h3 className="text-xl font-bold text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)] mb-8 tracking-tight">
               Product
             </h3>
-            <ul className="space-y-4">
-              <li>
-                <Link
-                  to="/pricing"
-                  className="text-[var(--text-primary)] opacity-80 hover:opacity-100 transition-opacity"
-                >
-                  Pricing
-                </Link>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="text-[var(--text-primary)] opacity-80 hover:opacity-100 transition-opacity"
-                >
-                  API Documentation
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="text-[var(--text-primary)] opacity-80 hover:opacity-100 transition-opacity"
-                >
-                  Integrations
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="text-[var(--text-primary)] opacity-80 hover:opacity-100 transition-opacity"
-                >
-                  Browser Extension
-                </a>
-              </li>
+            <ul className="space-y-5">
+              {[
+                { to: "/pricing", label: "Pricing" },
+                { to: "/about", label: "About" },
+                { to: "/features", label: "Features" },
+              ].map(({ to, label }) => (
+                <li key={to}>
+                  <Link
+                    to={to}
+                    className="text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all duration-300 font-medium hover:translate-x-1 inline-block"
+                  >
+                    {label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
           {/* Support */}
           <div>
-            <h3 className="text-xl font-bold mb-6 text-[var(--text-secondary)]">
+            <h3 className="text-xl font-bold text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)] mb-8 tracking-tight">
               Support
             </h3>
-            <ul className="space-y-4">
-              <li>
-                <a
-                  href="#"
-                  className="text-[var(--text-primary)] opacity-80 hover:opacity-100 transition-opacity"
-                >
-                  Help Center
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="text-[var(--text-primary)] opacity-80 hover:opacity-100 transition-opacity"
-                >
-                  Contact Us
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="text-[var(--text-primary)] opacity-80 hover:opacity-100 transition-opacity"
-                >
-                  Status Page
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  className="text-[var(--text-primary)] opacity-80 hover:opacity-100 transition-opacity"
-                >
-                  Feature Request
-                </a>
-              </li>
+            <ul className="space-y-5">
+              {[
+                { to: "/contact", label: "Contact" },
+                { to: "/help", label: "Help Center" },
+              ].map(({ to, label }) => (
+                <li key={to}>
+                  <Link
+                    to={to}
+                    className="text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all duration-300 font-medium hover:translate-x-1 inline-block"
+                  >
+                    {label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
         </div>
 
-        <div className="border-t border-[var(--border-color)] mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-[var(--text-primary)] opacity-60 text-sm mb-4 md:mb-0">
-            © 2024 URLzy. All rights reserved.
-          </p>
-          <div className="flex flex-wrap justify-center md:justify-end space-x-6 text-sm">
-            <a
-              href="#"
-              className="text-[var(--text-primary)] opacity-60 hover:opacity-100 transition-opacity"
-            >
-              Privacy Policy
-            </a>
-            <a
-              href="#"
-              className="text-[var(--text-primary)] opacity-60 hover:opacity-100 transition-opacity"
-            >
-              Terms of Service
-            </a>
-            <a
-              href="#"
-              className="text-[var(--text-primary)] opacity-60 hover:opacity-100 transition-opacity"
-            >
-              Cookie Policy
-            </a>
+        <div className="border-t border-slate-200 dark:border-gray-700 mt-16 pt-10 flex flex-col md:flex-row justify-between gap-6">
+          <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300 font-medium">
+            &copy; {new Date().getFullYear()} URLzy.
+          </div>
+          <div className="flex lg:flex-row xs:flex-col md:justify-end gap-8 text-sm">
+            {[
+              { to: "/privacy", label: "Privacy Policy" },
+              { to: "/terms", label: "Terms of Service" },
+              { to: "/cookies", label: "Cookie Policy" },
+            ].map(({ to, label }) => (
+              <Link
+                key={to}
+                to={to}
+                className="text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 transition-all duration-300 font-medium hover:underline decoration-emerald-500 underline-offset-4"
+              >
+                {label}
+              </Link>
+            ))}
           </div>
         </div>
       </div>

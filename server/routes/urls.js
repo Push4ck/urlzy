@@ -894,4 +894,97 @@ router.delete("/api/urls/:shortCode", optionalAuth, async (req, res) => {
   }
 });
 
+// PUT /api/urls/:shortCode - Update URL details
+router.put("/api/urls/:shortCode", optionalAuth, async (req, res) => {
+  try {
+    const { shortCode } = req.params;
+    const { originalUrl, customCode } = req.body;
+
+    const url = await Url.findOne({
+      $or: [{ shortCode }, { customCode: shortCode }],
+    });
+
+    if (!url) {
+      return res.status(404).json({
+        success: false,
+        message: "URL not found",
+      });
+    }
+
+    // Check ownership for authenticated users
+    if (req.user) {
+      if (url.userId && !url.userId.equals(req.user._id)) {
+        return res.status(403).json({
+          success: false,
+          message: "You can only update your own URLs",
+        });
+      }
+    } else {
+      // Anonymous users can only update anonymous URLs
+      if (url.userId !== null) {
+        return res.status(403).json({
+          success: false,
+          message: "Cannot update this URL",
+        });
+      }
+    }
+
+    // Validate new original URL if provided
+    if (originalUrl) {
+      const { isValidUrl } = require("../utils/shortCode");
+      if (!isValidUrl(originalUrl)) {
+        return res.status(400).json({
+          success: false,
+          message: "Please provide a valid URL",
+        });
+      }
+      url.originalUrl = originalUrl;
+    }
+
+    // Handle custom code change if provided
+    if (customCode !== undefined) {
+      if (customCode && customCode !== url.customCode && customCode !== url.shortCode) {
+        const { isCustomCodeAvailable } = require("../utils/shortCode");
+        const isAvailable = await isCustomCodeAvailable(customCode);
+        if (!isAvailable) {
+          return res.status(400).json({
+            success: false,
+            message: "Custom code is not available",
+          });
+        }
+        url.customCode = customCode;
+      } else if (!customCode) {
+        url.customCode = null;
+      }
+    }
+
+    await url.save();
+
+    // Invalidate cache
+    try {
+      await cache.del(`url:${url.shortCode}`);
+      if (url.customCode) await cache.del(`url:${url.customCode}`);
+    } catch (_) {}
+
+    return res.json({
+      success: true,
+      message: "URL updated successfully",
+      data: {
+        originalUrl: url.originalUrl,
+        shortCode: url.shortCode,
+        customCode: url.customCode,
+        clickCount: url.clickCount,
+        createdAt: url.createdAt,
+        expiresAt: url.expiresAt,
+      },
+    });
+  } catch (error) {
+    console.error("Error updating URL:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+});
+
 module.exports = router;

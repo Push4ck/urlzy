@@ -1,8 +1,18 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { getApiUrl, API_ENDPOINTS } from "../config/api";
-import { BarChart3, TrendingUp, Users, Link as LinkIcon, MousePointer, Activity, RefreshCw } from "lucide-react";
+import {
+  BarChart3,
+  TrendingUp,
+  Users,
+  Link as LinkIcon,
+  MousePointer,
+  Activity,
+  RefreshCw,
+  ArrowLeft,
+} from "lucide-react";
 
 // Clean Line Chart Component with Filters
 const UserGrowthChart = ({ data, timeFilter, onTimeFilterChange }) => {
@@ -17,17 +27,26 @@ const UserGrowthChart = ({ data, timeFilter, onTimeFilterChange }) => {
     let daysBack = 30;
 
     switch (timeFilter) {
-      case '7d': daysBack = 7; break;
-      case '30d': daysBack = 30; break;
-      case '90d': daysBack = 90; break;
-      case '1y': daysBack = 365; break;
-      default: daysBack = 30;
+      case "7d":
+        daysBack = 7;
+        break;
+      case "30d":
+        daysBack = 30;
+        break;
+      case "90d":
+        daysBack = 90;
+        break;
+      case "1y":
+        daysBack = 365;
+        break;
+      default:
+        daysBack = 30;
     }
 
     const cutoffDate = new Date(now);
     cutoffDate.setDate(cutoffDate.getDate() - daysBack);
 
-    return data.filter(d => new Date(d.date) >= cutoffDate);
+    return data.filter((d) => new Date(d.date) >= cutoffDate);
   };
 
   const filteredData = getFilteredData();
@@ -36,15 +55,17 @@ const UserGrowthChart = ({ data, timeFilter, onTimeFilterChange }) => {
     return (
       <div className="h-80 flex items-center justify-center">
         <div className="text-center">
-          <BarChart3 className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <p className="text-gray-500">No growth data available</p>
+          <BarChart3 className="w-16 h-16 text-[var(--clr-surface-a40)] mx-auto mb-4" />
+          <p className="text-[var(--clr-surface-a50)]">
+            No growth data available
+          </p>
         </div>
       </div>
     );
   }
 
-  const maxValue = Math.max(...filteredData.map(d => d.users));
-  const minValue = Math.min(...filteredData.map(d => d.users));
+  const maxValue = Math.max(...filteredData.map((d) => d.users));
+  const minValue = Math.min(...filteredData.map((d) => d.users));
 
   // Use full container dimensions
   const width = 800;
@@ -56,15 +77,15 @@ const UserGrowthChart = ({ data, timeFilter, onTimeFilterChange }) => {
 
   const points = filteredData.map((d, i) => ({
     x: padding + i * xScale,
-    y: height - padding - ((d.users - minValue) * yScale),
+    y: height - padding - (d.users - minValue) * yScale,
     date: d.date,
     users: d.users,
-    index: i
+    index: i,
   }));
 
   // Create smooth curve using Catmull-Rom spline
   const createSmoothPath = (points) => {
-    if (points.length < 2) return '';
+    if (points.length < 2) return "";
 
     let path = `M ${points[0].x} ${points[0].y}`;
 
@@ -93,18 +114,18 @@ const UserGrowthChart = ({ data, timeFilter, onTimeFilterChange }) => {
       {/* Filter Buttons */}
       <div className="flex justify-center mb-6 space-x-2">
         {[
-          { key: '7d', label: '7 Days' },
-          { key: '30d', label: '30 Days' },
-          { key: '90d', label: '90 Days' },
-          { key: '1y', label: '1 Year' }
-        ].map(filter => (
+          { key: "7d", label: "7 Days" },
+          { key: "30d", label: "30 Days" },
+          { key: "90d", label: "90 Days" },
+          { key: "1y", label: "1 Year" },
+        ].map((filter) => (
           <button
             key={filter.key}
             onClick={() => onTimeFilterChange(filter.key)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
               timeFilter === filter.key
-                ? 'bg-indigo-600 text-white shadow-md'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                ? "bg-[var(--clr-primary-a0)] text-[var(--clr-light-a0)] shadow-md"
+                : "bg-[var(--clr-surface-a20)] text-[var(--clr-surface-a50)] hover:bg-[var(--clr-surface-a30)] cursor-pointer"
             }`}
           >
             {filter.label}
@@ -142,20 +163,36 @@ const UserGrowthChart = ({ data, timeFilter, onTimeFilterChange }) => {
             setMousePosition(null);
           }}
         >
-          {/* Definitions for blur effect */}
+          {/* Definitions for gradient */}
           <defs>
-            <linearGradient id="blurGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#4f46e5" stopOpacity="0.12"/>
-              <stop offset="50%" stopColor="#4f46e5" stopOpacity="0.06"/>
-              <stop offset="100%" stopColor="#4f46e5" stopOpacity="0.02"/>
+            <linearGradient
+              id="chartGradient"
+              x1="0%"
+              y1="0%"
+              x2="0%"
+              y2="100%"
+            >
+              <stop
+                offset="0%"
+                stopColor="var(--clr-primary-a0)"
+                stopOpacity="0.12"
+              />
+              <stop
+                offset="50%"
+                stopColor="var(--clr-primary-a10)"
+                stopOpacity="0.06"
+              />
+              <stop
+                offset="100%"
+                stopColor="var(--clr-primary-a20)"
+                stopOpacity="0.02"
+              />
             </linearGradient>
-            <filter id="blur" x="-50%" y="-50%" width="200%" height="200%">
-              <feGaussianBlur in="SourceGraphic" stdDeviation="1.5"/>
-            </filter>
           </defs>
+
           {/* Grid lines */}
-          {[0, 0.25, 0.5, 0.75, 1].map(ratio => {
-            const y = height - padding - (ratio * (height - 2 * padding));
+          {[0, 0.25, 0.5, 0.75, 1].map((ratio) => {
+            const y = height - padding - ratio * (height - 2 * padding);
             return (
               <g key={ratio}>
                 <line
@@ -163,14 +200,15 @@ const UserGrowthChart = ({ data, timeFilter, onTimeFilterChange }) => {
                   y1={y}
                   x2={width - padding}
                   y2={y}
-                  stroke="#f3f4f6"
+                  stroke="var(--clr-surface-a20)"
                   strokeWidth="1"
                 />
                 <text
                   x={padding - 15}
                   y={y + 4}
                   textAnchor="end"
-                  className="text-xs fill-gray-500 font-medium"
+                  className="text-xs font-medium"
+                  fill="var(--clr-surface-a50)"
                 >
                   {Math.round(minValue + (maxValue - minValue) * ratio)}
                 </text>
@@ -179,20 +217,26 @@ const UserGrowthChart = ({ data, timeFilter, onTimeFilterChange }) => {
           })}
 
           {/* X-axis labels */}
-          {points.filter((_, i) => {
-            const step = Math.ceil(filteredData.length / 7);
-            return i % step === 0 || i === filteredData.length - 1;
-          }).map((point, i) => (
-            <text
-              key={i}
-              x={point.x}
-              y={height - padding + 20}
-              textAnchor="middle"
-              className="text-xs fill-gray-600 font-medium"
-            >
-              {new Date(point.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-            </text>
-          ))}
+          {points
+            .filter((_, i) => {
+              const step = Math.ceil(filteredData.length / 7);
+              return i % step === 0 || i === filteredData.length - 1;
+            })
+            .map((point, i) => (
+              <text
+                key={i}
+                x={point.x}
+                y={height - padding + 20}
+                textAnchor="middle"
+                className="text-xs font-medium"
+                fill="var(--clr-surface-a50)"
+              >
+                {new Date(point.date).toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                })}
+              </text>
+            ))}
 
           {/* Hover line */}
           {mousePosition && hoveredPoint && (
@@ -201,26 +245,26 @@ const UserGrowthChart = ({ data, timeFilter, onTimeFilterChange }) => {
               y1={padding + 15}
               x2={mousePosition.x}
               y2={height - padding - 15}
-              stroke="#6366f1"
+              stroke="var(--clr-primary-a0)"
               strokeWidth="2"
               strokeDasharray="2,2"
               opacity="0.8"
             />
           )}
 
-          {/* Blur area fill under the line */}
+          {/* Area fill under the line */}
           <path
-            d={`${smoothPath} L ${points[points.length - 1].x} ${height - padding} L ${points[0].x} ${height - padding} Z`}
-            fill="url(#blurGradient)"
-            filter="url(#blur)"
-            opacity="0.8"
+            d={`${smoothPath} L ${points[points.length - 1].x} ${
+              height - padding
+            } L ${points[0].x} ${height - padding} Z`}
+            fill="url(#chartGradient)"
           />
 
           {/* Smooth line */}
           <path
             d={smoothPath}
             fill="none"
-            stroke="#4f46e5"
+            stroke="var(--clr-primary-a0)"
             strokeWidth="3"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -231,19 +275,18 @@ const UserGrowthChart = ({ data, timeFilter, onTimeFilterChange }) => {
           {points.map((point, i) => (
             <rect
               key={i}
-              x={i === 0 ? point.x - xScale/2 : point.x - xScale/2}
+              x={i === 0 ? point.x - xScale / 2 : point.x - xScale / 2}
               y={0}
-              width={i === 0 || i === points.length - 1 ? xScale/2 : xScale}
+              width={i === 0 || i === points.length - 1 ? xScale / 2 : xScale}
               height={height}
               fill="transparent"
               onMouseEnter={() => setHoveredPoint(point)}
               onMouseMove={(e) => {
-                const svgElement = e.currentTarget.closest('svg');
+                const svgElement = e.currentTarget.closest("svg");
                 const svgRect = svgElement.getBoundingClientRect();
                 const x = e.clientX - svgRect.left;
                 const y = e.clientY - svgRect.top;
 
-                // Ensure coordinates are within SVG bounds
                 const clampedX = Math.max(0, Math.min(x, svgRect.width));
                 const clampedY = Math.max(0, Math.min(y, svgRect.height));
 
@@ -261,25 +304,23 @@ const UserGrowthChart = ({ data, timeFilter, onTimeFilterChange }) => {
         {/* Hover Tooltip */}
         {mousePosition && hoveredPoint && (
           <div
-            className="absolute bg-gray-900 text-white px-3 py-2 rounded-lg text-sm font-medium shadow-lg pointer-events-none z-10 transform -translate-x-1/2"
+            className="absolute bg-[var(--clr-dark-a0)] text-[var(--clr-light-a0)] px-3 py-2 rounded-lg text-sm font-medium shadow-lg pointer-events-none z-10 transform -translate-x-1/2"
             style={{
               left: `${(mousePosition.x / width) * 100}%`,
-              top: `${((mousePosition.y - 5) / height) * 100}%`
+              top: `${((mousePosition.y - 5) / height) * 100}%`,
             }}
           >
             <div className="text-center">
               <div className="font-bold">{hoveredPoint.users} users</div>
-              <div className="text-xs text-gray-300">
-                {new Date(hoveredPoint.date).toLocaleDateString('en-US', {
-                  weekday: 'short',
-                  month: 'short',
-                  day: 'numeric'
+              <div className="text-xs text-[var(--clr-primary-a0)]">
+                {new Date(hoveredPoint.date).toLocaleDateString("en-US", {
+                  weekday: "short",
+                  month: "short",
+                  day: "numeric",
                 })}
               </div>
             </div>
-            <div
-              className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"
-            />
+            <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-[var(--clr-surface-a50)]" />
           </div>
         )}
       </div>
@@ -296,18 +337,20 @@ const AdminAnalytics = () => {
     recentActivity: [],
     topUrls: [],
     userGrowth: [],
-    clickTrends: []
+    clickTrends: [],
   });
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [timeFilter, setTimeFilter] = useState('30d');
+  const [timeFilter, setTimeFilter] = useState("30d");
 
   const fetchAnalytics = async (isRefresh = false) => {
     try {
       if (isRefresh) {
         setRefreshing(true);
       }
-      const res = await axios.get(getApiUrl(`${API_ENDPOINTS.AUTH}/admin/analytics`));
+      const res = await axios.get(
+        getApiUrl(`${API_ENDPOINTS.AUTH}/admin/analytics`)
+      );
       if (res.data?.success) {
         setAnalytics(res.data.data);
         if (isRefresh) {
@@ -335,150 +378,167 @@ const AdminAnalytics = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+      <div className="min-h-screen bg-[var(--clr-surface-a10)] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[var(--clr-primary-a0)]"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[var(--clr-surface-a0)] dark:bg-[var(--clr-dark-a0)]">
+      <div className="max-w-7xl mx-auto px-2 xs:px-4 sm:px-6 py-4 xs:py-6 sm:py-8">
         {/* Header */}
-        <div className="mb-12">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-4xl font-extrabold text-indigo-600 mb-4">
-                System Analytics
-              </h1>
-              <p className="text-xl text-gray-600 leading-relaxed">
-                Comprehensive overview of system performance and usage
-              </p>
+        <div className="mb-6 xs:mb-8">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 xs:gap-6">
+            <div className="flex items-center gap-2 xs:gap-4">
+              <Link
+                to="/dashboard"
+                className="p-2 rounded-lg bg-[var(--clr-surface-a10)] hover:bg-[var(--clr-surface-a20)] transition-colors duration-200"
+              >
+                <ArrowLeft className="w-4 h-4 xs:w-5 xs:h-5 text-[var(--clr-surface-a50)]" />
+              </Link>
+              <div>
+                <h1 className="text-3xl xs:text-4xl font-bold text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)] mb-2">
+                  System Analytics
+                </h1>
+                <p className="text-base xs:text-lg text-[var(--clr-surface-a50)]">
+                  Comprehensive overview of system performance and usage
+                </p>
+              </div>
             </div>
             <button
               onClick={handleRefresh}
               disabled={refreshing}
-              className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="px-6 py-3 bg-[var(--clr-primary-a0)] hover:bg-[var(--clr-primary-dark)] text-[var(--clr-light-a0)] font-semibold rounded-lg inline-flex items-center gap-2 disabled:opacity-50 transition-colors duration-200 cursor-pointer"
             >
-              <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
-              {refreshing ? 'Refreshing...' : 'Refresh'}
+              <RefreshCw
+                className={`w-5 h-5 ${refreshing ? "animate-spin" : ""}`}
+              />
+              {refreshing ? "Refreshing..." : "Refresh"}
             </button>
           </div>
         </div>
 
         {/* Key Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12 animate-fade-in-up animation-delay-200">
-          <div className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:scale-105">
-            <div className="flex items-center">
-              <div className="p-4 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl shadow-lg">
-                <Users className="w-8 h-8 text-white" />
-              </div>
-              <div className="ml-6">
-                <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide">
-                  Total Users
-                </p>
-                <p className="text-3xl font-extrabold text-gray-900 mt-1">
-                  {analytics.totalUsers.toLocaleString()}
-                </p>
-              </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="bg-[var(--clr-surface-a10)] dark:bg-[var(--clr-surface-a10)] border border-[var(--clr-surface-a30)] rounded-xl p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <Users className="w-5 h-5 text-blue-600" />
+              <h3 className="text-sm font-medium text-[var(--clr-surface-a50)] uppercase tracking-wide">
+                Total Users
+              </h3>
             </div>
+            <p className="text-2xl font-bold text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)]">
+              {analytics.totalUsers.toLocaleString()}
+            </p>
+            <p className="text-xs text-[var(--clr-surface-a50)] mt-1">
+              Registered accounts
+            </p>
           </div>
 
-          <div className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:scale-105">
-            <div className="flex items-center">
-              <div className="p-4 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl shadow-lg">
-                <LinkIcon className="w-8 h-8 text-white" />
-              </div>
-              <div className="ml-6">
-                <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide">
-                  Total URLs
-                </p>
-                <p className="text-3xl font-extrabold text-gray-900 mt-1">
-                  {analytics.totalUrls.toLocaleString()}
-                </p>
-              </div>
+          <div className="bg-[var(--clr-surface-a10)] dark:bg-[var(--clr-surface-a10)] border border-[var(--clr-surface-a30)] rounded-xl p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <LinkIcon className="w-5 h-5 text-green-600" />
+              <h3 className="text-sm font-medium text-[var(--clr-surface-a50)] uppercase tracking-wide">
+                Total URLs
+              </h3>
             </div>
+            <p className="text-2xl font-bold text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)]">
+              {analytics.totalUrls.toLocaleString()}
+            </p>
+            <p className="text-xs text-[var(--clr-surface-a50)] mt-1">
+              Shortened URLs
+            </p>
           </div>
 
-          <div className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:scale-105">
-            <div className="flex items-center">
-              <div className="p-4 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl shadow-lg">
-                <MousePointer className="w-8 h-8 text-white" />
-              </div>
-              <div className="ml-6">
-                <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide">
-                  Total Clicks
-                </p>
-                <p className="text-3xl font-extrabold text-gray-900 mt-1">
-                  {analytics.totalClicks.toLocaleString()}
-                </p>
-              </div>
+          <div className="bg-[var(--clr-surface-a10)] dark:bg-[var(--clr-surface-a10)] border border-[var(--clr-surface-a30)] rounded-xl p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <MousePointer className="w-5 h-5 text-purple-600" />
+              <h3 className="text-sm font-medium text-[var(--clr-surface-a50)] uppercase tracking-wide">
+                Total Clicks
+              </h3>
             </div>
+            <p className="text-2xl font-bold text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)]">
+              {analytics.totalClicks.toLocaleString()}
+            </p>
+            <p className="text-xs text-[var(--clr-surface-a50)] mt-1">
+              Link visits
+            </p>
           </div>
 
-          <div className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:scale-105">
-            <div className="flex items-center">
-              <div className="p-4 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-2xl shadow-lg">
-                <Activity className="w-8 h-8 text-white" />
-              </div>
-              <div className="ml-6">
-                <p className="text-sm font-semibold text-gray-600 uppercase tracking-wide">
-                  Active Users
-                </p>
-                <p className="text-3xl font-extrabold text-gray-900 mt-1">
-                  {analytics.activeUsers.toLocaleString()}
-                </p>
-              </div>
+          <div className="bg-[var(--clr-surface-a10)] dark:bg-[var(--clr-surface-a10)] border border-[var(--clr-surface-a30)] rounded-xl p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <Activity className="w-5 h-5 text-orange-600" />
+              <h3 className="text-sm font-medium text-[var(--clr-surface-a50)] uppercase tracking-wide">
+                Active Users
+              </h3>
             </div>
+            <p className="text-2xl font-bold text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)]">
+              {analytics.activeUsers.toLocaleString()}
+            </p>
+            <p className="text-xs text-[var(--clr-surface-a50)] mt-1">
+              Verified accounts
+            </p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 xs:gap-6 sm:gap-8">
           {/* Top Performing URLs */}
-          <div className="bg-white/90 backdrop-blur-sm shadow-2xl rounded-2xl overflow-hidden border border-gray-100 animate-fade-in-up animation-delay-400 h-96 flex flex-col">
-            <div className="px-8 py-6 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white flex-shrink-0">
-              <h2 className="text-2xl font-bold text-gray-900">Top Performing URLs</h2>
-              <p className="text-gray-600 mt-1">
+          <div className="bg-[var(--clr-surface-a0)] shadow-xl rounded-2xl overflow-hidden border border-[var(--clr-surface-a30)] h-80 xs:h-96 flex flex-col">
+            <div className="px-4 xs:px-6 sm:px-8 py-4 xs:py-6 border-b border-[var(--clr-surface-a20)] bg-[var(--clr-surface-a10)] flex-shrink-0">
+              <h2 className="text-lg xs:text-xl sm:text-2xl font-bold text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)]">
+                Top Performing URLs
+              </h2>
+              <p className="text-[var(--clr-surface-a50)] text-sm xs:text-base mt-1">
                 Most clicked shortened URLs system-wide
               </p>
             </div>
-            <div className="p-8 flex-1 overflow-y-auto">
+            <div className="p-4 xs:p-6 sm:p-8 flex-1 overflow-y-auto">
               {analytics.topUrls.length > 0 ? (
                 <div className="space-y-6">
                   {analytics.topUrls.map((url, index) => (
-                    <div key={index} className="flex items-center justify-between">
+                    <div
+                      key={index}
+                      className="flex items-center justify-between"
+                    >
                       <div className="flex-1">
                         <div className="flex items-center mb-2">
-                          <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">
+                          <div className="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm bg-[var(--clr-primary-a0)] text-[var(--clr-light-a0)]">
                             {index + 1}
                           </div>
                           <div className="ml-4">
-                            <p className="text-sm font-semibold text-gray-900 truncate max-w-xs">
+                            <p className="text-sm font-semibold text-[var(--clr-surface-a50)] dark:text-[var(--clr-light-a0)] truncate max-w-xs">
                               {url.shortCode}
                             </p>
-                            <p className="text-xs text-gray-500 truncate max-w-xs">
+                            <p className="text-xs text-[var(--clr-surface-a40)] truncate max-w-xs">
                               {url.originalUrl}
                             </p>
                           </div>
                         </div>
-                        <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
+                        <div className="w-full bg-[var(--clr-surface-a20)] rounded-full h-2 mb-2">
                           <div
-                            className="bg-green-600 h-2 rounded-full"
-                            style={{ width: `${(url.clickCount / analytics.totalClicks) * 100}%` }}
+                            className="bg-[var(--clr-primary-a0)] h-2 rounded-full"
+                            style={{
+                              width: `${
+                                (url.clickCount / analytics.totalClicks) * 100
+                              }%`,
+                            }}
                           ></div>
                         </div>
                       </div>
                       <div className="ml-4 text-right">
-                        <p className="text-lg font-bold text-gray-900">
+                        <p className="text-lg font-bold text-[var(--clr-surface-a50)] dark:text-[var(--clr-light-a0)]">
                           {url.clickCount.toLocaleString()}
                         </p>
-                        <p className="text-xs text-gray-500">clicks</p>
+                        <p className="text-xs text-[var(--clr-surface-a40)]">
+                          clicks
+                        </p>
                       </div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-gray-500 text-center py-8">
+                <p className="text-[var(--clr-surface-a40)] text-center py-8">
                   No URL data available yet.
                 </p>
               )}
@@ -486,39 +546,45 @@ const AdminAnalytics = () => {
           </div>
 
           {/* Recent Activity */}
-          <div className="bg-white/90 backdrop-blur-sm shadow-2xl rounded-2xl overflow-hidden border border-gray-100 animate-fade-in-up animation-delay-400 h-96 flex flex-col">
-            <div className="px-8 py-6 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white flex-shrink-0">
-              <h2 className="text-2xl font-bold text-gray-900">Recent Activity</h2>
-              <p className="text-gray-600 mt-1">
+          <div className="bg-[var(--clr-surface-a0)] shadow-xl rounded-2xl overflow-hidden border border-[var(--clr-surface-a30)] h-80 xs:h-96 flex flex-col">
+            <div className="px-4 xs:px-6 sm:px-8 py-4 xs:py-6 border-b border-[var(--clr-surface-a20)] bg-[var(--clr-surface-a10)] flex-shrink-0">
+              <h2 className="text-lg xs:text-xl sm:text-2xl font-bold text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)]">
+                Recent Activity
+              </h2>
+              <p className="text-[var(--clr-surface-a50)] text-sm xs:text-base mt-1">
                 Latest system activity and user interactions
               </p>
             </div>
-            <div className="p-8 flex-1 overflow-y-auto">
+            <div className="p-4 xs:p-6 sm:p-8 flex-1 overflow-y-auto">
               {analytics.recentActivity.length > 0 ? (
                 <div className="space-y-4">
                   {analytics.recentActivity.map((activity, index) => (
-                    <div key={index} className="flex items-center justify-between py-3 border-b border-gray-100 last:border-b-0">
+                    <div
+                      key={index}
+                      className="flex items-center justify-between py-3 border-b border-[var(--clr-surface-a20)] last:border-b-0"
+                    >
                       <div className="flex items-center">
-                        <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg">
-                          <Activity className="w-4 h-4 text-white" />
+                        <div className="p-2 rounded-lg bg-[var(--clr-primary-a0)]">
+                          <Activity className="w-4 h-4 text-[var(--clr-light-a0)]" />
                         </div>
                         <div className="ml-4">
-                          <p className="text-sm font-semibold text-gray-900">
+                          <p className="text-sm font-semibold text-[var(--clr-surface-a50)] dark:text-[var(--clr-light-a0)]">
                             {activity.action}
                           </p>
-                          <p className="text-xs text-gray-500">
-                            {activity.user} • {new Date(activity.timestamp).toLocaleString()}
+                          <p className="text-xs text-[var(--clr-surface-a40)]">
+                            {activity.user} •{" "}
+                            {new Date(activity.timestamp).toLocaleString()}
                           </p>
                         </div>
                       </div>
-                      <div className="text-xs text-gray-400">
+                      <div className="text-xs text-[var(--clr-surface-a40)]">
                         {activity.details}
                       </div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-gray-500 text-center py-8">
+                <p className="text-[var(--clr-surface-a40)] text-center py-8">
                   No recent activity available.
                 </p>
               )}
@@ -527,14 +593,16 @@ const AdminAnalytics = () => {
         </div>
 
         {/* User Growth Chart */}
-        <div className="mt-8 bg-white/90 backdrop-blur-sm shadow-2xl rounded-2xl overflow-hidden border border-gray-100 animate-fade-in-up animation-delay-600">
-          <div className="px-8 py-6 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
-            <h2 className="text-2xl font-bold text-gray-900">User Growth Trends</h2>
-            <p className="text-gray-600 mt-1">
+        <div className="mt-6 xs:mt-8 bg-[var(--clr-surface-a0)] shadow-xl rounded-2xl overflow-hidden border border-[var(--clr-surface-a30)]">
+          <div className="px-4 xs:px-6 sm:px-8 py-4 xs:py-6 border-b border-[var(--clr-surface-a20)] bg-[var(--clr-surface-a10)]">
+            <h2 className="text-lg xs:text-xl sm:text-2xl font-bold text-[var(--clr-surface-a50)] dark:text-[var(--clr-light-a0)]">
+              User Growth Trends
+            </h2>
+            <p className="text-[var(--clr-surface-a50)] text-sm xs:text-base mt-1">
               Track user registration patterns and growth over time
             </p>
           </div>
-          <div className="p-4">
+          <div className="p-2 xs:p-4">
             <UserGrowthChart
               data={analytics.userGrowth}
               timeFilter={timeFilter}

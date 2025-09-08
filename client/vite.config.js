@@ -1,13 +1,14 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), tailwindcss()],
   server: {
-    port: 5173,
-    host: "localhost",
-    strictPort: false,
+    hmr: {
+      overlay: false,
+    },
     proxy: {
       "/api": {
         target: "http://localhost:5000",
@@ -23,9 +24,6 @@ export default defineConfig({
     },
   },
   build: {
-    outDir: "dist",
-    assetsDir: "assets",
-    sourcemap: false,
     rollupOptions: {
       output: {
         manualChunks: {
@@ -34,13 +32,5 @@ export default defineConfig({
         },
       },
     },
-  },
-  optimizeDeps: {
-    include: ["react", "react-dom"],
-  },
-  esbuild: {
-    loader: "jsx",
-    include: /src\/.*\.[jt]sx?$/,
-    exclude: [],
   },
 });

@@ -74,13 +74,19 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div className="relative min-h-screen flex items-center justify-center bg-[var(--bg-primary)] py-12 px-4 sm:px-6 lg:px-8">
+      {/* Decorative gradient blobs */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-[var(--text-secondary)]/20 blur-3xl" />
+        <div className="absolute -bottom-24 -right-24 h-72 w-72 rounded-full bg-[var(--text-accent)]/20 blur-3xl" />
+      </div>
+
+      <div className="relative max-w-md w-full space-y-8">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-[var(--text-primary)]">
             Forgot your password?
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
+          <p className="mt-2 text-center text-sm text-[var(--text-secondary)]">
             {step === 1 && "Enter your email to get a 6-digit OTP."}
             {step === 2 && "Enter the 6-digit OTP sent to your email."}
             {step === 3 && "Set a new password."}
@@ -92,7 +98,7 @@ const ForgotPassword = () => {
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-[var(--text-primary)]"
               >
                 Email address
               </label>
@@ -104,7 +110,7 @@ const ForgotPassword = () => {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-[var(--border-color)] placeholder-[color:var(--text-primary)]/50 text-[var(--text-primary)] bg-[var(--bg-secondary)] rounded-md sm:text-sm"
                 placeholder="Enter your email"
               />
             </div>
@@ -112,7 +118,7 @@ const ForgotPassword = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="retro-btn group relative w-full flex justify-center py-2 px-4 text-sm font-medium rounded-md disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               >
                 {loading ? "Sending..." : "Send OTP"}
               </button>
@@ -120,7 +126,7 @@ const ForgotPassword = () => {
             <div className="text-center text-sm">
               <Link
                 to="/login"
-                className="text-indigo-600 hover:text-indigo-500"
+                className="text-[var(--text-secondary)] hover:text-[var(--text-accent)]"
               >
                 Back to sign in
               </Link>
@@ -146,7 +152,7 @@ const ForgotPassword = () => {
                 required
                 value={otp}
                 onChange={(e) => setOtp(e.target.value)}
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md sm:text-sm"
                 placeholder="Enter OTP"
               />
             </div>
@@ -154,7 +160,14 @@ const ForgotPassword = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="group inline-flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="group inline-flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-[var(--clr-light-a0)] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                style={{ backgroundColor: "var(--emerald-600)" }}
+                onMouseEnter={(e) =>
+                  (e.target.style.backgroundColor = "var(--emerald-700)")
+                }
+                onMouseLeave={(e) =>
+                  (e.target.style.backgroundColor = "var(--emerald-600)")
+                }
               >
                 {loading ? "Verifying..." : "Verify OTP"}
               </button>
@@ -162,7 +175,14 @@ const ForgotPassword = () => {
                 type="button"
                 onClick={handleRequest}
                 disabled={loading}
-                className="text-sm text-indigo-600 hover:text-indigo-700"
+                className="text-sm cursor-pointer"
+                style={{ color: "var(--emerald-600)" }}
+                onMouseEnter={(e) =>
+                  (e.target.style.color = "var(--emerald-700)")
+                }
+                onMouseLeave={(e) =>
+                  (e.target.style.color = "var(--emerald-600)")
+                }
               >
                 Resend OTP
               </button>
@@ -171,7 +191,7 @@ const ForgotPassword = () => {
               <button
                 type="button"
                 onClick={() => setStep(1)}
-                className="text-gray-600 hover:text-gray-800"
+                className="text-gray-600 hover:text-gray-800 cursor-pointer"
               >
                 Change email
               </button>
@@ -195,7 +215,7 @@ const ForgotPassword = () => {
                 required
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md sm:text-sm"
                 placeholder="Enter new password"
               />
             </div>
@@ -203,7 +223,14 @@ const ForgotPassword = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-[var(--clr-light-a0)] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                style={{ backgroundColor: "var(--emerald-600)" }}
+                onMouseEnter={(e) =>
+                  (e.target.style.backgroundColor = "var(--emerald-700)")
+                }
+                onMouseLeave={(e) =>
+                  (e.target.style.backgroundColor = "var(--emerald-600)")
+                }
               >
                 {loading ? "Resetting..." : "Reset Password"}
               </button>
@@ -211,7 +238,14 @@ const ForgotPassword = () => {
             <div className="text-center text-sm">
               <Link
                 to="/login"
-                className="text-indigo-600 hover:text-indigo-500"
+                className=""
+                style={{ color: "var(--emerald-600)" }}
+                onMouseEnter={(e) =>
+                  (e.target.style.color = "var(--emerald-500)")
+                }
+                onMouseLeave={(e) =>
+                  (e.target.style.color = "var(--emerald-600)")
+                }
               >
                 Back to sign in
               </Link>

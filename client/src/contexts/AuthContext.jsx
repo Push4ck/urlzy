@@ -22,6 +22,46 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
+  // Listen for storage changes to sync authentication across tabs
+  useEffect(() => {
+    const handleStorageChange = (e) => {
+      // If token was removed from localStorage (logout from another tab)
+      if (e.key === "token" && e.oldValue && !e.newValue) {
+        // Clear user state and axios headers
+        setUser(null);
+        delete axios.defaults.headers.common["Authorization"];
+      }
+      // If user data was removed
+      if (e.key === "user" && e.oldValue && !e.newValue) {
+        setUser(null);
+        delete axios.defaults.headers.common["Authorization"];
+      }
+      // If token was added to localStorage (login from another tab)
+      if (e.key === "token" && !e.oldValue && e.newValue) {
+        const userData = localStorage.getItem("user");
+        if (userData) {
+          setUser(JSON.parse(userData));
+          axios.defaults.headers.common["Authorization"] = `Bearer ${e.newValue}`;
+        }
+      }
+      // If user data was added
+      if (e.key === "user" && !e.oldValue && e.newValue) {
+        const token = localStorage.getItem("token");
+        if (token) {
+          setUser(JSON.parse(e.newValue));
+          axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+        }
+      }
+    };
+
+    // Listen for storage events (cross-tab synchronization)
+    window.addEventListener("storage", handleStorageChange);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+    };
+  }, []);
+
   const extractErrorMessage = (error, fallback) => {
     const data = error?.response?.data;
     if (!data) return fallback;
@@ -109,12 +149,32 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  const refreshUser = async () => {
+    try {
+      const response = await axios.get(getApiUrl(`${API_ENDPOINTS.AUTH}/profile`));
+      if (response.data.success) {
+        const updatedUser = response.data.data;
+        setUser(updatedUser);
+
+        // Update stored user data
+        const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+        if (token) {
+          const storage = localStorage.getItem("token") ? localStorage : sessionStorage;
+          storage.setItem("user", JSON.stringify(updatedUser));
+        }
+      }
+    } catch (error) {
+      console.error("Failed to refresh user data:", error);
+    }
+  };
+
   const value = {
     user,
     loading,
     login,
     register,
     logout,
+    refreshUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

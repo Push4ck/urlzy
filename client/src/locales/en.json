@@ -1,0 +1,253 @@
+{
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "pricing": "Pricing",
+    "contact": "Contact",
+    "login": "Login",
+    "register": "Register",
+    "dashboard": "Dashboard",
+    "logout": "Logout",
+    "settings": "Settings"
+  },
+  "hero": {
+    "title": "Shorten Your URLs with Style",
+    "subtitle": "Create custom short links, track analytics, and manage your URLs with our powerful URL shortener.",
+    "getStarted": "Get Started",
+    "learnMore": "Learn More"
+  },
+  "features": {
+    "title": "Powerful Features",
+    "subtitle": "Everything you need to manage your URLs effectively",
+    "customUrls": {
+      "title": "Custom URLs",
+      "description": "Create memorable custom short links that reflect your brand"
+    },
+    "analytics": {
+      "title": "Detailed Analytics",
+      "description": "Track clicks, geographic data, and user behavior in real-time"
+    },
+    "api": {
+      "title": "API Access",
+      "description": "Integrate our URL shortener into your applications with our REST API"
+    },
+    "security": {
+      "title": "Secure & Reliable",
+      "description": "Enterprise-grade security with 99.9% uptime guarantee"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Welcome Back",
+      "email": "Email Address",
+      "password": "Password",
+      "rememberMe": "Remember me",
+      "forgotPassword": "Forgot password?",
+      "loginButton": "Sign In",
+      "noAccount": "Don't have an account?",
+      "signUp": "Sign up",
+      "invalidCredentials": "Invalid email or password",
+      "loginSuccess": "Login successful"
+    },
+    "register": {
+      "title": "Create Account",
+      "username": "Username",
+      "email": "Email Address",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "registerButton": "Create Account",
+      "haveAccount": "Already have an account?",
+      "signIn": "Sign in",
+      "registrationSuccess": "Account created successfully",
+      "passwordMismatch": "Passwords don't match"
+    },
+    "forgotPassword": {
+      "title": "Reset Password",
+      "email": "Email Address",
+      "sendReset": "Send Reset Code",
+      "backToLogin": "Back to Login",
+      "resetSent": "Password reset code sent to your email"
+    },
+    "verifyEmail": {
+      "title": "Verify Email",
+      "code": "Verification Code",
+      "verify": "Verify Email",
+      "resend": "Resend Code",
+      "verified": "Email verified successfully"
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome back",
+    "totalUrls": "Total URLs",
+    "totalClicks": "Total Clicks",
+    "recentActivity": "Recent Activity",
+    "createUrl": "Create URL",
+    "manageUrls": "Manage URLs",
+    "viewAnalytics": "View Analytics",
+    "settings": "Settings"
+  },
+  "settings": {
+    "title": "Account Settings",
+    "subtitle": "Manage your account preferences and security settings",
+    "security": {
+      "title": "Security & Privacy",
+      "emailNotifications": {
+        "title": "Email Notifications",
+        "description": "Receive email notifications for important updates"
+      },
+      "twoFactor": {
+        "title": "Two-Factor Authentication",
+        "description": "Add an extra layer of security to your account",
+        "enable": "Enable 2FA",
+        "disable": "Disable 2FA"
+      },
+      "theme": {
+        "title": "Theme Preference",
+        "description": "Choose your preferred theme",
+        "light": "Light",
+        "dark": "Dark",
+        "system": "System"
+      },
+      "language": {
+        "title": "Language",
+        "description": "Select your preferred language",
+        "english": "English",
+        "spanish": "Español",
+        "french": "Français",
+        "german": "Deutsch"
+      }
+    },
+    "account": {
+      "title": "Account Management",
+      "profile": {
+        "title": "Profile Information",
+        "description": "Update your personal information and preferences",
+        "edit": "Edit Profile"
+      },
+      "notifications": {
+        "title": "Notification Preferences",
+        "description": "Manage how and when you receive notifications",
+        "manage": "Manage"
+      }
+    },
+    "password": {
+      "title": "Password & Security",
+      "change": {
+        "title": "Change Password",
+        "description": "Update your account password for better security",
+        "button": "Change Password"
+      }
+    },
+    "api": {
+      "title": "API Keys",
+      "description": "Manage your API keys for programmatic access",
+      "create": "Create New API Key",
+      "name": "API Key Name",
+      "placeholder": "Enter a name for your API key"
+    },
+    "data": {
+      "title": "Data Management",
+      "export": {
+        "title": "Export Your Data",
+        "description": "Download a copy of all your data in your preferred format",
+        "json": "Export as JSON",
+        "csv": "Export as CSV",
+        "pdf": "Export as PDF"
+      }
+    },
+    "danger": {
+      "title": "Danger Zone",
+      "delete": {
+        "title": "Delete Account",
+        "description": "Permanently delete your account and all data. This cannot be undone.",
+        "button": "Delete Account",
+        "confirm": "Type 'DELETE' to confirm"
+      }
+    },
+    "info": {
+      "title": "Account Information",
+      "created": "Account Created",
+      "lastLogin": "Last Login",
+      "status": "Account Status",
+      "active": "Active",
+      "subscription": "Subscription",
+      "free": "Free Plan"
+    }
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "warning": "Warning",
+    "info": "Information",
+    "confirm": "Confirm",
+    "yes": "Yes",
+    "no": "No",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "search": "Search",
+    "filter": "Filter",
+    "sort": "Sort",
+    "export": "Export",
+    "import": "Import",
+    "upload": "Upload",
+    "download": "Download",
+    "copy": "Copy",
+    "paste": "Paste",
+    "share": "Share",
+    "link": "Link",
+    "url": "URL",
+    "shortUrl": "Short URL",
+    "originalUrl": "Original URL",
+    "clicks": "Clicks",
+    "analytics": "Analytics",
+    "statistics": "Statistics",
+    "date": "Date",
+    "time": "Time",
+    "status": "Status",
+    "actions": "Actions",
+    "name": "Name",
+    "description": "Description",
+    "type": "Type",
+    "category": "Category",
+    "tags": "Tags",
+    "notes": "Notes",
+    "comments": "Comments",
+    "feedback": "Feedback",
+    "help": "Help",
+    "support": "Support",
+    "contact": "Contact",
+    "about": "About",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "cookies": "Cookies",
+    "required": "Required",
+    "optional": "Optional"
+  },
+  "messages": {
+    "settingsUpdated": "Setting updated successfully",
+    "passwordChanged": "Password changed successfully",
+    "profileUpdated": "Profile updated successfully",
+    "apiKeyCreated": "API key created successfully",
+    "apiKeyDeleted": "API key deleted successfully",
+    "accountDeleted": "Account deleted successfully",
+    "dataExported": "Data exported successfully",
+    "invalidPassword": "Current password is incorrect",
+    "passwordMismatch": "New passwords don't match",
+    "invalidEmail": "Please enter a valid email address",
+    "usernameTaken": "Username is already taken",
+    "emailTaken": "Email is already registered",
+    "networkError": "Network error. Please try again.",
+    "serverError": "Server error. Please try again later.",
+    "unauthorized": "You are not authorized to perform this action",
+    "notFound": "The requested resource was not found",
+    "validationError": "Please check your input and try again"
+  }
+}

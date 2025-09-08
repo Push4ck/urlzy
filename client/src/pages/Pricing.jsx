@@ -4,131 +4,92 @@ import toast from "react-hot-toast";
 import { useAuth } from "../contexts/useAuth";
 import { useNavigate } from "react-router-dom";
 import { Lock, Check, X } from "lucide-react";
+import pricingData from "../data/pricing.json";
+
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 const Pricing = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const plans = [
-    {
-      name: "Free",
-      price: "$0",
-      period: "forever",
-      description: "Perfect for personal use",
-      features: [
-        "100 URLs per month",
-        "Basic analytics",
-        "Custom short codes",
-        "URL management",
-        "Email support",
-      ],
-      limitations: [
-        "No custom domains",
-        "Basic analytics only",
-        "Limited API calls",
-      ],
-      buttonText: "Get Started Free",
-      buttonVariant: "outline",
-    },
-    {
-      name: "Premium",
-      price: "$9.99",
-      period: "per month",
-      description: "Best for professionals and small teams",
-      features: [
-        "Unlimited URLs",
-        "Advanced analytics",
-        "Custom domains",
-        "Password-protected links",
-        "QR code generation",
-        "API access",
-        "Priority support",
-        "Bulk upload",
-        "Team collaboration",
-      ],
-      buttonText: "Start Premium Trial",
-      buttonVariant: "primary",
-      popular: true,
-    },
-    {
-      name: "Enterprise",
-      price: "Custom",
-      period: "contact us",
-      description: "For large organizations with custom needs",
-      features: [
-        "Everything in Premium",
-        "White-label solution",
-        "Custom integrations",
-        "Dedicated support",
-        "SLA guarantee",
-        "Advanced security",
-        "Custom analytics",
-        "Multi-region hosting",
-      ],
-      buttonText: "Contact Sales",
-      buttonVariant: "outline",
-    },
-  ];
+  const { plans, faq } = pricingData;
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[var(--clr-surface-a10)] dark:bg-[var(--clr-surface-a0)] py-20 transition-colors duration-300">
+      <div className="container mx-auto px-4">
         {/* Header */}
-        <div className="text-center mb-16">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+        <div className="text-center mb-20">
+          <h1 className="text-5xl sm:text-6xl font-bold text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)] mb-6">
             Simple, Transparent Pricing
           </h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="text-2xl text-[var(--clr-surface-a50)] dark:text-[var(--clr-surface-a50)] max-w-4xl mx-auto leading-relaxed">
             Choose the perfect plan for your needs. Start free and upgrade
-            anytime.
+            anytime with no hidden fees.
           </p>
         </div>
 
         {/* Pricing Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-20">
           {plans.map((plan, index) => (
             <div
               key={index}
-              className={`bg-white rounded-2xl shadow-sm border-2 p-8 relative ${
+              className={`relative bg-[var(--clr-surface-a0)]/80 dark:bg-[var(--clr-surface-a10)]/80 backdrop-blur-xl rounded-2xl p-8 border shadow-xl hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 ${
                 plan.popular
-                  ? "border-indigo-500 transform scale-105"
-                  : "border-gray-100"
+                  ? "border-2 border-[var(--clr-primary-a0)] scale-105 shadow-2xl"
+                  : "border-[var(--clr-surface-a30)]/50 dark:border-[var(--clr-surface-a20)]/50"
               }`}
             >
               {plan.popular && (
                 <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                  <span className="bg-indigo-500 text-white px-4 py-1 rounded-full text-sm font-medium">
+                  <div className="flex items-center gap-2 bg-gradient-to-r from-[var(--clr-primary-a0)] to-[var(--clr-primary-a10)] text-[var(--clr-light-a0)] px-6 py-2 rounded-full text-sm font-semibold shadow-lg">
+                    <Lock className="w-4 h-4" />
                     Most Popular
-                  </span>
+                  </div>
                 </div>
               )}
 
               <div className="text-center mb-8">
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                <h3 className="text-3xl font-bold text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)] mb-4">
                   {plan.name}
                 </h3>
-                <div className="text-4xl font-bold text-gray-900 mb-1">
-                  {plan.price}
+                <div className="flex items-baseline justify-center gap-2 mb-2">
+                  <span className="text-6xl font-bold text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)]">
+                    {plan.price}
+                  </span>
+                  {plan.price !== "Free" && plan.price !== "Custom" && (
+                    <span className="text-[var(--clr-surface-a50)] dark:text-[var(--clr-surface-a50)]">
+                      /{plan.period.split(" ")[1]}
+                    </span>
+                  )}
                 </div>
-                <div className="text-gray-500">{plan.period}</div>
-                <p className="text-gray-600 mt-4">{plan.description}</p>
+                <div className="text-[var(--clr-surface-a50)] dark:text-[var(--clr-surface-a50)] mb-4">
+                  {plan.period}
+                </div>
+                <p className="text-[var(--clr-surface-a50)] dark:text-[var(--clr-surface-a50)] text-lg">
+                  {plan.description}
+                </p>
               </div>
 
               <ul className="space-y-4 mb-8">
                 {plan.features.map((feature, featureIndex) => (
-                  <li key={featureIndex} className="flex items-start">
-                    <Check className="w-5 h-5 text-green-500 mt-0.5 mr-3 flex-shrink-0" />
-                    <span className="text-gray-600">{feature}</span>
+                  <li key={featureIndex} className="flex items-start gap-3">
+                    <div className="p-1 rounded-full bg-gradient-to-br from-[var(--clr-primary-a10)] to-[var(--clr-primary-a0)] mt-1 shadow-sm">
+                      <Check className="w-3 h-3 text-[var(--clr-light-a0)]" />
+                    </div>
+                    <span className="text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)] flex-1">
+                      {feature}
+                    </span>
                   </li>
                 ))}
                 {plan.limitations &&
                   plan.limitations.map((limitation, limitIndex) => (
                     <li
                       key={`limit-${limitIndex}`}
-                      className="flex items-start"
+                      className="flex items-start gap-3"
                     >
-                      <X className="w-5 h-5 text-gray-400 mt-0.5 mr-3 flex-shrink-0" />
-                      <span className="text-gray-500 line-through">
+                      <div className="p-1 rounded-full bg-[var(--clr-surface-a40)] mt-1">
+                        <X className="w-3 h-3 text-[var(--clr-surface-a50)]" />
+                      </div>
+                      <span className="text-[var(--clr-surface-a50)] dark:text-[var(--clr-surface-a40)] line-through flex-1">
                         {limitation}
                       </span>
                     </li>
@@ -136,10 +97,10 @@ const Pricing = () => {
               </ul>
 
               <button
-                className={`w-full py-3 px-6 rounded-lg font-semibold transition-colors ${
+                className={`w-full py-4 px-6 rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105 cursor-pointer ${
                   plan.buttonVariant === "primary"
-                    ? "bg-indigo-600 text-white hover:bg-indigo-700"
-                    : "bg-gray-100 text-gray-900 hover:bg-gray-200"
+                    ? "bg-[var(--clr-primary-a0)] hover:bg-[var(--clr-primary-dark)] text-[var(--clr-light-a0)]"
+                    : "bg-[var(--clr-surface-a0)] dark:bg-[var(--clr-surface-a10)] text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)] border border-[var(--clr-surface-a30)] dark:border-[var(--clr-surface-a20)] hover:bg-[var(--clr-surface-tonal-a0)] dark:hover:bg-[var(--clr-surface-a20)]"
                 }`}
                 onClick={async () => {
                   const planName = plan.name;
@@ -160,7 +121,9 @@ const Pricing = () => {
                   // Premium: require login and start checkout
                   const token = localStorage.getItem("token");
                   if (!user && !token) {
-                    toast("Please log in to upgrade", { icon: <Lock className="w-4 h-4" /> });
+                    toast("Please log in to upgrade", {
+                      icon: <Lock className="w-4 h-4" />,
+                    });
                     navigate("/login");
                     return;
                   }
@@ -219,7 +182,7 @@ const Pricing = () => {
                           toast.error("Verification error");
                         }
                       },
-                      theme: { color: "#4f46e5" },
+                      theme: { color: "#10b981" },
                     };
 
                     const rzp = new window.Razorpay(options);
@@ -238,43 +201,24 @@ const Pricing = () => {
         </div>
 
         {/* FAQ Section */}
-        <div className="bg-white rounded-2xl p-8">
-          <h2 className="text-2xl font-bold text-center mb-8">
+        <div className="bg-[var(--clr-surface-a0)]/80 dark:bg-[var(--clr-surface-a10)]/80 backdrop-blur-xl rounded-2xl p-12 border border-[var(--clr-surface-a30)]/50 dark:border-[var(--clr-surface-a20)]/50 shadow-xl hover:shadow-2xl transition-all duration-500">
+          <h2 className="text-4xl font-bold text-center text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)] mb-12">
             Frequently Asked Questions
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div>
-              <h4 className="font-semibold mb-2">
-                Can I change plans anytime?
-              </h4>
-              <p className="text-gray-600">
-                Yes, you can upgrade or downgrade your plan at any time. Changes
-                take effect immediately.
-              </p>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-2">Do you offer refunds?</h4>
-              <p className="text-gray-600">
-                We offer a 30-day money-back guarantee for all paid plans, no
-                questions asked.
-              </p>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-2">
-                What happens to my URLs if I downgrade?
-              </h4>
-              <p className="text-gray-600">
-                Your existing URLs continue to work. You'll just have reduced
-                features and limits going forward.
-              </p>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-2">Is there an API available?</h4>
-              <p className="text-gray-600">
-                Yes, Premium and Enterprise plans include full API access with
-                comprehensive documentation.
-              </p>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            {faq.map((item, index) => (
+              <div
+                key={index}
+                className="bg-[var(--clr-surface-a0)] dark:bg-[var(--clr-surface-a10)] p-6 rounded-xl border border-[var(--clr-surface-a30)] dark:border-[var(--clr-surface-a20)] shadow-lg hover:shadow-xl transition-all duration-300"
+              >
+                <h4 className="font-bold text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)] mb-3 text-lg">
+                  {item.question}
+                </h4>
+                <p className="text-[var(--clr-surface-a50)] dark:text-[var(--clr-surface-a50)] leading-relaxed">
+                  {item.answer}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
       </div>

@@ -43,13 +43,19 @@ const LoginVerify = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-[var(--bg-primary)] to-[var(--bg-secondary)] py-12 px-4 sm:px-6 lg:px-8">
+      {/* Decorative gradient blobs */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-[var(--text-secondary)]/20 blur-3xl" />
+        <div className="absolute -bottom-24 -right-24 h-72 w-72 rounded-full bg-[var(--text-accent)]/20 blur-3xl" />
+      </div>
+
+      <div className="relative max-w-md w-full space-y-8">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-[var(--text-primary)]">
             Two-factor verification
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
+          <p className="mt-2 text-center text-sm text-[var(--text-secondary)]">
             Enter the 6-digit code we sent to {email || "your email"}.
           </p>
         </div>
@@ -57,7 +63,7 @@ const LoginVerify = () => {
           <div>
             <label
               htmlFor="otp"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-[var(--text-primary)]"
             >
               6-digit code
             </label>
@@ -70,7 +76,7 @@ const LoginVerify = () => {
               required
               value={otp}
               onChange={(e) => setOtp(e.target.value)}
-              className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+              className="mt-1 appearance-none relative block w-full px-3 py-2 border border-[var(--border-color)] placeholder-[color:var(--text-primary)]/50 text-[var(--text-primary)] bg-[var(--bg-secondary)] rounded-md sm:text-sm"
               placeholder="Enter code"
             />
           </div>
@@ -78,13 +84,13 @@ const LoginVerify = () => {
             <button
               type="submit"
               disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="retro-btn group relative w-full flex justify-center py-2 px-4 text-sm font-medium rounded-md disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               {loading ? "Verifying..." : "Verify"}
             </button>
           </div>
           <div className="text-center text-sm">
-            <Link to="/login" className="text-indigo-600 hover:text-indigo-500">
+            <Link to="/login" className="text-[var(--text-secondary)] hover:text-[var(--text-accent)]">
               Back to sign in
             </Link>
           </div>

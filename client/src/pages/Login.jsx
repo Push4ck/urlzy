@@ -2,7 +2,15 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/useAuth";
 import toast from "react-hot-toast";
-import { Eye, EyeOff, Mail, Lock, AlertCircle, Loader, ArrowRight } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  Mail,
+  Lock,
+  AlertCircle,
+  Loader,
+  ArrowRight,
+} from "lucide-react";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -31,7 +39,6 @@ const Login = () => {
     try {
       const result = await login(formData.email, formData.password, rememberMe);
       if (result?.success && result?.twoFactorRequired && result?.loginToken) {
-        // redirect to 2FA verify step
         navigate(
           `/login-verify?token=${encodeURIComponent(
             result.loginToken
@@ -67,137 +74,142 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[var(--bg-secondary)] py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 animate-fade-in-up">
-        <div className="text-center">
-          <h2 className="text-4xl font-extrabold text-[var(--text-secondary)] mb-4">
-            Welcome Back
+    <div className="min-h-screen flex items-center justify-center bg-[var(--clr-surface-a10)] dark:bg-[var(--clr-surface-a0)] transition-colors duration-300">
+      <div className="w-full max-w-md mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="text-center mb-8 space-y-4">
+          <h2 className="text-5xl font-bold text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)]">
+            Welcome back
           </h2>
-          <p className="text-lg text-[var(--text-primary)] opacity-80">
-            Sign in to your account to continue
+          <p className="text-xl text-[var(--clr-surface-a50)] dark:text-[var(--clr-surface-a50)]">
+            Sign in to your account
           </p>
-          <p className="mt-2 text-sm text-[var(--text-primary)] opacity-60">
-            Or{" "}
+          <p className="text-[var(--clr-surface-a50)] dark:text-[var(--clr-surface-a50)]">
+            Don't have an account?{" "}
             <Link
               to="/register"
-              className="font-semibold text-[var(--text-secondary)] hover:text-[var(--text-accent)] transition-colors duration-200"
+              className="text-[var(--clr-primary-a0)] hover:text-[var(--clr-primary-dark)] dark:text-[var(--clr-primary-a10)] dark:hover:text-[var(--clr-primary-a0)] font-semibold transition-colors duration-300"
             >
-              create a new account
+              Sign up
             </Link>
           </p>
         </div>
 
-        <div className="bg-[var(--card-bg)] p-8 rounded-2xl shadow-xl border border-[var(--border-color)]">
+        {/* Card */}
+        <div className="bg-[var(--clr-surface-a0)]/80 dark:bg-[var(--clr-surface-a10)]/80 backdrop-blur-xl p-8 border border-[var(--clr-primary-a0)] dark:border-[var(--clr-primary-a10)] rounded-xl shadow-2xl">
           <form className="space-y-6" onSubmit={handleSubmit}>
-            <div className="space-y-6">
-              <div>
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-semibold text-[var(--text-primary)] mb-2"
-                >
-                  Email address
-                </label>
-                <div className="relative">
-                  <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    autoComplete="email"
-                    required
-                    value={formData.email}
-                    onChange={handleChange}
-                    className="appearance-none relative block w-full px-4 py-3 pl-12 border border-[var(--border-color)] placeholder-[var(--text-primary)] opacity-60 text-[var(--text-primary)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--text-secondary)] focus:border-[var(--text-secondary)] transition-all duration-200 bg-[var(--bg-secondary)]"
-                    placeholder="Enter your email"
-                  />
-                  <Mail className="absolute left-4 top-3.5 w-5 h-5 text-[var(--text-primary)] opacity-50" />
-                </div>
-              </div>
-
-              <div>
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-semibold text-[var(--text-primary)] mb-2"
-                >
-                  Password
-                </label>
-                <div className="relative">
-                  <input
-                    id="password"
-                    name="password"
-                    type={showPassword ? "text" : "password"}
-                    autoComplete="current-password"
-                    required
-                    value={formData.password}
-                    onChange={handleChange}
-                    className="appearance-none relative block w-full px-4 py-3 pl-12 pr-12 border border-[var(--border-color)] placeholder-[var(--text-primary)] opacity-60 text-[var(--text-primary)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--text-secondary)] focus:border-[var(--text-secondary)] transition-all duration-200 bg-[var(--bg-secondary)]"
-                    placeholder="Enter your password"
-                  />
-                  <Lock className="absolute left-4 top-3.5 w-5 h-5 text-[var(--text-primary)] opacity-50" />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-5 top-3.5 w-5 h-5 text-[var(--text-primary)] opacity-50 hover:opacity-70 focus:outline-none transition-colors"
-                  >
-                    {showPassword ? <Eye /> : <EyeOff />}
-                  </button>
-                </div>
+            {/* Email */}
+            <div>
+              <label
+                htmlFor="email"
+                className="block text-lg font-semibold text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)] mb-3"
+              >
+                Email address
+              </label>
+              <div className="relative">
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="w-full pl-14 pr-4 py-4 text-lg bg-[var(--clr-surface-a0)] dark:bg-[var(--clr-surface-a10)] border-2 border-[var(--clr-surface-a30)] dark:border-[var(--clr-surface-a20)] rounded-xl text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)] placeholder-[var(--clr-surface-a50)] dark:placeholder-[var(--clr-surface-a40)] focus:border-[var(--clr-primary-a0)] focus:outline-none transition-colors duration-300"
+                  placeholder="you@example.com"
+                />
+                <Mail className="absolute left-4 top-4 w-6 h-6 text-[var(--clr-primary-a0)] dark:text-[var(--clr-primary-a10)]" />
               </div>
             </div>
 
+            {/* Password */}
+            <div>
+              <label
+                htmlFor="password"
+                className="block text-lg font-semibold text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)] mb-3"
+              >
+                Password
+              </label>
+              <div className="relative">
+                <input
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  autoComplete="current-password"
+                  required
+                  value={formData.password}
+                  onChange={handleChange}
+                  className="w-full pl-14 pr-14 py-4 text-lg bg-[var(--clr-surface-a0)] dark:bg-[var(--clr-surface-a10)] border-2 border-[var(--clr-surface-a30)] dark:border-[var(--clr-surface-a20)] rounded-xl text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)] placeholder-[var(--clr-surface-a50)] dark:placeholder-[var(--clr-surface-a40)] focus:border-[var(--clr-primary-a0)] focus:outline-none transition-colors duration-300"
+                  placeholder="Enter your password"
+                />
+                <Lock className="absolute left-4 top-4 w-6 h-6 text-[var(--clr-primary-a0)] dark:text-[var(--clr-primary-a10)]" />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-4 w-6 h-6 text-[var(--clr-primary-a0)] dark:text-[var(--clr-primary-a10)] hover:text-[var(--clr-primary-dark)] dark:hover:text-[var(--clr-primary-a0)] cursor-pointer transition-colors duration-300"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <Eye /> : <EyeOff />}
+                </button>
+              </div>
+            </div>
+
+            {/* Options */}
             <div className="flex items-center justify-between">
-              <div className="flex items-center">
+              <label
+                htmlFor="remember-me"
+                className="flex items-center gap-3 text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)] cursor-pointer"
+              >
                 <input
                   id="remember-me"
                   name="remember-me"
                   type="checkbox"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
-                  className="h-4 w-4 text-[var(--text-secondary)] focus:ring-[var(--text-secondary)] border-[var(--border-color)] rounded"
+                  className="w-5 h-5 rounded border-2 border-[var(--clr-primary-a0)] text-[var(--clr-primary-a0)] focus:ring-[var(--clr-primary-a0)] focus:ring-2"
                 />
-                <label
-                  htmlFor="remember-me"
-                  className="ml-3 block text-sm text-[var(--text-primary)] font-medium"
-                >
-                  Remember me
-                </label>
-              </div>
-
-              <div className="text-sm">
-                <Link
-                  to="/forgot-password"
-                  className="font-semibold text-[var(--text-secondary)] hover:text-[var(--text-accent)] transition-colors duration-200"
-                >
-                  Forgot password?
-                </Link>
-              </div>
+                Remember me
+              </label>
+              <Link
+                to="/forgot-password"
+                className="text-[var(--clr-primary-a0)] hover:text-[var(--clr-primary-dark)] dark:text-[var(--clr-primary-a10)] dark:hover:text-[var(--clr-primary-a0)] font-semibold transition-colors duration-300"
+              >
+                Forgot password?
+              </Link>
             </div>
 
+            {/* Error */}
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl flex items-center">
-                <AlertCircle className="w-5 h-5 mr-3 text-red-500" />
-                {error}
+              <div className="bg-red-50 dark:bg-red-900/20 p-4 border border-red-200 dark:border-red-800 rounded-xl">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-xl bg-red-100 dark:bg-red-900/50">
+                    <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
+                  </div>
+                  <span className="text-red-700 dark:text-red-300 font-medium">
+                    {error}
+                  </span>
+                </div>
               </div>
             )}
 
-            <div>
-              <button
-                type="submit"
-                disabled={loading}
-                className="group relative w-full flex justify-center py-3 px-6 border border-transparent text-sm font-bold rounded-xl text-white bg-[var(--text-secondary)] hover:bg-[var(--text-accent)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--text-secondary)] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl"
-              >
-                {loading ? (
-                  <div className="flex items-center">
-                    <Loader className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" />
-                    Signing in...
-                  </div>
-                ) : (
-                  <div className="flex items-center">
-                    Sign in
-                    <ArrowRight className="ml-2 -mr-1 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                  </div>
-                )}
-              </button>
-            </div>
+            {/* Submit */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="bg-[var(--clr-primary-a0)] hover:bg-[var(--clr-primary-dark)] dark:bg-[var(--clr-primary-a10)] dark:hover:bg-[var(--clr-primary-a0)] text-[var(--clr-light-a0)] w-full py-4 text-lg font-semibold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300"
+            >
+              {loading ? (
+                <span className="inline-flex items-center gap-3">
+                  <Loader className="animate-spin w-6 h-6" />
+                  Signing in...
+                </span>
+              ) : (
+                <span className="inline-flex items-center justify-center gap-3">
+                  Sign in
+                  <ArrowRight className="w-5 h-5" />
+                </span>
+              )}
+            </button>
           </form>
         </div>
       </div>
