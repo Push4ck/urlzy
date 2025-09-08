@@ -4,7 +4,7 @@ const cors = require("cors");
 const helmet = require("helmet");
 const mongoSanitize = require("express-mongo-sanitize");
 const compression = require("compression");
-// const morgan = require("morgan"); // Temporarily disabled - install with: npm install morgan
+const morgan = require("morgan"); // HTTP request logging enabled
 const logger = require("./utils/logger");
 const { checkMaintenanceMode } = require("./middleware/maintenance");
 require("dotenv").config();
@@ -138,7 +138,7 @@ app.use(mongoSanitize());
 app.use(compression());
 
 // HTTP request logging
-// app.use(morgan('combined', { stream: logger.stream })); // Temporarily disabled
+app.use(morgan('combined', { stream: logger.stream })); // Production logging enabled
 
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
