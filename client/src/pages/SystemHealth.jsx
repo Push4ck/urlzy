@@ -171,7 +171,7 @@ const SystemHealth = () => {
         </div>
 
         {/* System Status Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           {/* Database Status */}
           <div className="bg-[var(--clr-surface-a10)] dark:bg-[var(--clr-surface-a10)] border border-[var(--clr-surface-a30)] rounded-xl p-6">
             <div className="flex items-center gap-4 mb-4">
@@ -328,7 +328,7 @@ const SystemHealth = () => {
             System Details
           </h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Network Status */}
             <div>
               <h3 className="text-lg font-medium text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)] mb-4">
