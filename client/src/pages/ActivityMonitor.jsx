@@ -282,7 +282,7 @@ const ActivityMonitor = () => {
 
         {/* Statistics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-[var(--clr-surface-a10)] dark:bg-[var(--clr-surface-a10)] border border-[var(--clr-surface-a30)] rounded-xl p-6">
+          <div className="bg-[var(--clr-surface-a10)] dark:bg-[var(--clr-surface-a10)] border border-[var(--clr-surface-a30)] rounded-xl xs:p-3 xl:p-8">
             <div className="flex items-center gap-3 mb-4">
               <Activity className="w-5 h-5 text-blue-600" />
               <h3 className="text-sm font-medium text-[var(--clr-surface-a50)] uppercase tracking-wide">
