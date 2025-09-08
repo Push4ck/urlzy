@@ -184,10 +184,10 @@ const UserManagement = () => {
         {/* Header */}
         <div className="mb-6 xs:mb-8">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 xs:gap-6">
-            <div className="flex items-center gap-2 xs:gap-4">
+            <div className="flex xs:flex-col lg:flex-row xs:items-left lg:items-center gap-2 xs:gap-4">
               <Link
                 to="/dashboard"
-                className="p-2 rounded-lg bg-[var(--clr-surface-a10)] hover:bg-[var(--clr-surface-a20)] transition-colors duration-200"
+                className="w-fit p-2 rounded-lg bg-[var(--clr-surface-a10)] hover:bg-[var(--clr-surface-a20)] transition-colors duration-200"
               >
                 <ArrowLeft className="w-4 h-4 xs:w-5 xs:h-5 text-[var(--clr-surface-a50)]" />
               </Link>
@@ -203,7 +203,7 @@ const UserManagement = () => {
             <button
               onClick={handleRefresh}
               disabled={refreshing}
-              className="px-6 py-3 bg-[var(--clr-primary-a0)] hover:bg-[var(--clr-primary-dark)] text-[var(--clr-light-a0)] font-semibold rounded-lg inline-flex items-center gap-2 disabled:opacity-50 transition-colors duration-200 cursor-pointer"
+              className="w-fit self-end px-6 py-3 bg-[var(--clr-primary-a0)] hover:bg-[var(--clr-primary-dark)] text-[var(--clr-light-a0)] font-semibold rounded-lg inline-flex items-center gap-2 disabled:opacity-50 transition-colors duration-200 cursor-pointer"
             >
               <RefreshCw
                 className={`w-5 h-5 ${refreshing ? "animate-spin" : ""}`}

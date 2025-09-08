@@ -210,10 +210,10 @@ const LinkManagement = () => {
         {/* Header */}
         <div className="mb-6 xs:mb-8">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 xs:gap-6">
-            <div className="flex items-center gap-2 xs:gap-4">
+            <div className="flex xs:flex-col lg:flex-row xs:items-left lg:items-center gap-2 xs:gap-4">
               <Link
                 to="/dashboard"
-                className="p-2 rounded-lg bg-[var(--clr-surface-a10)] hover:bg-[var(--clr-surface-a20)] transition-colors duration-200"
+                className="w-fit p-2 rounded-lg bg-[var(--clr-surface-a10)] hover:bg-[var(--clr-surface-a20)] transition-colors duration-200"
               >
                 <ArrowLeft className="w-4 h-4 xs:w-5 xs:h-5 text-[var(--clr-surface-a50)]" />
               </Link>
@@ -229,7 +229,7 @@ const LinkManagement = () => {
             <button
               onClick={handleRefresh}
               disabled={refreshing}
-              className="px-6 py-3 bg-[var(--clr-primary-a0)] hover:bg-[var(--clr-primary-dark)] text-[var(--clr-light-a0)] font-semibold rounded-lg inline-flex items-center gap-2 disabled:opacity-50 transition-colors duration-200 cursor-pointer"
+              className="w-fit self-end px-6 py-3 bg-[var(--clr-primary-a0)] hover:bg-[var(--clr-primary-dark)] text-[var(--clr-light-a0)] font-semibold rounded-lg inline-flex items-center gap-2 disabled:opacity-50 transition-colors duration-200 cursor-pointer"
             >
               <RefreshCw
                 className={`w-5 h-5 ${refreshing ? "animate-spin" : ""}`}
@@ -296,7 +296,7 @@ const LinkManagement = () => {
         {/* Search and Filters */}
         <div className="bg-[var(--clr-surface-a10)] dark:bg-[var(--clr-surface-a10)] border border-[var(--clr-surface-a30)] rounded-xl p-6 mb-6">
           <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-            <div className="flex flex-col sm:flex-row gap-4 items-center">
+            <div className="flex flex-col lg:flex-row gap-4 lg:items-center">
               <div className="relative">
                 <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-[var(--clr-surface-a50)]" />
                 <input
@@ -338,19 +338,19 @@ const LinkManagement = () => {
         {/* Links Table */}
         <div className="bg-[var(--clr-surface-a10)] dark:bg-[var(--clr-surface-a10)] border border-[var(--clr-surface-a30)] rounded-xl overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="min-w-[600px] w-full text-sm xs:text-base">
               <thead className="bg-[var(--clr-surface-a5)] dark:bg-[var(--clr-surface-a15)]">
                 <tr>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-[var(--clr-surface-a50)] uppercase tracking-wider">
+                  <th className="px-4 xs:px-6 py-3 xs:py-4 text-left text-xs xs:text-sm font-medium text-[var(--clr-surface-a50)] uppercase tracking-wider">
                     Link Details
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-[var(--clr-surface-a50)] uppercase tracking-wider">
+                  <th className="px-4 xs:px-6 py-3 xs:py-4 text-left text-xs xs:text-sm font-medium text-[var(--clr-surface-a50)] uppercase tracking-wider">
                     Statistics
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-[var(--clr-surface-a50)] uppercase tracking-wider">
+                  <th className="px-4 xs:px-6 py-3 xs:py-4 text-left text-xs xs:text-sm font-medium text-[var(--clr-surface-a50)] uppercase tracking-wider">
                     Created
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-[var(--clr-surface-a50)] uppercase tracking-wider">
+                  <th className="px-4 xs:px-6 py-3 xs:py-4 text-left text-xs xs:text-sm font-medium text-[var(--clr-surface-a50)] uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
@@ -361,14 +361,13 @@ const LinkManagement = () => {
                     key={link._id}
                     className="hover:bg-[var(--clr-surface-a5)] dark:hover:bg-[var(--clr-surface-a15)] transition-colors duration-200"
                   >
-                    <td className="px-6 py-4">
-                      <div className="flex items-start gap-3">
-                        <div className="flex-shrink-0">
-                          <LinkIcon className="w-5 h-5 text-[var(--clr-primary-a0)]" />
-                        </div>
+                    {/* Link Details */}
+                    <td className="px-4 xs:px-6 py-3 xs:py-4">
+                      <div className="flex items-start gap-2 xs:gap-3">
+                        <LinkIcon className="w-4 h-4 xs:w-5 xs:h-5 text-[var(--clr-primary-a0)]" />
                         <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <code className="text-sm font-mono text-[var(--clr-primary-a0)] bg-[var(--clr-primary-a50)] dark:text-[var(--clr-primary-a30)] dark:bg-[var(--clr-primary-darker)] px-2 py-1 rounded-md cursor-pointer">
+                          <div className="flex items-center gap-2 mb-1 flex-wrap">
+                            <code className="text-xs xs:text-sm font-mono text-[var(--clr-primary-a0)] bg-[var(--clr-primary-a50)] dark:text-[var(--clr-primary-a30)] dark:bg-[var(--clr-primary-darker)] px-2 py-1 rounded-md cursor-pointer">
                               {link.shortCode}
                             </code>
                             <button
@@ -392,20 +391,20 @@ const LinkManagement = () => {
                               <ExternalLink className="w-3 h-3" />
                             </a>
                           </div>
-                          <p className="text-sm text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)] break-all mb-1">
+                          <p className="text-xs xs:text-sm text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)] break-all mb-1">
                             {link.originalUrl}
                           </p>
-                          <div className="flex items-center gap-2 text-xs text-[var(--clr-surface-a50)]">
+                          <div className="flex flex-wrap items-center gap-1 xs:gap-2 text-xs text-[var(--clr-surface-a50)]">
                             <User className="w-3 h-3" />
                             <span>{link.userId?.username || "Anonymous"}</span>
                             {link.password && (
-                              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
+                              <span className="px-2 py-0.5 rounded bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300">
                                 Password Protected
                               </span>
                             )}
                             {link.expiresAt &&
                               new Date(link.expiresAt) > new Date() && (
-                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300">
+                                <span className="px-2 py-0.5 rounded bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300">
                                   Expires {formatDate(link.expiresAt)}
                                 </span>
                               )}
@@ -413,7 +412,9 @@ const LinkManagement = () => {
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4">
+
+                    {/* Stats */}
+                    <td className="px-4 xs:px-6 py-3 xs:py-4">
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
                           <MousePointer className="w-3 h-3 text-[var(--clr-surface-a50)]" />
@@ -435,33 +436,37 @@ const LinkManagement = () => {
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="text-sm text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)]">
+
+                    {/* Created */}
+                    <td className="px-4 xs:px-6 py-3 xs:py-4">
+                      <div className="text-xs xs:text-sm text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)]">
                         {formatDate(link.createdAt)}
                       </div>
                       <div className="text-xs text-[var(--clr-surface-a50)]">
                         {formatRelativeTime(link.createdAt)}
                       </div>
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
+
+                    {/* Actions */}
+                    <td className="px-4 xs:px-6 py-3 xs:py-4">
+                      <div className="flex items-center gap-1 xs:gap-2">
                         <button
                           onClick={() => fetchLinkStats(link.shortCode)}
-                          className="p-2 text-[var(--clr-surface-a50)] hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors cursor-pointer"
+                          className="w-8 h-8 flex items-center justify-center text-[var(--clr-surface-a50)] hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors cursor-pointer"
                           title="View Statistics"
                         >
                           <BarChart3 className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleEdit(link)}
-                          className="p-2 text-[var(--clr-surface-a50)] hover:text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors cursor-pointer"
+                          className="w-8 h-8 flex items-center justify-center text-[var(--clr-surface-a50)] hover:text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors cursor-pointer"
                           title="Edit Link"
                         >
                           <Edit className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleDelete(link.shortCode)}
-                          className="p-2 text-[var(--clr-surface-a50)] hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors cursor-pointer"
+                          className="w-8 h-8 flex items-center justify-center text-[var(--clr-surface-a50)] hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors cursor-pointer"
                           title="Delete Link"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -474,13 +479,14 @@ const LinkManagement = () => {
             </table>
           </div>
 
+          {/* Empty State */}
           {links.length === 0 && (
-            <div className="p-12 text-center">
-              <LinkIcon className="w-12 h-12 text-[var(--clr-surface-a50)] mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-[var(--clr-surface-a50)] mb-2">
+            <div className="p-8 xs:p-12 text-center">
+              <LinkIcon className="w-10 h-10 xs:w-12 xs:h-12 text-[var(--clr-surface-a50)] mx-auto mb-4" />
+              <h3 className="text-base xs:text-lg font-medium text-[var(--clr-surface-a50)] mb-2">
                 No links found
               </h3>
-              <p className="text-[var(--clr-surface-a50)]">
+              <p className="text-sm xs:text-base text-[var(--clr-surface-a50)]">
                 {searchTerm
                   ? "Try adjusting your search criteria"
                   : "No links have been created yet"}

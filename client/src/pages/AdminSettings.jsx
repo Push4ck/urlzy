@@ -178,10 +178,10 @@ const AdminSettings = () => {
         {/* Header */}
         <div className="mb-6 xs:mb-8">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 xs:gap-6">
-            <div className="flex items-center gap-2 xs:gap-4">
+            <div className="flex xs:flex-col lg:flex-row xs:items-left lg:items-center gap-2 xs:gap-4">
               <Link
                 to="/dashboard"
-                className="p-2 rounded-lg bg-[var(--clr-surface-a10)] hover:bg-[var(--clr-surface-a20)] transition-colors duration-200"
+                className="w-fit p-2 rounded-lg bg-[var(--clr-surface-a10)] hover:bg-[var(--clr-surface-a20)] transition-colors duration-200"
               >
                 <ArrowLeft className="w-4 h-4 xs:w-5 xs:h-5 text-[var(--clr-surface-a50)]" />
               </Link>
@@ -197,7 +197,7 @@ const AdminSettings = () => {
             <button
               onClick={fetchAllData}
               disabled={loading}
-              className="px-6 py-3 bg-[var(--clr-primary-a0)] hover:bg-[var(--clr-primary-dark)] text-[var(--clr-light-a0)] font-semibold rounded-lg inline-flex items-center gap-2 disabled:opacity-50 transition-colors duration-200 cursor-pointer"
+              className="w-fit self-end px-6 py-3 bg-[var(--clr-primary-a0)] hover:bg-[var(--clr-primary-dark)] text-[var(--clr-light-a0)] font-semibold rounded-lg inline-flex items-center gap-2 disabled:opacity-50 transition-colors duration-200 cursor-pointer"
             >
               <RefreshCw
                 className={`w-5 h-5 ${loading ? "animate-spin" : ""}`}
@@ -210,18 +210,19 @@ const AdminSettings = () => {
         {/* Tab Navigation */}
         <div className="mb-8">
           <div className="border-b border-[var(--clr-surface-a30)]">
-            <nav className="flex space-x-8">
+            <nav className="grid grid-cols-2 sm:flex sm:flex-wrap sm:space-x-6 gap-2 sm:gap-0">
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 cursor-pointer ${
-                    activeTab === tab.id
-                      ? "border-[var(--clr-primary-a0)] text-[var(--clr-primary-a0)]"
-                      : "border-transparent text-[var(--clr-surface-a50)] hover:text-[var(--clr-dark-a0)] dark:hover:text-[var(--clr-light-a0)] hover:border-[var(--clr-surface-a30)]"
-                  }`}
+                  className={`py-3 px-2 sm:px-1 border-b-2 font-medium text-sm transition-colors duration-200 cursor-pointer text-left sm:text-center
+            ${
+              activeTab === tab.id
+                ? "border-[var(--clr-primary-a0)] text-[var(--clr-primary-a0)]"
+                : "border-transparent text-[var(--clr-surface-a50)] hover:text-[var(--clr-dark-a0)] dark:hover:text-[var(--clr-light-a0)] hover:border-[var(--clr-surface-a30)]"
+            }`}
                 >
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 justify-start sm:justify-center">
                     <tab.icon className="w-4 h-4" />
                     {tab.label}
                   </div>
@@ -276,7 +277,7 @@ const AdminSettings = () => {
           {/* Security Settings */}
           {activeTab === "security" && (
             <div className="space-y-6">
-              <div className="bg-[var(--clr-surface-a10)] dark:bg-[var(--clr-surface-a10)] border border-[var(--clr-surface-a30)] rounded-xl p-6">
+              <div className="bg-[var(--clr-surface-a10)] dark:bg-[var(--clr-surface-a10)] border border-[var(--clr-surface-a30)] rounded-xl xs:p-3 lg:p-8">
                 <h2 className="text-xl font-semibold text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)] mb-6">
                   Security Settings
                 </h2>
@@ -357,7 +358,7 @@ const AdminSettings = () => {
             <div className="space-y-6">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Server Information */}
-                <div className="bg-[var(--clr-surface-a10)] dark:bg-[var(--clr-surface-a10)] border border-[var(--clr-surface-a30)] rounded-xl p-6">
+                <div className="bg-[var(--clr-surface-a10)] dark:bg-[var(--clr-surface-a10)] border border-[var(--clr-surface-a30)] rounded-xl xs:p-3 lg:p-8">
                   <h3 className="text-lg font-semibold text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)] mb-4 flex items-center gap-2">
                     <Server className="w-5 h-5 text-[var(--clr-primary-a0)]" />
                     Server Information
@@ -400,7 +401,7 @@ const AdminSettings = () => {
                 </div>
 
                 {/* Database Information */}
-                <div className="bg-[var(--clr-surface-a10)] dark:bg-[var(--clr-surface-a10)] border border-[var(--clr-surface-a30)] rounded-xl p-6">
+                <div className="bg-[var(--clr-surface-a10)] dark:bg-[var(--clr-surface-a10)] border border-[var(--clr-surface-a30)] rounded-xl xs:p-3 lg:p-8">
                   <h3 className="text-lg font-semibold text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)] mb-4 flex items-center gap-2">
                     <Database className="w-5 h-5 text-[var(--clr-primary-a0)]" />
                     Database Information
@@ -462,13 +463,13 @@ const AdminSettings = () => {
               </div>
 
               {/* Environment Information */}
-              <div className="bg-[var(--clr-surface-a10)] dark:bg-[var(--clr-surface-a10)] border border-[var(--clr-surface-a30)] rounded-xl p-6">
+              <div className="bg-[var(--clr-surface-a10)] dark:bg-[var(--clr-surface-a10)] border border-[var(--clr-surface-a30)] rounded-xl xs:p-3 lg:p-8">
                 <h3 className="text-lg font-semibold text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)] mb-4 flex items-center gap-2">
                   <Globe className="w-5 h-5 text-[var(--clr-primary-a0)]" />
                   Environment Information
                 </h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="text-center p-4 bg-[var(--clr-surface-a5)] dark:bg-[var(--clr-surface-a15)] rounded-lg">
+                <div className="grid grid-cols-1 md:grid-cols-3">
+                  <div className="p-4 bg-[var(--clr-surface-a5)] dark:bg-[var(--clr-surface-a15)] rounded-lg">
                     <div className="text-2xl font-bold text-[var(--clr-primary-a0)] mb-1">
                       {systemInfo.environment.nodeEnv}
                     </div>
@@ -476,7 +477,7 @@ const AdminSettings = () => {
                       Environment
                     </div>
                   </div>
-                  <div className="text-center p-4 bg-[var(--clr-surface-a5)] dark:bg-[var(--clr-surface-a15)] rounded-lg">
+                  <div className="p-4 bg-[var(--clr-surface-a5)] dark:bg-[var(--clr-surface-a15)] rounded-lg">
                     <div className="text-2xl font-bold text-[var(--clr-primary-a0)] mb-1">
                       {systemInfo.environment.port}
                     </div>
@@ -484,7 +485,7 @@ const AdminSettings = () => {
                       Port
                     </div>
                   </div>
-                  <div className="text-center p-4 bg-[var(--clr-surface-a5)] dark:bg-[var(--clr-surface-a15)] rounded-lg">
+                  <div className="p-4 bg-[var(--clr-surface-a5)] dark:bg-[var(--clr-surface-a15)] rounded-lg">
                     <div className="text-2xl font-bold text-[var(--clr-primary-a0)] mb-1">
                       {systemInfo.environment.timezone}
                     </div>
@@ -500,11 +501,11 @@ const AdminSettings = () => {
           {/* Maintenance Tools */}
           {activeTab === "maintenance" && (
             <div className="space-y-6">
-              <div className="bg-[var(--clr-surface-a10)] dark:bg-[var(--clr-surface-a10)] border border-[var(--clr-surface-a30)] rounded-xl p-6">
+              <div className="bg-[var(--clr-surface-a10)] dark:bg-[var(--clr-surface-a10)] border border-[var(--clr-surface-a30)] rounded-xl xs:p-3 lg:p-8">
                 <h2 className="text-xl font-semibold text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)] mb-6">
                   System Maintenance
                 </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <div className="p-4 border border-[var(--clr-surface-a30)] rounded-lg">
                     <h3 className="font-medium text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)] mb-2">
                       Clean Expired URLs
@@ -546,8 +547,8 @@ const AdminSettings = () => {
           {/* Advanced Settings */}
           {activeTab === "advanced" && (
             <div className="space-y-6">
-              <div className="bg-[var(--clr-surface-a10)] dark:bg-[var(--clr-surface-a10)] border border-[var(--clr-surface-a30)] rounded-xl p-6">
-                <div className="flex items-center justify-between mb-6">
+              <div className="bg-[var(--clr-surface-a10)] dark:bg-[var(--clr-surface-a10)] border border-[var(--clr-surface-a30)] rounded-xl xs:p-3 lg:p-8">
+                <div className="flex xs:flex-col lg:flex-row xs:gap-2 lg:gap-0 xs:items-left lg:items-center justify-between mb-6">
                   <h2 className="text-xl font-semibold text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)]">
                     Advanced Settings
                   </h2>
@@ -556,14 +557,14 @@ const AdminSettings = () => {
                       handleAdvancedSettingChange(advancedSettings)
                     }
                     disabled={saving}
-                    className="px-4 py-2 bg-[var(--clr-primary-a0)] hover:bg-[var(--clr-primary-dark)] text-[var(--clr-light-a0)] rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2 cursor-pointer"
+                    className="w-fit px-4 py-2 bg-[var(--clr-primary-a0)] hover:bg-[var(--clr-primary-dark)] text-[var(--clr-light-a0)] rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2 cursor-pointer"
                   >
                     <Save className="w-4 h-4" />
                     {saving ? "Saving..." : "Save Changes"}
                   </button>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-[var(--clr-surface-a50)] mb-2">
@@ -682,9 +683,10 @@ const AdminSettings = () => {
 
 // Reusable Setting Toggle Component
 const SettingToggle = ({ title, description, icon: Icon, value, onChange }) => (
-  <div className="flex items-center justify-between p-4 border border-[var(--clr-surface-a30)] rounded-lg hover:bg-[var(--clr-surface-a5)] dark:hover:bg-[var(--clr-surface-a15)] transition-colors">
-    <div className="flex items-center gap-3">
-      <div className="p-2 rounded-lg bg-[var(--clr-primary-lighter)] dark:bg-[var(--clr-primary-a20)]">
+  <div className="relative p-4 border border-[var(--clr-surface-a30)] rounded-lg hover:bg-[var(--clr-surface-a5)] dark:hover:bg-[var(--clr-surface-a15)] transition-colors flex flex-col lg:flex-row lg:items-center lg:justify-between">
+    {/* Left section (icon + text) */}
+    <div className="flex flex-col lg:flex-row lg:items-center gap-3">
+      <div className="p-2 rounded-lg bg-[var(--clr-primary-lighter)] dark:bg-[var(--clr-primary-a20)] w-fit">
         {Icon && <Icon className="w-4 h-4 text-[var(--clr-primary-a0)]" />}
       </div>
       <div>
@@ -694,16 +696,19 @@ const SettingToggle = ({ title, description, icon: Icon, value, onChange }) => (
         <p className="text-sm text-[var(--clr-surface-a50)]">{description}</p>
       </div>
     </div>
+
+    {/* Toggle button */}
     <button
       onClick={() => onChange(!value)}
-      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 cursor-pointer ${
-        value ? "bg-[var(--clr-primary-a0)]" : "bg-[var(--clr-surface-a30)]"
-      }`}
+      className={`inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 cursor-pointer
+        ${value ? "bg-[var(--clr-primary-a0)]" : "bg-[var(--clr-surface-a30)]"}
+        absolute top-4 right-4 lg:static
+      `}
     >
       <span
-        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ${
-          value ? "translate-x-6" : "translate-x-1"
-        }`}
+        className={`inline-block h-4 w-4 transform rounded-full bg-[var(--clr-light-a0)] transition-transform duration-200 
+          ${value ? "translate-x-6" : "translate-x-1"}
+        `}
       />
     </button>
   </div>

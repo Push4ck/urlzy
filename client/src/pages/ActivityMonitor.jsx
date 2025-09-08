@@ -251,10 +251,10 @@ const ActivityMonitor = () => {
         {/* Header */}
         <div className="mb-6 xs:mb-8">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 xs:gap-6">
-            <div className="flex items-center gap-2 xs:gap-4">
+            <div className="flex xs:flex-col lg:flex-row xs:items-left lg:items-center gap-2 xs:gap-4">
               <Link
                 to="/dashboard"
-                className="p-2 rounded-lg bg-[var(--clr-surface-a10)] hover:bg-[var(--clr-surface-a20)] transition-colors duration-200"
+                className="w-fit p-2 rounded-lg bg-[var(--clr-surface-a10)] hover:bg-[var(--clr-surface-a20)] transition-colors duration-200"
               >
                 <ArrowLeft className="w-4 h-4 xs:w-5 xs:h-5 text-[var(--clr-surface-a50)]" />
               </Link>
@@ -270,7 +270,7 @@ const ActivityMonitor = () => {
             <button
               onClick={handleRefresh}
               disabled={refreshing}
-              className="px-6 py-3 bg-[var(--clr-primary-a0)] hover:bg-[var(--clr-primary-dark)] text-[var(--clr-light-a0)] font-semibold rounded-lg inline-flex items-center gap-2 disabled:opacity-50 transition-colors duration-200 cursor-pointer"
+              className="w-fit self-end px-6 py-3 bg-[var(--clr-primary-a0)] hover:bg-[var(--clr-primary-dark)] text-[var(--clr-light-a0)] font-semibold rounded-lg inline-flex items-center gap-2 disabled:opacity-50 transition-colors duration-200 cursor-pointer"
             >
               <RefreshCw
                 className={`w-5 h-5 ${refreshing ? "animate-spin" : ""}`}
@@ -346,7 +346,7 @@ const ActivityMonitor = () => {
         {/* Filters and Search */}
         <div className="bg-[var(--clr-surface-a10)] dark:bg-[var(--clr-surface-a10)] border border-[var(--clr-surface-a30)] rounded-xl p-6 mb-6">
           <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-            <div className="flex flex-col sm:flex-row gap-4 items-center">
+            <div className="flex flex-col lg:flex-row gap-4 lg:items-center">
               <div className="relative">
                 <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-[var(--clr-surface-a50)]" />
                 <input
@@ -400,26 +400,29 @@ const ActivityMonitor = () => {
                     activity.type
                   )}`}
                 >
+                  {/* Row */}
                   <div
-                    className="p-6 hover:bg-[var(--clr-surface-a5)] dark:hover:bg-[var(--clr-surface-a15)] cursor-pointer"
+                    className="p-4 xs:p-6 hover:bg-[var(--clr-surface-a5)] dark:hover:bg-[var(--clr-surface-a15)] cursor-pointer"
                     onClick={() => toggleActivityExpansion(index)}
                   >
-                    <div className="flex items-start gap-4">
+                    <div className="flex flex-col lg:flex-row lg:items-center gap-3">
                       <div className="flex-shrink-0 mt-1">
                         {getActivityIcon(activity.type)}
                       </div>
+
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between">
-                          <p className="text-sm font-medium text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)]">
+                        {/* Action + Timestamp */}
+                        <div className="flex flex-col xs:flex-row xs:items-center xs:justify-between gap-2">
+                          <p className="text-sm xs:text-base font-medium text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)]">
                             {activity.action}
                           </p>
-                          <div className="flex items-center gap-2">
-                            <div className="flex items-center gap-2 text-xs text-[var(--clr-surface-a50)]">
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            <div className="flex items-center gap-1 text-xs text-[var(--clr-surface-a50)]">
                               <Clock className="w-3 h-3" />
                               <span>{formatTimestamp(activity.timestamp)}</span>
                             </div>
                             {activity.details && (
-                              <div className="ml-2">
+                              <div>
                                 {expandedActivities.has(index) ? (
                                   <ChevronDown className="w-4 h-4 text-[var(--clr-surface-a50)]" />
                                 ) : (
@@ -429,13 +432,15 @@ const ActivityMonitor = () => {
                             )}
                           </div>
                         </div>
-                        <div className="flex items-center gap-2 mt-2">
+
+                        {/* User + Type */}
+                        <div className="flex flex-wrap items-center gap-2 mt-2">
                           <User className="w-3 h-3 text-[var(--clr-surface-a50)]" />
-                          <span className="text-xs text-[var(--clr-surface-a50)]">
+                          <span className="text-xs xs:text-sm text-[var(--clr-surface-a50)]">
                             {activity.user}
                           </span>
                           <span
-                            className={`px-2 py-1 text-xs rounded-full ${
+                            className={`px-2 py-0.5 text-[10px] xs:text-xs rounded-full ${
                               activity.type === "user_registration"
                                 ? "bg-[var(--clr-primary-lighter)] text-[var(--clr-primary-a0)] dark:bg-[var(--clr-primary-a20)] dark:text-[var(--clr-primary-a80)]"
                                 : activity.type === "url_creation"
@@ -452,17 +457,17 @@ const ActivityMonitor = () => {
 
                   {/* Expanded Details */}
                   {expandedActivities.has(index) && activity.details && (
-                    <div className="px-6 pb-6 border-t border-[var(--clr-surface-a20)] bg-[var(--clr-surface-a5)] dark:bg-[var(--clr-surface-a15)]">
+                    <div className="px-4 xs:px-6 pb-4 xs:pb-6 border-t border-[var(--clr-surface-a20)] bg-[var(--clr-surface-a5)] dark:bg-[var(--clr-surface-a15)]">
                       <div className="pt-4 space-y-3">
                         {activity.details.originalUrl &&
                           activity.details.originalUrl !== "N/A" && (
                             <div className="flex items-start gap-3">
                               <Globe className="w-4 h-4 text-[var(--clr-surface-a50)] mt-0.5" />
                               <div className="flex-1 min-w-0">
-                                <p className="text-xs font-medium text-[var(--clr-surface-a50)] uppercase tracking-wide">
+                                <p className="text-[10px] xs:text-xs font-medium text-[var(--clr-surface-a50)] uppercase tracking-wide">
                                   Original URL
                                 </p>
-                                <p className="text-sm text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)] break-all">
+                                <p className="text-xs xs:text-sm text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)] break-all">
                                   {activity.details.originalUrl}
                                 </p>
                               </div>
@@ -474,10 +479,10 @@ const ActivityMonitor = () => {
                             <div className="flex items-center gap-3">
                               <MapPin className="w-4 h-4 text-[var(--clr-surface-a50)]" />
                               <div>
-                                <p className="text-xs font-medium text-[var(--clr-surface-a50)] uppercase tracking-wide">
+                                <p className="text-[10px] xs:text-xs font-medium text-[var(--clr-surface-a50)] uppercase tracking-wide">
                                   IP Address
                                 </p>
-                                <p className="text-sm text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)] font-mono">
+                                <p className="text-xs xs:text-sm text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)] font-mono">
                                   {activity.details.ip}
                                 </p>
                               </div>
@@ -489,10 +494,10 @@ const ActivityMonitor = () => {
                             <div className="flex items-start gap-3">
                               <Monitor className="w-4 h-4 text-[var(--clr-surface-a50)] mt-0.5" />
                               <div className="flex-1 min-w-0">
-                                <p className="text-xs font-medium text-[var(--clr-surface-a50)] uppercase tracking-wide">
+                                <p className="text-[10px] xs:text-xs font-medium text-[var(--clr-surface-a50)] uppercase tracking-wide">
                                   User Agent
                                 </p>
-                                <p className="text-sm text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)] break-words font-mono">
+                                <p className="text-xs xs:text-sm text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)] break-words font-mono">
                                   {activity.details.userAgent}
                                 </p>
                               </div>
@@ -501,13 +506,13 @@ const ActivityMonitor = () => {
 
                         {activity.details.referrer &&
                           activity.details.referrer !== "Direct" && (
-                            <div className="flex items-center gap-3">
+                            <div className="flex flex-col lg:flex-row lg:items-center gap-3">
                               <LinkIcon className="w-4 h-4 text-[var(--clr-surface-a50)]" />
                               <div>
-                                <p className="text-xs font-medium text-[var(--clr-surface-a50)] uppercase tracking-wide">
+                                <p className="text-[10px] xs:text-xs font-medium text-[var(--clr-surface-a50)] uppercase tracking-wide">
                                   Referrer
                                 </p>
-                                <p className="text-sm text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)] break-all">
+                                <p className="text-xs xs:text-sm text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)] break-all">
                                   {activity.details.referrer}
                                 </p>
                               </div>
@@ -519,12 +524,12 @@ const ActivityMonitor = () => {
                 </div>
               ))
             ) : (
-              <div className="p-12 text-center">
-                <Activity className="w-12 h-12 text-[var(--clr-surface-a50)] mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-[var(--clr-surface-a50)] mb-2">
+              <div className="p-8 xs:p-12 text-center">
+                <Activity className="w-10 h-10 xs:w-12 xs:h-12 text-[var(--clr-surface-a50)] mx-auto mb-4" />
+                <h3 className="text-base xs:text-lg font-medium text-[var(--clr-surface-a50)] mb-2">
                   No activities found
                 </h3>
-                <p className="text-[var(--clr-surface-a50)]">
+                <p className="text-sm xs:text-base text-[var(--clr-surface-a50)]">
                   {searchTerm || filterType !== "all"
                     ? "Try adjusting your search or filter criteria"
                     : "Activities will appear here as users interact with the system"}

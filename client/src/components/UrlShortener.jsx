@@ -89,7 +89,7 @@ const UrlShortener = () => {
       id="shortener"
       className="py-12 xs:py-16 sm:py-20 bg-[var(--clr-surface-a0)] transition-colors"
     >
-      <div className="container mx-auto px-2 xs:px-4 sm:px-6 lg:px-8">
+      <div className="container mx-auto xs:px-3 lg:px-8">
         <div className="text-center mb-8 xs:mb-12 sm:mb-16">
           <h2 className="text-3xl xs:text-4xl sm:text-5xl font-bold text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)] mb-4 xs:mb-6">
             Shorten Your URL
@@ -106,7 +106,7 @@ const UrlShortener = () => {
 
         {/* Form */}
         <div className="max-w-4xl mx-auto mb-8 xs:mb-12 sm:mb-16">
-          <div className="bg-[var(--clr-surface-a0)] p-8 shadow-lg rounded-xl border border-[var(--clr-surface-a20)] transition-colors">
+          <div className="bg-[var(--clr-surface-a0)] xs:p-3 lg:p-8 shadow-lg rounded-xl border border-[var(--clr-surface-a20)] transition-colors">
             <form onSubmit={handleSubmit} className="space-y-8">
               <div>
                 <label
@@ -139,7 +139,7 @@ const UrlShortener = () => {
                     Custom Short Code (Optional)
                   </label>
                   <div className="flex flex-col sm:flex-row rounded-lg overflow-hidden border border-[var(--clr-surface-a30)]">
-                    <span className="inline-flex items-center px-6 py-4 bg-[var(--clr-surface-a10)] text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)] font-medium border-b sm:border-b-0 sm:border-r border-[var(--clr-surface-a30)]">
+                    <span className="inline-flex text-sm items-center px-3 py-1.5 bg-[var(--clr-surface-a10)] text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)] font-medium border-b sm:border-b-0 sm:border-r border-[var(--clr-surface-a30)]">
                       {import.meta.env.VITE_SHORT_BASE_URL ||
                         window.location?.host ||
                         "urlzy.netlify.app"}

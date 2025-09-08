@@ -31,7 +31,7 @@ const Hero = () => {
           </p>
 
           {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row justify-center gap-5 mb-20">
+          <div className="flex flex-col lg:flex-row justify-center gap-5 mb-20">
             <Link
               to="/register"
               className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold bg-[var(--clr-primary-a0)] text-[var(--clr-light-a0)] rounded-xl shadow-lg hover:bg-[var(--clr-primary-a10)] dark:hover:bg-[var(--clr-primary-darker)] hover:shadow-xl active:scale-95 transition-all duration-300"
@@ -50,7 +50,7 @@ const Hero = () => {
           </div>
 
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-4xl mx-auto">
             {[
               { icon: Zap, value: "5M+", label: "Links Shortened" },
               { icon: TrendingUp, value: "1M+", label: "Monthly Clicks" },

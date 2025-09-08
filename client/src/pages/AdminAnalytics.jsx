@@ -70,7 +70,7 @@ const UserGrowthChart = ({ data, timeFilter, onTimeFilterChange }) => {
   // Use full container dimensions
   const width = 800;
   const height = 300;
-  const padding = 60;
+  const padding = 10;
 
   const xScale = (width - 2 * padding) / (filteredData.length - 1 || 1);
   const yScale = (height - 2 * padding) / (maxValue - minValue || 1);
@@ -112,7 +112,7 @@ const UserGrowthChart = ({ data, timeFilter, onTimeFilterChange }) => {
   return (
     <div className="w-full">
       {/* Filter Buttons */}
-      <div className="flex justify-center mb-6 space-x-2">
+      <div className="lg:flex xs:grid xs:grid-cols-2 xs:gap-3 justify-center mb-6 space-x-2">
         {[
           { key: "7d", label: "7 Days" },
           { key: "30d", label: "30 Days" },
@@ -139,7 +139,7 @@ const UserGrowthChart = ({ data, timeFilter, onTimeFilterChange }) => {
           width="100%"
           height={height}
           viewBox={`0 0 ${width} ${height}`}
-          className="overflow-visible"
+          className="block overflow-hidden"
           onMouseMove={(e) => {
             if (hoveredPoint) {
               const svgElement = e.currentTarget;
@@ -390,10 +390,10 @@ const AdminAnalytics = () => {
         {/* Header */}
         <div className="mb-6 xs:mb-8">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 xs:gap-6">
-            <div className="flex items-center gap-2 xs:gap-4">
+            <div className="flex xs:flex-col lg:flex-row xs:items-left lg:items-center gap-2 xs:gap-4">
               <Link
                 to="/dashboard"
-                className="p-2 rounded-lg bg-[var(--clr-surface-a10)] hover:bg-[var(--clr-surface-a20)] transition-colors duration-200"
+                className="w-fit p-2 rounded-lg bg-[var(--clr-surface-a10)] hover:bg-[var(--clr-surface-a20)] transition-colors duration-200"
               >
                 <ArrowLeft className="w-4 h-4 xs:w-5 xs:h-5 text-[var(--clr-surface-a50)]" />
               </Link>
@@ -409,7 +409,7 @@ const AdminAnalytics = () => {
             <button
               onClick={handleRefresh}
               disabled={refreshing}
-              className="px-6 py-3 bg-[var(--clr-primary-a0)] hover:bg-[var(--clr-primary-dark)] text-[var(--clr-light-a0)] font-semibold rounded-lg inline-flex items-center gap-2 disabled:opacity-50 transition-colors duration-200 cursor-pointer"
+              className="w-fit self-end px-6 py-3 bg-[var(--clr-primary-a0)] hover:bg-[var(--clr-primary-dark)] text-[var(--clr-light-a0)] font-semibold rounded-lg inline-flex items-center gap-2 disabled:opacity-50 transition-colors duration-200 cursor-pointer"
             >
               <RefreshCw
                 className={`w-5 h-5 ${refreshing ? "animate-spin" : ""}`}
@@ -485,7 +485,7 @@ const AdminAnalytics = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 xs:gap-6 sm:gap-8">
           {/* Top Performing URLs */}
           <div className="bg-[var(--clr-surface-a0)] shadow-xl rounded-2xl overflow-hidden border border-[var(--clr-surface-a30)] h-80 xs:h-96 flex flex-col">
-            <div className="px-4 xs:px-6 sm:px-8 py-4 xs:py-6 border-b border-[var(--clr-surface-a20)] bg-[var(--clr-surface-a10)] flex-shrink-0">
+            <div className="p-3 lg:p-8 border-b border-[var(--clr-surface-a20)] bg-[var(--clr-surface-a10)] flex-shrink-0">
               <h2 className="text-lg xs:text-xl sm:text-2xl font-bold text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)]">
                 Top Performing URLs
               </h2>
@@ -547,7 +547,7 @@ const AdminAnalytics = () => {
 
           {/* Recent Activity */}
           <div className="bg-[var(--clr-surface-a0)] shadow-xl rounded-2xl overflow-hidden border border-[var(--clr-surface-a30)] h-80 xs:h-96 flex flex-col">
-            <div className="px-4 xs:px-6 sm:px-8 py-4 xs:py-6 border-b border-[var(--clr-surface-a20)] bg-[var(--clr-surface-a10)] flex-shrink-0">
+            <div className="p-3 lg:p-8 border-b border-[var(--clr-surface-a20)] bg-[var(--clr-surface-a10)] flex-shrink-0">
               <h2 className="text-lg xs:text-xl sm:text-2xl font-bold text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)]">
                 Recent Activity
               </h2>
@@ -594,7 +594,7 @@ const AdminAnalytics = () => {
 
         {/* User Growth Chart */}
         <div className="mt-6 xs:mt-8 bg-[var(--clr-surface-a0)] shadow-xl rounded-2xl overflow-hidden border border-[var(--clr-surface-a30)]">
-          <div className="px-4 xs:px-6 sm:px-8 py-4 xs:py-6 border-b border-[var(--clr-surface-a20)] bg-[var(--clr-surface-a10)]">
+          <div className="p-3 lg:p-8 border-b border-[var(--clr-surface-a20)] bg-[var(--clr-surface-a10)]">
             <h2 className="text-lg xs:text-xl sm:text-2xl font-bold text-[var(--clr-surface-a50)] dark:text-[var(--clr-light-a0)]">
               User Growth Trends
             </h2>

@@ -247,7 +247,7 @@ const Features = () => {
         </div>
 
         {/* CTA Section */}
-        <div className="text-center bg-[var(--clr-surface-a10)] p-12 rounded-xl border border-[var(--clr-surface-a20)] shadow-lg">
+        <div className="text-center bg-[var(--clr-surface-a10)] p-6 rounded-xl border border-[var(--clr-surface-a20)] shadow-lg">
           <div className="max-w-3xl mx-auto">
             <h2 className="text-4xl font-bold text-[var(--clr-dark-a0)] dark:text-[var(--clr-light-a0)] mb-6">
               Ready to Get Started?
@@ -256,7 +256,7 @@ const Features = () => {
               Join thousands of users who trust URLzy for their link management
               needs. Start shortening URLs today!
             </p>
-            <div className="flex flex-col sm:flex-row justify-center gap-4">
+            <div className="flex flex-col lg:flex-row justify-center gap-4">
               <Link
                 to="/register"
                 className="bg-[var(--clr-primary-a0)] text-[var(--clr-light-a0)] px-8 py-4 text-lg font-semibold rounded-lg hover:bg-[var(--clr-primary-a10)] dark:hover:bg-[var(--clr-primary-darker)] transition-all duration-300 inline-flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"

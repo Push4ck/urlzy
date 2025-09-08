@@ -9,8 +9,8 @@ const https = require('https');
 const http = require('http');
 
 const PRODUCTION_CONFIG = {
-  API_URL: process.env.API_URL || 'https://your-render-app.onrender.com',
-  FRONTEND_URL: process.env.FRONTEND_URL || 'https://your-netlify-app.netlify.app'
+  API_URL: process.env.API_URL || 'https://urlzy-v48i.onrender.com', // Your actual Render URL
+  FRONTEND_URL: process.env.FRONTEND_URL || 'https://urlzy.netlify.app' // Your actual Netlify URL
 };
 
 console.log('🚀 URLzy Production Verification Script');
