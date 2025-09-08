@@ -116,7 +116,7 @@ const Features = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 xs:gap-6 sm:gap-8 mb-16 xs:mb-24 sm:mb-32">
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 xs:gap-6 sm:gap-8 mb-16 xs:mb-24 sm:mb-32">
           {features.map((feature, index) => (
             <div
               key={index}
